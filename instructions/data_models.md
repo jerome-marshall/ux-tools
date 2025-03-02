@@ -19,10 +19,21 @@
 - Created At
 - Updated At
 
+## Study Model
+
+- ID
+- Project ID (references Project)
+- Name
+- Description
+- Status (Draft, Active, Completed)
+- Created By (User ID)
+- Created At
+- Updated At
+
 ## Tree Template Model
 
 - ID
-- Project ID
+- Project ID (references Project)
 - Name
 - Description
 - Tree Structure (JSON)
@@ -33,7 +44,7 @@
 ## Test Model
 
 - ID
-- Project ID
+- Study ID (references Study)
 - Name
 - Type (Tree Test, Card Sort, etc.)
 - Description
@@ -48,7 +59,7 @@
 ## Task Model
 
 - ID
-- Test ID
+- Test ID (references Test)
 - Description
 - Starting Point (optional)
 - Target Node
@@ -59,7 +70,7 @@
 ## Participant Results Model
 
 - ID
-- Test ID
+- Test ID (references Test)
 - Participant ID (anonymous)
 - Responses (JSON)
 - Completion Time

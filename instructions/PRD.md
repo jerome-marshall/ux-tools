@@ -9,6 +9,7 @@ An internal UX research platform that enables UX researchers and design teams to
 ### 1.2 Product Goals
 
 - Provide a centralized platform for UX researchers to create and manage research projects
+- Organize research work in a logical hierarchy of projects, studies, and tests
 - Streamline the process of setting up and conducting tree testing studies
 - Generate meaningful visualizations and reports from research data
 - Maintain a project-based organization system that aligns with internal research workflows
@@ -34,6 +35,7 @@ An internal UX research platform that enables UX researchers and design teams to
 
 - Set up tree testing studies quickly
 - Organize studies within logical project groupings
+- Manage multiple tests within each study
 - Generate insightful reports from research data
 - Share findings with stakeholders effectively
 - **Reuse information architecture trees across multiple tests and tasks**
@@ -42,6 +44,7 @@ An internal UX research platform that enables UX researchers and design teams to
 
 - Existing tools don't align with specific research workflow needs
 - Difficulty managing multiple related studies together
+- Lack of organizational hierarchy for complex research initiatives
 - Limited customization of research parameters
 - **Repetitive work recreating the same tree hierarchy for each new question in a test**
 
@@ -78,7 +81,13 @@ An internal UX research platform that enables UX researchers and design teams to
 - **Project Organization**: Hierarchical organization with projects containing multiple studies
 - **Project Metadata**: Fields for project description, objectives, timelines, and team members
 
-### 3.3 Tree Testing Functionality (MVP)
+### 3.3 Study Management
+
+- **Study Creation**: Interface to create new studies within a project
+- **Study Organization**: Ability to group related tests within a study
+- **Study Metadata**: Fields for study description, objectives, and status
+
+### 3.4 Tree Testing Functionality (MVP)
 
 - **Test Creation**: Interface to create new tree testing studies
 - **Tree Structure Builder**: Visual interface to build and edit information architecture trees
@@ -90,15 +99,16 @@ An internal UX research platform that enables UX researchers and design teams to
 - **Results Collection**: Backend storage and processing of test results
 - **Results Analysis**: Algorithms to analyze success rates, paths taken, time spent, etc.
 
-### 3.4 Reporting and Analytics
+### 3.5 Reporting and Analytics
 
 - **Success Metrics**: Calculate and display key success metrics for tree tests
 - **Path Analysis**: Visualization of paths taken by participants
 - **Data Export**: Ability to export raw and processed data
 - **Visual Reports**: Generate visual reports with key insights
 - **Filtering and Segmentation**: Filter results by participant attributes
+- **Aggregated Study Results**: Ability to view aggregated results across multiple tests within a study
 
-### 3.5 Participant Management
+### 3.6 Participant Management
 
 - **Participant Tracking**: Track unique participants through anonymous IDs
 - **Consent Management**: System for obtaining and recording participant consent
@@ -115,18 +125,25 @@ An internal UX research platform that enables UX researchers and design teams to
 5. Saves project
 6. Is redirected to project dashboard
 
-### 4.2 Researcher Creates and Manages Tree Templates
+### 4.2 Researcher Creates a New Study
+
+1. From project dashboard, selects "Create New Study"
+2. Enters study details (name, description, objectives)
+3. Saves study
+4. Is redirected to study dashboard
+
+### 4.3 Researcher Creates and Manages Tree Templates
 
 1. From project dashboard, selects "Manage Tree Templates"
 2. Views list of existing tree templates for the project
 3. Selects "Create New Tree Template"
 4. Uses Tree Builder interface to create the tree structure
 5. Names and saves the tree template
-6. Template becomes available for use in all tests within the project
+6. Template becomes available for use in all tests within any study in the project
 
-### 4.3 Researcher Creates a Tree Test
+### 4.4 Researcher Creates a Tree Test
 
-1. From project dashboard, selects "Create New Test"
+1. From study dashboard, selects "Create New Test"
 2. Selects "Tree Test" as the test type
 3. Enters test name and description
 4. Either:
@@ -137,7 +154,7 @@ An internal UX research platform that enables UX researchers and design teams to
 7. Previews the test
 8. Publishes the test and generates a shareable link
 
-### 4.4 Participant Takes a Tree Test
+### 4.5 Participant Takes a Tree Test
 
 1. Participant opens the test link
 2. Views welcome screen with study information
@@ -147,14 +164,15 @@ An internal UX research platform that enables UX researchers and design teams to
 6. Submits responses
 7. Views thank you screen
 
-### 4.5 Researcher Views and Analyzes Results
+### 4.6 Researcher Views and Analyzes Results
 
 1. Researcher logs into the platform
-2. Navigates to the specific project and test
-3. Views summary dashboard of results
-4. Explores detailed metrics and visualizations
-5. Filters results as needed
-6. Exports reports or data as required
+2. Navigates to the specific project and study
+3. Selects the specific test or views aggregated study results
+4. Views summary dashboard of results
+5. Explores detailed metrics and visualizations
+6. Filters results as needed
+7. Exports reports or data as required
 
 ## 5. Technical Requirements
 
@@ -201,6 +219,7 @@ See [Data Models](data_models.md) for detailed information about the database sc
 
 - Dashboard for project overview
 - Project creation and management interface
+- Study management interface
 - Tree template management interface
 - Tree building interface
 - Task creation interface
@@ -213,6 +232,7 @@ See [Data Models](data_models.md) for detailed information about the database sc
 ### 8.1 Usage Metrics
 
 - Number of projects created
+- Number of studies created
 - Number of tests created and completed
 - Number of tree templates created and reused
 - Number of participants per test
@@ -277,6 +297,9 @@ See [Data Models](data_models.md) for detailed information about the database sc
 
 ### 11.1 Glossary of Terms
 
+- **Project**: A top-level container for organizing related research activities
+- **Study**: A collection of related tests within a project, focused on a specific research objective
+- **Test**: An individual research activity with specific methodology (e.g., a tree test)
 - **Tree Testing**: A research method used to evaluate the findability of topics in a website
 - **Information Architecture (IA)**: The structural design of information environments
 - **Tree Template**: A reusable tree structure that can be applied across multiple tests or tasks
@@ -290,6 +313,7 @@ See [Data Models](data_models.md) for detailed information about the database sc
 
 ### 11.3 Key Differentiators from Existing Solutions
 
-- **Reusable Tree Hierarchies**: Unlike existing solutions that require recreating tree structures for each question, our platform allows researchers to create and reuse tree templates at the project level, significantly reducing repetitive work.
-- **Project-based Organization**: Hierarchical organization aligns with internal research workflows.
-- **Customizable to Internal Workflows**: Built specifically to address the unique needs of our research team.
+- **Hierarchical Organization**: Three-level hierarchy (projects > studies > tests) allows for better organization of complex research initiatives
+- **Reusable Tree Hierarchies**: Unlike existing solutions that require recreating tree structures for each question, our platform allows researchers to create and reuse tree templates at the project level, significantly reducing repetitive work
+- **Project-based Organization**: Hierarchical organization aligns with internal research workflows
+- **Customizable to Internal Workflows**: Built specifically to address the unique needs of our research team
