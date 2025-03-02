@@ -1,0 +1,295 @@
+# UX Research Tools Platform PRD
+
+## 1. Product Overview
+
+### 1.1 Product Vision
+
+An internal UX research platform that enables UX researchers and design teams to conduct various UX research methodologies efficiently. The platform will initially focus on tree testing, with plans to expand to card sorting and other research methodologies in the future.
+
+### 1.2 Product Goals
+
+- Provide a centralized platform for UX researchers to create and manage research projects
+- Streamline the process of setting up and conducting tree testing studies
+- Generate meaningful visualizations and reports from research data
+- Maintain a project-based organization system that aligns with internal research workflows
+- Create a customizable solution that addresses specific pain points of the internal research team
+- **Enable reusable tree hierarchies to improve researcher efficiency**
+
+### 1.3 Target Users
+
+- UX researchers within the company
+- Design team members who need to conduct or access UX research
+
+## 2. User Personas
+
+### 2.1 Primary Persona: UX Researcher
+
+**Background:**
+
+- Experienced in various UX research methodologies
+- Conducts multiple research projects simultaneously
+- Needs organized project management for research activities
+
+**Goals:**
+
+- Set up tree testing studies quickly
+- Organize studies within logical project groupings
+- Generate insightful reports from research data
+- Share findings with stakeholders effectively
+- **Reuse information architecture trees across multiple tests and tasks**
+
+**Pain Points:**
+
+- Existing tools don't align with specific research workflow needs
+- Difficulty managing multiple related studies together
+- Limited customization of research parameters
+- **Repetitive work recreating the same tree hierarchy for each new question in a test**
+
+### 2.2 Secondary Persona: Design Team Member
+
+**Background:**
+
+- Has basic knowledge of UX research methods
+- Occasionally needs to run simple studies
+- Uses research to inform design decisions
+
+**Goals:**
+
+- Access research data to inform design decisions
+- Run basic research studies with minimal training
+- View research insights in an easily digestible format
+
+**Pain Points:**
+
+- Complex research tools with steep learning curves
+- Difficulty interpreting raw research data
+
+## 3. Key Features and Requirements
+
+### 3.1 Authentication and User Management
+
+- **User Registration and Authentication**: Secure login for internal team members
+- **User Roles**: Admin and standard user roles with appropriate permissions
+- **User Profile Management**: Basic profile management for users
+
+### 3.2 Project Management
+
+- **Project Creation**: Ability to create new research projects
+- **Project Organization**: Hierarchical organization with projects containing multiple studies
+- **Project Metadata**: Fields for project description, objectives, timelines, and team members
+
+### 3.3 Tree Testing Functionality (MVP)
+
+- **Test Creation**: Interface to create new tree testing studies
+- **Tree Structure Builder**: Visual interface to build and edit information architecture trees
+- **Tree Template Management**: Ability to save, reuse, and manage tree hierarchies at the project level
+- **Task Creation**: Ability to create tasks for participants to complete
+- **Test Configuration**: Options for test parameters (time limits, instructions, etc.)
+- **Test Preview**: Ability to preview test as a participant would see it
+- **Test Distribution**: Generate shareable links for test distribution to participants
+- **Results Collection**: Backend storage and processing of test results
+- **Results Analysis**: Algorithms to analyze success rates, paths taken, time spent, etc.
+
+### 3.4 Reporting and Analytics
+
+- **Success Metrics**: Calculate and display key success metrics for tree tests
+- **Path Analysis**: Visualization of paths taken by participants
+- **Data Export**: Ability to export raw and processed data
+- **Visual Reports**: Generate visual reports with key insights
+- **Filtering and Segmentation**: Filter results by participant attributes
+
+### 3.5 Participant Management
+
+- **Participant Tracking**: Track unique participants through anonymous IDs
+- **Consent Management**: System for obtaining and recording participant consent
+- **Participant Instructions**: Configurable instructions for participants
+
+## 4. User Flows
+
+### 4.1 Researcher Creates a New Project
+
+1. Researcher logs into the platform
+2. Navigates to project dashboard
+3. Selects "Create New Project"
+4. Enters project details (name, description, objectives)
+5. Saves project
+6. Is redirected to project dashboard
+
+### 4.2 Researcher Creates and Manages Tree Templates
+
+1. From project dashboard, selects "Manage Tree Templates"
+2. Views list of existing tree templates for the project
+3. Selects "Create New Tree Template"
+4. Uses Tree Builder interface to create the tree structure
+5. Names and saves the tree template
+6. Template becomes available for use in all tests within the project
+
+### 4.3 Researcher Creates a Tree Test
+
+1. From project dashboard, selects "Create New Test"
+2. Selects "Tree Test" as the test type
+3. Enters test name and description
+4. Either:
+   - Selects an existing tree template from the project
+   - Creates a new tree structure using the Tree Builder interface
+5. Creates tasks for the tree test
+6. Configures test settings
+7. Previews the test
+8. Publishes the test and generates a shareable link
+
+### 4.4 Participant Takes a Tree Test
+
+1. Participant opens the test link
+2. Views welcome screen with study information
+3. Provides consent
+4. Reads instructions
+5. Completes tree testing tasks
+6. Submits responses
+7. Views thank you screen
+
+### 4.5 Researcher Views and Analyzes Results
+
+1. Researcher logs into the platform
+2. Navigates to the specific project and test
+3. Views summary dashboard of results
+4. Explores detailed metrics and visualizations
+5. Filters results as needed
+6. Exports reports or data as required
+
+## 5. Technical Requirements
+
+### 5.1 Technology Stack
+
+- **Frontend**: React, TypeScript, Tailwind CSS, shadcn UI
+- **Routing**: TanStack Router
+- **Backend**: Hono
+- **Database**: (To be determined based on storage requirements)
+
+### 5.2 Performance Requirements
+
+- Support up to 50 concurrent participants per test
+- Page load times under 2 seconds
+- Real-time or near real-time data updates
+
+### 5.3 Security Requirements
+
+- Data encryption for all stored research data
+- Secure authentication system
+- Regular security audits
+
+### 5.4 Compatibility Requirements
+
+- Support for latest versions of Chrome, Firefox, Safari, and Edge
+- Responsive design for various screen sizes
+
+## 6. Data Models
+
+The data models for this application have been moved to a separate file for better maintainability.
+
+See [Data Models](data_models.md) for detailed information about the database schema and data structures.
+
+## 7. UI/UX Requirements
+
+### 7.1 Design Guidelines
+
+- Clean, minimal interface following company design standards
+- High contrast and accessibility compliance
+- Consistent use of shadcn UI components
+- Responsive design for all screens
+
+### 7.2 Key Interface Elements
+
+- Dashboard for project overview
+- Project creation and management interface
+- Tree template management interface
+- Tree building interface
+- Task creation interface
+- Test configuration panel
+- Results visualization dashboard
+- Export and sharing controls
+
+## 8. Success Metrics
+
+### 8.1 Usage Metrics
+
+- Number of projects created
+- Number of tests created and completed
+- Number of tree templates created and reused
+- Number of participants per test
+- Time spent creating tests
+
+### 8.2 Quality Metrics
+
+- System uptime and reliability
+- Data processing accuracy
+- Report generation speed
+
+### 8.3 User Satisfaction Metrics
+
+- Internal user feedback on platform usability
+- Feature request tracking
+- Bug report tracking
+
+## 9. Future Roadmap
+
+### 9.1 Phase 2: Card Sorting
+
+- Add functionality for open, closed, and hybrid card sorting
+- Develop appropriate analysis and visualization tools for card sorting
+- Implement dendrograms and similarity matrices
+
+### 9.2 Phase 3: Additional Research Tools
+
+- First-click testing
+- Preference testing
+- Survey capabilities
+- Other research methodologies as needed
+
+### 9.3 Phase 4: Advanced Features
+
+- Integration with design tools
+- Advanced reporting and analytics
+- AI-assisted insight generation
+- Custom research methodology builder
+
+## 10. Implementation Considerations
+
+### 10.1 Development Approach
+
+- Agile methodology with 2-week sprints
+- MVP focused on core tree testing functionality
+- Regular user testing with internal team members
+
+### 10.2 Phased Rollout
+
+1. Internal alpha with development team
+2. Limited beta with select researchers
+3. Full internal release
+4. Iterative improvements based on feedback
+
+### 10.3 Maintenance Plan
+
+- Regular update schedule
+- Dedicated support channel for internal users
+- Tracking system for bugs and feature requests
+
+## 11. Appendix
+
+### 11.1 Glossary of Terms
+
+- **Tree Testing**: A research method used to evaluate the findability of topics in a website
+- **Information Architecture (IA)**: The structural design of information environments
+- **Tree Template**: A reusable tree structure that can be applied across multiple tests or tasks
+- **Success Rate**: The percentage of participants who successfully complete a task
+- **Directness**: How directly participants navigate to the correct answer
+
+### 11.2 References
+
+- Internal UX research workflow documentation
+- Industry best practices for tree testing methodology
+
+### 11.3 Key Differentiators from Existing Solutions
+
+- **Reusable Tree Hierarchies**: Unlike existing solutions that require recreating tree structures for each question, our platform allows researchers to create and reuse tree templates at the project level, significantly reducing repetitive work.
+- **Project-based Organization**: Hierarchical organization aligns with internal research workflows.
+- **Customizable to Internal Workflows**: Built specifically to address the unique needs of our research team.
