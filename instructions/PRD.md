@@ -1,10 +1,10 @@
-# UX Research Tools Platform PRD
+# Nutanix UX Lab - Product Requirements Document
 
 ## 1. Product Overview
 
 ### 1.1 Product Vision
 
-An internal UX research platform that enables UX researchers and design teams to conduct various UX research methodologies efficiently. The platform will initially focus on tree testing, with plans to expand to card sorting and other research methodologies in the future.
+Nutanix UX Lab is an internal UX research platform that enables UX researchers and design teams to conduct various UX research methodologies efficiently. The platform will initially focus on tree testing, with plans to expand to card sorting and other research methodologies in the future.
 
 ### 1.2 Product Goals
 
@@ -297,6 +297,7 @@ See [Data Models](data_models.md) for detailed information about the database sc
 
 ### 11.1 Glossary of Terms
 
+- **Nutanix UX Lab**: The platform name for this UX research tools suite
 - **Project**: A top-level container for organizing related research activities
 - **Study**: A collection of related tests within a project, focused on a specific research objective
 - **Test**: An individual research activity with specific methodology (e.g., a tree test)
