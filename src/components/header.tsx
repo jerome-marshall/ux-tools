@@ -13,11 +13,11 @@ const Header = () => {
           <p className='text-xl font-bold'>Ux Lab</p>
         </Link>
         <div className='flex items-center gap-3'>
-          <Button variant='ghost'>
+          <Button variant='ghost' size='sm'>
             <Folder className='size-4' />
             <span>Create project</span>
           </Button>
-          <Button>
+          <Button size='sm'>
             <Plus className='size-4' />
             <span>Create study</span>
           </Button>

@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@radix-ui/react-popover": "^1.1.6",
     "@radix-ui/react-slot": "^1.1.2",
     "@t3-oss/env-nextjs": "^0.12.0",
     "babel-plugin-react-compiler": "^19.0.0-beta-40c6c23-20250301",
