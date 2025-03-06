@@ -1,73 +1,88 @@
-import { dirname } from "path"
-import { fileURLToPath } from "url"
-import { FlatCompat } from "@eslint/eslintrc"
-import tseslint from "typescript-eslint"
-import drizzlePlugin from "eslint-plugin-drizzle"
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { FlatCompat } from '@eslint/eslintrc'
+import tseslint from 'typescript-eslint'
+import drizzlePlugin from 'eslint-plugin-drizzle'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
+  baseDirectory: __dirname
 })
 
 const eslintConfig = [
   ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-    "plugin:@typescript-eslint/recommended-type-checked",
-    "plugin:@typescript-eslint/stylistic-type-checked"
+    'next/core-web-vitals',
+    'next/typescript',
+    'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked'
   ),
   {
-    files: ["**/*.{ts,tsx}"],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: true,
-      },
+        project: true
+      }
     },
     plugins: {
-      "@typescript-eslint": tseslint.plugin,
-      drizzle: drizzlePlugin,
+      '@typescript-eslint': tseslint.plugin,
+      drizzle: drizzlePlugin
     },
     rules: {
-      "@typescript-eslint/array-type": "off",
-      "@typescript-eslint/consistent-type-definitions": "off",
-      "@typescript-eslint/consistent-type-imports": [
-        "warn",
+      '@typescript-eslint/array-type': 'off',
+      '@typescript-eslint/consistent-type-definitions': 'off',
+      'react/no-unescaped-entities': [
+        'error',
         {
-          prefer: "type-imports",
-          fixStyle: "inline-type-imports",
-        },
+          forbid: [
+            {
+              char: '>',
+              alternatives: ['&gt;']
+            },
+            {
+              char: '}',
+              alternatives: ['&#125;']
+            }
+          ]
+        }
       ],
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
         {
-          argsIgnorePattern: "^_",
-        },
+          prefer: 'type-imports',
+          fixStyle: 'inline-type-imports'
+        }
       ],
-      "@typescript-eslint/require-await": "off",
-      "@typescript-eslint/no-misused-promises": [
-        "error",
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_'
+        }
+      ],
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-misused-promises': [
+        'error',
         {
           checksVoidReturn: {
-            attributes: false,
-          },
-        },
+            attributes: false
+          }
+        }
       ],
-      "drizzle/enforce-delete-with-where": [
-        "error",
+      'drizzle/enforce-delete-with-where': [
+        'error',
         {
-          drizzleObjectName: ["db", "ctx.db"],
-        },
+          drizzleObjectName: ['db', 'ctx.db']
+        }
       ],
-      "drizzle/enforce-update-with-where": [
-        "error",
+      'drizzle/enforce-update-with-where': [
+        'error',
         {
-          drizzleObjectName: ["db", "ctx.db"],
-        },
-      ],
-    },
-  },
+          drizzleObjectName: ['db', 'ctx.db']
+        }
+      ]
+    }
+  }
 ]
 
 export default eslintConfig

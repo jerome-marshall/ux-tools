@@ -2,6 +2,9 @@ import Header from '@/components/header'
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import '../../styles/globals.css'
+import { Toaster } from '@/components/ui/sonner'
+import Providers from '@/components/providers'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -23,8 +26,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} flex h-screen flex-col items-center bg-slate-100 antialiased`}
       >
-        <Header />
-        <div className='container mx-auto py-6'>{children}</div>
+        <Providers>
+          <Header />
+          <div className='container mx-auto py-6'>{children}</div>
+          <Toaster richColors />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </Providers>
       </body>
     </html>
   )

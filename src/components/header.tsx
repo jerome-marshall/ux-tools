@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Folder, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { CreateProjectDialog } from './create-project-dialog'
 
 const Header = () => {
   return (
@@ -13,10 +14,7 @@ const Header = () => {
           <p className='text-xl font-bold'>Ux Lab</p>
         </Link>
         <div className='flex items-center gap-3'>
-          <Button variant='ghost' size='sm'>
-            <Folder className='size-4' />
-            <span>Create project</span>
-          </Button>
+          <CreateProjectDialog />
           <Button size='sm'>
             <Plus className='size-4' />
             <span>Create study</span>

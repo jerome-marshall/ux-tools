@@ -1,12 +1,9 @@
 import { Button } from '@/components/ui/button'
-import { getProjectsUseCase } from '@/use-cases/products'
 import { LayoutGrid } from 'lucide-react'
-import RecentProjectsList from './recent-projects-list'
 import { Suspense } from 'react'
+import RecentProjectsList from './recent-projects-list'
 
 const RecentProjects = () => {
-  const projects = getProjectsUseCase()
-
   return (
     <div className=''>
       <div className='flex items-center justify-between'>
@@ -20,7 +17,7 @@ const RecentProjects = () => {
       </div>
       <div className='mt-6'>
         <Suspense fallback={<div>Loading...</div>}>
-          <RecentProjectsList projectsPromise={projects} />
+          <RecentProjectsList />
         </Suspense>
       </div>
     </div>
