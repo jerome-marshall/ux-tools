@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.12.0",
+    "babel-plugin-react-compiler": "^19.0.0-beta-40c6c23-20250301",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
