@@ -1,7 +1,15 @@
-import { integer, text, boolean, pgTable } from "drizzle-orm/pg-core"
+import { integer, text, pgTable, timestamp } from 'drizzle-orm/pg-core'
 
-export const todo = pgTable("todo", {
-  id: integer("id").primaryKey(),
-  text: text("text").notNull(),
-  done: boolean("done").default(false).notNull(),
+const timestamps = {
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdateFn(() => new Date())
+}
+
+export const projects = pgTable('projects', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  ...timestamps
 })

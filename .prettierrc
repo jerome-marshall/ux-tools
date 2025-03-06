@@ -1,9 +1,6 @@
 {
-  "plugins": [
-    "prettier-plugin-organize-imports",
-    "prettier-plugin-tailwindcss"
-  ],
-  "printWidth": 120,
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "printWidth": 90,
   "arrowParens": "avoid",
   "singleQuote": true,
   "jsxSingleQuote": true,

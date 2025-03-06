@@ -1,11 +1,11 @@
 {
-  "id": "3aaed323-0213-418e-ac83-ab427bdf7aa0",
+  "id": "5d15a963-88e9-4c9f-81e7-e4fd38e3bf60",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.todo": {
-      "name": "todo",
+    "public.projects": {
+      "name": "projects",
       "schema": "",
       "columns": {
         "id": {
@@ -14,18 +14,31 @@
           "primaryKey": true,
           "notNull": true
         },
-        "text": {
-          "name": "text",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "done": {
-          "name": "done",
-          "type": "boolean",
+        "description": {
+          "name": "description",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         }
       },
       "indexes": {},

@@ -1,3 +1,8 @@
+---
+description: Product Requirements Document
+globs: 
+alwaysApply: false
+---
 # Nutanix UX Lab - Product Requirements Document
 
 ## 1. Product Overview
@@ -204,7 +209,7 @@ Nutanix UX Lab is an internal UX research platform that enables UX researchers a
 
 The data models for this application have been moved to a separate file for better maintainability.
 
-See [Data Models](data_models.md) for detailed information about the database schema and data structures.
+See [Data Models](mdc:data_models.md) for detailed information about the database schema and data structures.
 
 ## 7. UI/UX Requirements
 
