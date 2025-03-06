@@ -1,4 +1,4 @@
-import { integer, text, pgTable, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
 const timestamps = {
   createdAt: timestamp('created_at').defaultNow(),
@@ -8,8 +8,10 @@ const timestamps = {
 }
 
 export const projects = pgTable('projects', {
-  id: integer('id').primaryKey(),
+  id: serial('id').notNull().primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
   ...timestamps
 })
+
+export type Project = typeof projects.$inferSelect

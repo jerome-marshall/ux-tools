@@ -20,9 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${geistSans.variable} bg-slate-100 antialiased`}>
+      <body
+        className={`${geistSans.variable} flex h-screen flex-col items-center bg-slate-100 antialiased`}
+      >
         <Header />
-        <div className='container mx-auto'>{children}</div>
+        <div className='container mx-auto py-6'>{children}</div>
       </body>
     </html>
   )
