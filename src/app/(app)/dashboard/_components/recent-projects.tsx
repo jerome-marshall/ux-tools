@@ -1,10 +1,10 @@
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { PATH } from '@/utils/urls'
 import { LayoutGrid } from 'lucide-react'
+import Link from 'next/link'
 import { Suspense } from 'react'
 import RecentProjectsList from './recent-projects-list'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { URL } from '@/utils/urls'
 
 const RecentProjects = () => {
   return (
@@ -13,7 +13,7 @@ const RecentProjects = () => {
         <h3 className='text-xl font-medium'>Recent projects</h3>
         <div className=''>
           <Link
-            href={URL.projects}
+            href={PATH.projects}
             className={cn(
               buttonVariants({ variant: 'ghost', size: 'sm' }),
               'hover:bg-gray-200'

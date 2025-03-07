@@ -1,6 +1,5 @@
 'use client'
 
-import { createProjectAction } from '@/app/(app)/actions'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -21,8 +20,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { type ProjectInsert, projectInsertSchema } from '@/db/schema'
+import { createProjectAction } from '@/server-actions/projects.action'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
 import { Folder } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
