@@ -1,6 +1,5 @@
 import { useQueryStates } from 'nuqs'
-import { revalidateProjectsAction } from '../../actions'
-import { projectsSortSearchParams } from '../search-params'
+import { sortSearchParams } from '@/utils/search-params'
 
 type SortValue = 'updated' | 'created' | 'name'
 type SortDir = 'asc' | 'desc'
@@ -42,8 +41,8 @@ const options: {
   }
 ]
 
-export const useSort = () => {
-  const [sortValue, setSortValue] = useQueryStates(projectsSortSearchParams)
+export const useSort = ({ onSort }: { onSort?: () => void }) => {
+  const [sortValue, setSortValue] = useQueryStates(sortSearchParams)
 
   const activeSortValue = sortValue.sort + '_' + sortValue.sort_dir
 
@@ -52,7 +51,7 @@ export const useSort = () => {
       sort,
       sort_dir: sortDir
     })
-    await revalidateProjectsAction()
+    onSort?.()
   }
 
   return { sortValue, setSortValue, options, handleSort, activeSortValue }

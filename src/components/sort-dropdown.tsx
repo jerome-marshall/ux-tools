@@ -6,15 +6,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useSort } from '@/hooks/useSort'
 import { cn } from '@/lib/utils'
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
-import { useSort } from '../_hooks/useSort'
 
-const SortDropdown = () => {
+type SortDropdownProps = {
+  onSort?: () => void
+}
+
+const SortDropdown = ({ onSort }: SortDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const { options, handleSort, activeSortValue } = useSort()
+  const { options, handleSort, activeSortValue } = useSort({ onSort })
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

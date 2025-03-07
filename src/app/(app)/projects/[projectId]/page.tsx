@@ -1,7 +1,7 @@
 import { getProjectByIdUseCase } from '@/use-cases/projects'
 import { FolderClosed } from 'lucide-react'
-import SortDropdown from '../_components/sort-dropdown'
 import NoStudies from './_components/no-studies'
+import StudiesSort from './_components/studies-sort'
 
 type PageProps = {
   params: Promise<{ projectId: string }>
@@ -19,7 +19,7 @@ export default async function ProjectPage({ params }: PageProps) {
           {project.name}
         </h1>
         <div className='flex items-center gap-2'>
-          <SortDropdown />
+          <StudiesSort projectId={project.id} />
         </div>
       </div>
       <div className='mt-4'>

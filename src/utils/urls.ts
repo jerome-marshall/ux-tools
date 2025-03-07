@@ -3,4 +3,4 @@ export const URL = {
   projects: '/projects'
 }
 
-export const projectUrl = (projectId: string) => `${URL.projects}/${projectId}`
+export const projectUrl = (projectId: string | number) => `${URL.projects}/${projectId}`
