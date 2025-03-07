@@ -2,7 +2,7 @@
 
 import { projectInsertSchema } from '@/db/schema'
 import { actionClient } from '@/lib/safe-action'
-import { createProjectUseCase, getRecentProductsUseCase } from '@/use-cases/products'
+import { createProjectUseCase, getRecentProjectsUseCase } from '@/use-cases/projects'
 import { URL } from '@/utils/urls'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -29,7 +29,7 @@ export const createProjectAction = actionClient
   })
 
 export const getRecentProjectsAction = actionClient.action(async () => {
-  const projects = await getRecentProductsUseCase()
+  const projects = await getRecentProjectsUseCase()
   return projects
 })
 

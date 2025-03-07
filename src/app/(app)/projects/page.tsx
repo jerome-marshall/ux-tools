@@ -1,7 +1,7 @@
 import { type SearchParams } from 'nuqs'
 import ProjectsActiveDropdown from './_components/projects-active-dropdown'
 import ProjectsList from './_components/projects-list'
-import ProjectsSortDropdown from './_components/projects-sort-dropdown'
+import SortDropdown from './_components/sort-dropdown'
 import { loadProjectsSortSearchParams } from './search-params'
 
 type PageProps = {
@@ -17,7 +17,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         <h1 className='text-xl font-semibold'>Projects</h1>
         <div className='flex items-center gap-2'>
           <ProjectsActiveDropdown />
-          <ProjectsSortDropdown />
+          <SortDropdown />
         </div>
       </div>
       <div className='mt-4'>

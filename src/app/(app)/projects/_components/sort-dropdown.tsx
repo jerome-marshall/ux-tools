@@ -9,12 +9,12 @@ import {
 import { cn } from '@/lib/utils'
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
-import { useProjectsSort } from '../_hooks/useProjectsSort'
+import { useSort } from '../_hooks/useSort'
 
-const ProjectsSortDropdown = () => {
+const SortDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const { options, handleSort, activeSortValue } = useProjectsSort()
+  const { options, handleSort, activeSortValue } = useSort()
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -42,4 +42,4 @@ const ProjectsSortDropdown = () => {
   )
 }
 
-export default ProjectsSortDropdown
+export default SortDropdown

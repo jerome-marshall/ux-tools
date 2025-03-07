@@ -1,8 +1,8 @@
 import ProjectCard from '@/components/project-card/project-card'
-import { getRecentProductsUseCase } from '@/use-cases/products'
+import { getRecentProjectsUseCase } from '@/use-cases/projects'
 
 const RecentProjectsList = async () => {
-  const projects = await getRecentProductsUseCase()
+  const projects = await getRecentProjectsUseCase()
 
   return (
     <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5'>

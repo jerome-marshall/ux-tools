@@ -1,4 +1,9 @@
-import { createProject, getProjects, getRecentProducts } from '@/data-access/products'
+import {
+  createProject,
+  getProjectById,
+  getProjects,
+  getRecentProjects
+} from '@/data-access/projects'
 import { type ProjectInsert } from '@/db/schema'
 
 export const getProjectsUseCase = async ({
@@ -16,12 +21,20 @@ export const getProjectsUseCase = async ({
   return projects
 }
 
-export const getRecentProductsUseCase = async () => {
-  const products = await getRecentProducts()
-  return products
+export const getRecentProjectsUseCase = async () => {
+  const projects = await getRecentProjects()
+  return projects
 }
 
 export const createProjectUseCase = async (project: ProjectInsert) => {
   const newProject = await createProject(project)
   return newProject
+}
+
+export const getProjectByIdUseCase = async (projectId: number) => {
+  const project = await getProjectById(projectId)
+  if (!project) {
+    throw new Error('Project not found')
+  }
+  return project
 }

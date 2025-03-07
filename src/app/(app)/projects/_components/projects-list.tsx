@@ -1,6 +1,5 @@
 import ProjectCard from '@/components/project-card/project-card'
-import { getProjectsUseCase } from '@/use-cases/products'
-import React from 'react'
+import { getProjectsUseCase } from '@/use-cases/projects'
 
 type ProjectsListProps = {
   sort?: string | null

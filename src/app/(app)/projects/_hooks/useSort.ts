@@ -42,7 +42,7 @@ const options: {
   }
 ]
 
-export const useProjectsSort = () => {
+export const useSort = () => {
   const [sortValue, setSortValue] = useQueryStates(projectsSortSearchParams)
 
   const activeSortValue = sortValue.sort + '_' + sortValue.sort_dir
