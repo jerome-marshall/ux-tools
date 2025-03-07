@@ -1,3 +1,4 @@
 export const URL = {
-  dashboard: '/dashboard'
+  dashboard: '/dashboard',
+  projects: '/projects'
 }

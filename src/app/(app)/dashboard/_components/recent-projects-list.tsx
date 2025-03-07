@@ -1,5 +1,5 @@
+import ProjectCard from '@/components/project-card/project-card'
 import { getRecentProductsUseCase } from '@/use-cases/products'
-import ProjectCard from './project-card'
 
 const RecentProjectsList = async () => {
   const projects = await getRecentProductsUseCase()

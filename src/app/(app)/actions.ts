@@ -24,10 +24,15 @@ export const createProjectAction = actionClient
     const newProject = await createProjectUseCase(parsedInput)
 
     revalidatePath(URL.dashboard)
+    revalidatePath(URL.projects)
     return newProject
   })
 
 export const getRecentProjectsAction = actionClient.action(async () => {
   const projects = await getRecentProductsUseCase()
   return projects
+})
+
+export const revalidateProjectsAction = actionClient.action(async () => {
+  revalidatePath(URL.projects)
 })
