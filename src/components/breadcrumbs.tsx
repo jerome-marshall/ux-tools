@@ -5,7 +5,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import { getProjectByIdAction } from '@/server-actions/projects.action'
+import { caller } from '@/trpc/server'
 import { BREADCRUMBS_DATA, PATH } from '@/utils/urls'
 import { HomeIcon } from 'lucide-react'
 import { Fragment, use } from 'react'
@@ -66,17 +66,17 @@ const ProjectBreadcrumb = ({
   isActive: boolean
 }) => {
   console.log('🚀 ~ isActive:', isActive)
-  const project = use(getProjectByIdAction({ id: Number(projectId) }))
+  const project = use(caller.projects.getProjectById({ id: Number(projectId) }))
   return (
     <>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
         {isActive ? (
           <BreadcrumbLink href={`/projects/${projectId}`}>
-            {project?.data?.name ?? projectId}
+            {project.name ?? projectId}
           </BreadcrumbLink>
         ) : (
-          (project?.data?.name ?? projectId)
+          (project?.name ?? projectId)
         )}
       </BreadcrumbItem>
     </>

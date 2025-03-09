@@ -1,8 +1,13 @@
+'use client'
 import ProjectCard from '@/components/project-card/project-card'
-import { getRecentProjectsUseCase } from '@/use-cases/projects'
+import { useTRPC } from '@/trpc/client'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-const RecentProjectsList = async () => {
-  const projects = await getRecentProjectsUseCase()
+const RecentProjectsList = () => {
+  const trpc = useTRPC()
+  const { data: projects } = useSuspenseQuery(
+    trpc.projects.getRecentProjects.queryOptions()
+  )
 
   return (
     <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5'>

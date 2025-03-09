@@ -1,7 +1,7 @@
-import { getProjectByIdUseCase } from '@/use-cases/projects'
+import SortDropdown from '@/components/sort-dropdown'
+import { getQueryClient, HydrateClient, trpc } from '@/trpc/server'
 import { FolderClosed } from 'lucide-react'
 import NoStudies from './_components/no-studies'
-import StudiesSort from './_components/studies-sort'
 
 type PageProps = {
   params: Promise<{ projectId: string }>
@@ -9,22 +9,30 @@ type PageProps = {
 
 export default async function ProjectPage({ params }: PageProps) {
   const { projectId } = await params
-  const project = await getProjectByIdUseCase(Number(projectId))
+
+  const queryClient = getQueryClient()
+  const project = await queryClient.fetchQuery(
+    trpc.projects.getProjectById.queryOptions({
+      id: Number(projectId)
+    })
+  )
 
   return (
-    <div>
-      <div className='flex items-center justify-between'>
-        <h1 className='flex items-center gap-3 text-xl font-medium'>
-          <FolderClosed className='size-8 rounded-md bg-gray-200 p-2' />
-          {project.name}
-        </h1>
-        <div className='flex items-center gap-2'>
-          <StudiesSort projectId={project.id} />
+    <HydrateClient>
+      <div>
+        <div className='flex items-center justify-between'>
+          <h1 className='flex items-center gap-3 text-xl font-medium'>
+            <FolderClosed className='size-8 rounded-md bg-gray-200 p-2' />
+            {project.name}
+          </h1>
+          <div className='flex items-center gap-2'>
+            <SortDropdown />
+          </div>
+        </div>
+        <div className='mt-4'>
+          <NoStudies />
         </div>
       </div>
-      <div className='mt-4'>
-        <NoStudies />
-      </div>
-    </div>
+    </HydrateClient>
   )
 }

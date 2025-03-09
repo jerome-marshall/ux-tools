@@ -1,27 +1,30 @@
-import { type SearchParams } from 'nuqs'
-import { loadSortSearchParams } from '../../../utils/search-params'
+import SortDropdown from '@/components/sort-dropdown'
 import ProjectsActiveDropdown from './_components/projects-active-dropdown'
 import ProjectsList from './_components/projects-list'
-import ProjectsSort from './_components/projects-sort'
+import { Suspense } from 'react'
 
-type PageProps = {
-  searchParams: Promise<SearchParams>
-}
-
-export default async function ProjectsPage({ searchParams }: PageProps) {
-  const { sort, sort_dir } = await loadSortSearchParams(searchParams)
-
+export default async function ProjectsPage() {
   return (
     <div>
       <div className='flex items-center justify-between'>
         <h1 className='text-xl font-semibold'>Projects</h1>
         <div className='flex items-center gap-2'>
-          <ProjectsActiveDropdown />
-          <ProjectsSort />
+          <Suspense fallback={<></>}>
+            <ProjectsActiveDropdown />
+          </Suspense>
+          <Suspense
+            fallback={
+              <div className='h-8 w-24 animate-pulse rounded-md bg-gray-200'></div>
+            }
+          >
+            <SortDropdown />
+          </Suspense>
         </div>
       </div>
       <div className='mt-4'>
-        <ProjectsList sort={sort} sortDir={sort_dir} />
+        <Suspense fallback={<></>}>
+          <ProjectsList />
+        </Suspense>
       </div>
     </div>
   )

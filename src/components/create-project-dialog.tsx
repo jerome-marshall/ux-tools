@@ -20,15 +20,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { type ProjectInsert, projectInsertSchema } from '@/server/db/schema'
-import { createProjectAction } from '@/server-actions/projects.action'
+import { useTRPC } from '@/trpc/client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { Folder } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 export function CreateProjectDialog() {
+  const trpc = useTRPC()
   const [isOpen, setIsOpen] = useState(false)
 
   const form = useForm<ProjectInsert>({
@@ -39,24 +40,24 @@ export function CreateProjectDialog() {
     }
   })
 
-  const { execute, isExecuting } = useAction(createProjectAction, {
-    onSuccess({ data }) {
-      if (data) {
+  const { mutate: createProject, isPending } = useMutation(
+    trpc.projects.createProject.mutationOptions({
+      onSuccess: data => {
         toast.success('New project created', {
           description: data.name
         })
-      }
 
-      setIsOpen(false)
-      form.reset()
-    },
-    onError({ error }) {
-      toast.error('Failed to create project')
-    }
-  })
+        setIsOpen(false)
+        form.reset()
+      },
+      onError: () => {
+        toast.error('Failed to create project')
+      }
+    })
+  )
 
   const onSubmit = async (data: ProjectInsert) => {
-    execute(data)
+    createProject(data)
   }
 
   return (
@@ -114,8 +115,8 @@ export function CreateProjectDialog() {
               >
                 Cancel
               </Button>
-              <Button type='submit' disabled={isExecuting}>
-                {isExecuting ? 'Saving...' : 'Save changes'}
+              <Button type='submit' disabled={isPending}>
+                {isPending ? 'Saving...' : 'Save changes'}
               </Button>
             </DialogFooter>
           </form>
