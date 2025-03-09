@@ -1,4 +1,4 @@
-import { type Project } from '@/db/schema'
+import { type Project } from '@/server/db/schema'
 import { projectUrl } from '@/utils/urls'
 import { FolderClosed, FolderOpen } from 'lucide-react'
 import Link from 'next/link'

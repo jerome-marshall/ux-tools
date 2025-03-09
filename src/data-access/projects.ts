@@ -1,5 +1,5 @@
-import db from '@/db'
-import { type ProjectInsert, projects } from '@/db/schema'
+import { db } from '@/server/db'
+import { type ProjectInsert, projects } from '@/server/db/schema'
 
 export const getProjects = async ({
   sort,

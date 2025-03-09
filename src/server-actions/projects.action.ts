@@ -1,6 +1,6 @@
 'use server'
 
-import { projectInsertSchema } from '@/db/schema'
+import { projectInsertSchema } from '@/server/db/schema'
 import { actionClient } from '@/lib/safe-action'
 import {
   createProjectUseCase,

@@ -4,7 +4,7 @@ import {
   getProjects,
   getRecentProjects
 } from '@/data-access/projects'
-import { type ProjectInsert } from '@/db/schema'
+import { type ProjectInsert } from '@/server/db/schema'
 
 export const getProjectsUseCase = async ({
   sort,
