@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,10 +10,14 @@ import {
 import { caller } from '@/trpc/server'
 import { BREADCRUMBS_DATA, PATH } from '@/utils/urls'
 import { HomeIcon } from 'lucide-react'
-import { Fragment, use } from 'react'
+import { Fragment, Suspense, use } from 'react'
 import { Separator } from './ui/separator'
+import { usePathname } from 'next/navigation'
+import { useTRPC } from '@/trpc/client'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-const Breadcrumbs = ({ pathname }: { pathname: string }) => {
+const Breadcrumbs = () => {
+  const pathname = usePathname()
   const breadcrumbs = pathname.split('/').filter(Boolean)
 
   return (
@@ -31,11 +37,9 @@ const Breadcrumbs = ({ pathname }: { pathname: string }) => {
             // Projects Detail Page
             if (breadcrumbs[0] === 'projects' && !isNaN(Number(breadcrumb))) {
               return (
-                <ProjectBreadcrumb
-                  key={breadcrumb}
-                  projectId={breadcrumb}
-                  isActive={!isLast}
-                />
+                <Suspense key={breadcrumb} fallback={'Loading...'}>
+                  <ProjectBreadcrumb projectId={breadcrumb} isActive={!isLast} />
+                </Suspense>
               )
             }
 
@@ -65,8 +69,10 @@ const ProjectBreadcrumb = ({
   projectId: string
   isActive: boolean
 }) => {
-  console.log('🚀 ~ isActive:', isActive)
-  const project = use(caller.projects.getProjectById({ id: Number(projectId) }))
+  const trpc = useTRPC()
+  const { data: project } = useSuspenseQuery(
+    trpc.projects.getProjectById.queryOptions({ id: Number(projectId) })
+  )
   return (
     <>
       <BreadcrumbSeparator />
