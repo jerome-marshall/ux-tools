@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
         </div>
       </div>
       <div className='mt-4'>
-        <Suspense fallback={<></>}>
+        <Suspense fallback={<>Loading...</>}>
           <ProjectsList />
         </Suspense>
       </div>

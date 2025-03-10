@@ -1,34 +1,49 @@
 import { db } from '@/server/db'
 import { type ProjectInsert, projects } from '@/server/db/schema'
+import { type ProjectWithStudiesCount } from '@/types'
 
-export const getProjects = async ({
-  sort,
-  sortDir
-}: {
-  sort: string
-  sortDir: string
-}) => {
-  const projects = await db.query.projects.findMany({
-    orderBy: (fields, { desc, asc }) => {
-      if (sort === 'created') {
-        return sortDir === 'desc' ? desc(fields.createdAt) : asc(fields.createdAt)
-      }
-      if (sort === 'name') {
-        return sortDir === 'desc' ? desc(fields.name) : asc(fields.name)
-      }
-
-      return sortDir === 'desc' ? desc(fields.updatedAt) : asc(fields.updatedAt)
-    }
-  })
-  return projects
-}
-
-export const getRecentProjects = async () => {
+export const getProjects = async (): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
     orderBy: (fields, { desc }) => desc(fields.updatedAt),
-    limit: 10
+    with: {
+      studies: {
+        columns: {
+          id: true
+        }
+      }
+    }
   })
-  return projects
+
+  const projectsWithStudiesCount = projects.map(project => {
+    const { studies, ...rest } = project
+    return {
+      ...rest,
+      studiesCount: studies.length
+    }
+  })
+  return projectsWithStudiesCount
+}
+
+export const getRecentProjects = async (): Promise<ProjectWithStudiesCount[]> => {
+  const projects = await db.query.projects.findMany({
+    orderBy: (fields, { desc }) => desc(fields.updatedAt),
+    limit: 10,
+    with: {
+      studies: {
+        columns: {
+          id: true
+        }
+      }
+    }
+  })
+  const projectsWithStudiesCount = projects.map(project => {
+    const { studies, ...rest } = project
+    return {
+      ...rest,
+      studiesCount: studies.length
+    }
+  })
+  return projectsWithStudiesCount
 }
 
 export const createProject = async (project: ProjectInsert) => {

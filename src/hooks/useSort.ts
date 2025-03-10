@@ -41,18 +41,55 @@ const options: {
   }
 ]
 
-export const useSort = ({ onSort }: { onSort?: () => void }) => {
+export const useSort = <
+  T extends { name: string; updatedAt: Date | string; createdAt: Date | string }
+>({
+  onSort,
+  data
+}: {
+  onSort?: () => void
+  data?: T[]
+}) => {
   const [sortValue, setSortValue] = useQueryStates(sortSearchParams)
 
   const activeSortValue = sortValue.sort + '_' + sortValue.sort_dir
+
+  const sortedData = [...(data ?? [])]
+  if (data?.length) {
+    const { sort, sort_dir: sortDir } = sortValue
+
+    if (sort === 'name') {
+      sortedData.sort((a, b) => {
+        if (sortDir === 'asc') {
+          return a.name.localeCompare(b.name)
+        }
+        return b.name.localeCompare(a.name)
+      })
+    } else if (sort === 'updated') {
+      sortedData.sort((a, b) => {
+        if (sortDir === 'asc') {
+          return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+        }
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      })
+    } else if (sort === 'created') {
+      sortedData.sort((a, b) => {
+        if (sortDir === 'asc') {
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        }
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      })
+    }
+  }
 
   const handleSort = async ({ sort, sortDir }: { sort: SortValue; sortDir: SortDir }) => {
     await setSortValue({
       sort,
       sort_dir: sortDir
     })
+
     onSort?.()
   }
 
-  return { sortValue, setSortValue, options, handleSort, activeSortValue }
+  return { sortValue, setSortValue, options, handleSort, activeSortValue, sortedData }
 }

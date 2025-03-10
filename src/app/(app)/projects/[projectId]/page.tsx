@@ -1,7 +1,7 @@
 import SortDropdown from '@/components/sort-dropdown'
-import { getQueryClient, HydrateClient, trpc } from '@/trpc/server'
+import { getQueryClient, HydrateClient, prefetch, trpc } from '@/trpc/server'
 import { FolderClosed } from 'lucide-react'
-import NoStudies from './_components/no-studies'
+import StudiesList from './_components/studies-list'
 
 type PageProps = {
   params: Promise<{ projectId: string }>
@@ -14,6 +14,12 @@ export default async function ProjectPage({ params }: PageProps) {
   const project = await queryClient.fetchQuery(
     trpc.projects.getProjectById.queryOptions({
       id: projectId
+    })
+  )
+
+  prefetch(
+    trpc.studies.getStudiesByProjectId.queryOptions({
+      projectId
     })
   )
 
@@ -30,7 +36,7 @@ export default async function ProjectPage({ params }: PageProps) {
           </div>
         </div>
         <div className='mt-4'>
-          <NoStudies />
+          <StudiesList projectId={projectId} />
         </div>
       </div>
     </HydrateClient>

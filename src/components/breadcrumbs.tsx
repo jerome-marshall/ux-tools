@@ -7,14 +7,14 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import { caller } from '@/trpc/server'
-import { BREADCRUMBS_DATA, PATH, projectUrl } from '@/utils/urls'
-import { HomeIcon } from 'lucide-react'
-import { Fragment, Suspense, use } from 'react'
-import { Separator } from './ui/separator'
-import { usePathname } from 'next/navigation'
+import { isValidUUID } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
+import { BREADCRUMBS_DATA, PATH, projectUrl } from '@/utils/urls'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { HomeIcon } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Fragment, Suspense } from 'react'
+import { Separator } from './ui/separator'
 
 const Breadcrumbs = () => {
   const pathname = usePathname()
@@ -35,7 +35,7 @@ const Breadcrumbs = () => {
             const isLast = breadcrumb.length - 1 == index
 
             // Projects Detail Page
-            if (breadcrumbs[0] === 'projects' && !isNaN(Number(breadcrumb))) {
+            if (breadcrumbs[0] === 'projects' && isValidUUID(breadcrumb)) {
               return (
                 <Suspense key={breadcrumb} fallback={'Loading...'}>
                   <ProjectBreadcrumb projectId={breadcrumb} isActive={!isLast} />

@@ -3,10 +3,12 @@ import { HomeIcon, type LucideIcon } from 'lucide-react'
 export const PATH = {
   dashboard: '/dashboard',
   projects: '/projects',
-  tests: '/tests'
+  studies: '/studies',
+  newStudy: '/studies/new'
 } as const
 
 export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
+export const studyUrl = (studyId: string) => `${PATH.studies}/${studyId}`
 
 export const BREADCRUMBS_DATA: Record<
   keyof typeof PATH,
@@ -18,5 +20,6 @@ export const BREADCRUMBS_DATA: Record<
 > = {
   dashboard: { name: 'Dashboard', href: PATH.dashboard, icon: HomeIcon },
   projects: { name: 'Projects', href: PATH.projects },
-  tests: { name: 'Tests', href: PATH.tests }
+  studies: { name: 'Studies', href: PATH.studies },
+  newStudy: { name: 'New Study', href: PATH.newStudy }
 }

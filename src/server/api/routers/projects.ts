@@ -16,20 +16,10 @@ export const projectsRouter = createTRPCRouter({
       return newProject
     }),
 
-  getProjects: publicProcedure
-    .input(
-      z
-        .object({ sort: z.string(), sortDir: z.string() })
-        .optional()
-        .default({ sort: 'updated', sortDir: 'desc' })
-    )
-    .query(async ({ input }) => {
-      const projects = await getProjectsUseCase({
-        sort: input.sort,
-        sortDir: input.sortDir
-      })
-      return projects
-    }),
+  getProjects: publicProcedure.query(async () => {
+    const projects = await getProjectsUseCase()
+    return projects
+  }),
 
   getRecentProjects: publicProcedure.query(async () => {
     const projects = await getRecentProjectsUseCase()

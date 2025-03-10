@@ -1,9 +1,10 @@
-import { type Project } from '@/server/db/schema'
+import { type ProjectWithStudiesCount } from '@/types'
 import { projectUrl } from '@/utils/urls'
 import { FolderClosed, FolderOpen } from 'lucide-react'
 import Link from 'next/link'
 import ProjectCardOptions from './project-card-options'
-const ProjectCard = ({ project }: { project: Project }) => {
+
+const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
   return (
     <Link
       href={projectUrl(project.id.toString())}
@@ -18,7 +19,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
       </div>
       <div className='flex flex-col gap-1'>
         <p className='text-base font-medium'>{project.name}</p>
-        <p className='text-xs text-gray-500'>{2} studies</p>
+        <p className='text-xs text-gray-500'>{project.studiesCount} studies</p>
       </div>
     </Link>
   )

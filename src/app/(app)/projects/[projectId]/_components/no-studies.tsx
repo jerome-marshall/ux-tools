@@ -1,5 +1,6 @@
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { PATH } from '@/utils/urls'
 import Link from 'next/link'
 
 const NoStudies = () => {
@@ -11,7 +12,7 @@ const NoStudies = () => {
         button below.
       </p>
       <Link
-        href={'/tests/new'}
+        href={PATH.newStudy}
         className={cn(buttonVariants({ variant: 'default' }), 'mt-8')}
       >
         Create study

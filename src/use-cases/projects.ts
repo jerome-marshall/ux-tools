@@ -6,14 +6,8 @@ import {
 } from '@/data-access/projects'
 import { type ProjectInsert } from '@/server/db/schema'
 
-export const getProjectsUseCase = async ({
-  sort,
-  sortDir
-}: {
-  sort: string
-  sortDir: string
-}) => {
-  const projects = await getProjects({ sort, sortDir })
+export const getProjectsUseCase = async () => {
+  const projects = await getProjects()
   return projects
 }
 
