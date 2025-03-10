@@ -19,10 +19,10 @@ export default async function ProjectPage({ params }: PageProps) {
 
   return (
     <HydrateClient>
-      <div>
+      <div className='container'>
         <div className='flex items-center justify-between'>
           <h1 className='flex items-center gap-3 text-xl font-medium'>
-            <FolderClosed className='size-8 rounded-md bg-gray-200 p-2' />
+            <FolderClosed className='icon' />
             {project.name}
           </h1>
           <div className='flex items-center gap-2'>

@@ -45,6 +45,10 @@ const Breadcrumbs = () => {
 
             const breadcrumbData = BREADCRUMBS_DATA[breadcrumb as keyof typeof PATH]
 
+            if (!breadcrumbData) {
+              return null
+            }
+
             return (
               <Fragment key={breadcrumb}>
                 <BreadcrumbSeparator />

@@ -5,7 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @utility container {
-  @apply mx-auto w-full max-w-[1344px] px-10;
+  @apply mx-auto w-full max-w-[1344px] px-10 py-6;
+}
+
+@utility icon {
+  @apply size-8 rounded-sm bg-gray-200 p-2;
 }
 
 :root {

@@ -30,7 +30,7 @@ export default function RootLayout({
         <Providers>
           <NuqsAdapter>
             <Header />
-            <div className='container mx-auto py-6'>{children}</div>
+            <div className='w-full'>{children}</div>
             <Toaster richColors />
             <ReactQueryDevtools initialIsOpen={false} />
           </NuqsAdapter>
