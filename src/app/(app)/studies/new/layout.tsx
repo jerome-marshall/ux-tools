@@ -4,11 +4,11 @@ import { Clock, Hand, Text, ThumbsUp } from 'lucide-react'
 
 export default function NewTestLayout({ children }: { children: React.ReactNode }) {
   const btnClasses =
-    'flex w-full items-center gap-3 rounded-md bg-white p-2 text-base shadow-sm'
+    'flex w-full h-fit items-center gap-3 rounded-md bg-white p-2 text-base shadow-sm'
 
   return (
     <div className='m-4 grid grid-cols-[310px_1fr] gap-8'>
-      <div className='grid gap-2'>
+      <div className='flex flex-col gap-2'>
         <div className={btnClasses}>
           <Text className='icon' />
           <p className=''>Study details</p>

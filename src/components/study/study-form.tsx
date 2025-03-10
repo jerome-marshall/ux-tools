@@ -11,6 +11,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import StudyDetails from './study-details'
+import StudyAddSection from './study-add-section'
 
 const StudyForm = () => {
   const trpc = useTRPC()
@@ -43,6 +44,7 @@ const StudyForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-6' id='study-form'>
         <StudyDetails form={form} />
+        <StudyAddSection />
       </form>
     </Form>
   )
