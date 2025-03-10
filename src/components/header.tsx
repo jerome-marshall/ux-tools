@@ -1,10 +1,17 @@
-import { Button } from '@/components/ui/button'
+'use client'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { PATH } from '@/utils/urls'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import Breadcrumbs from './breadcrumbs'
 import { CreateProjectDialog } from './create-project-dialog'
+import { usePathname } from 'next/navigation'
 
-const Header = async () => {
+const Header = () => {
+  const pathname = usePathname()
+  const isNewStudy = pathname === PATH.newStudy
+
   return (
     <header className='w-full border-b bg-white shadow-sm'>
       <div className='flex items-center justify-between px-10 py-2'>
@@ -14,13 +21,18 @@ const Header = async () => {
           </Link>
           <Breadcrumbs />
         </div>
-        <div className='flex items-center gap-3'>
-          <CreateProjectDialog />
-          <Button size='sm'>
-            <Plus className='size-4' />
-            <span>Create study</span>
-          </Button>
-        </div>
+        {!isNewStudy && (
+          <div className='flex items-center gap-3'>
+            <CreateProjectDialog />
+            <Link
+              href={PATH.newStudy}
+              className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'gap-2')}
+            >
+              <Plus className='size-4' />
+              <span>Create study</span>
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   )

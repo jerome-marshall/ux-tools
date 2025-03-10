@@ -2,16 +2,15 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Form } from '@/components/ui/form'
-import StudyDetails from './study-details'
 import { type StudyInsert, studyInsertSchema } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
+import { studyUrl } from '@/utils/urls'
 import { useMutation } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { projectUrl } from '@/utils/urls'
+import { toast } from 'sonner'
+import StudyDetails from './study-details'
 
 const StudyForm = () => {
   const trpc = useTRPC()
@@ -31,7 +30,7 @@ const StudyForm = () => {
           description: data.name
         })
         form.reset()
-        router.push(projectUrl(data.projectId))
+        router.push(studyUrl(data.id))
       }
     })
   )
