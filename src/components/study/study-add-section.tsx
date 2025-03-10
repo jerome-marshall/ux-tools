@@ -1,19 +1,19 @@
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ListTree } from 'lucide-react'
+import StudyFormCard from './study-form-card'
 
 const StudyAddSection = () => {
   return (
-    <Card className=''>
-      <CardHeader>
-        <CardTitle>Add a section</CardTitle>
-      </CardHeader>
-      <CardContent className='grid grid-cols-2 gap-4'>
-        {studySections.map(section => (
-          <StudySection key={section.id} section={section} />
-        ))}
-      </CardContent>
-    </Card>
+    <StudyFormCard
+      title='Add a section'
+      icon={<ListTree className='icon' />}
+      content={
+        <div className='grid grid-cols-2 gap-6' id='study-details-form'>
+          {studySections.map(section => (
+            <StudySection key={section.id} section={section} />
+          ))}
+        </div>
+      }
+    />
   )
 }
 
