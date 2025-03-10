@@ -10,13 +10,9 @@ export const getProjectsUseCase = async ({
   sort,
   sortDir
 }: {
-  sort?: string | null
-  sortDir?: string | null
+  sort: string
+  sortDir: string
 }) => {
-  if (!sort || !sortDir) {
-    sort = 'updated'
-    sortDir = 'desc'
-  }
   const projects = await getProjects({ sort, sortDir })
   return projects
 }
@@ -31,7 +27,7 @@ export const createProjectUseCase = async (project: ProjectInsert) => {
   return newProject
 }
 
-export const getProjectByIdUseCase = async (projectId: number) => {
+export const getProjectByIdUseCase = async (projectId: string) => {
   const project = await getProjectById(projectId)
   if (!project) {
     throw new Error('Project not found')

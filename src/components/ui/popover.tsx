@@ -25,7 +25,7 @@ function PopoverContent({
   container?: HTMLElement | null
 }) {
   return (
-    <PopoverPrimitive.Portal container={container ?? document.body}>
+    <PopoverPrimitive.Portal container={container}>
       <PopoverPrimitive.Content
         data-slot='popover-content'
         align={align}

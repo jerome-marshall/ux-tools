@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ALTER COLUMN "id" SET DATA TYPE text;

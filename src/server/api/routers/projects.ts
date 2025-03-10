@@ -17,9 +17,13 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   getProjects: publicProcedure
-    .input(z.object({ sort: z.string().optional(), sortDir: z.string().optional() }))
+    .input(
+      z
+        .object({ sort: z.string(), sortDir: z.string() })
+        .optional()
+        .default({ sort: 'updated', sortDir: 'desc' })
+    )
     .query(async ({ input }) => {
-      console.log('🚀 ~ .query ~ input:', input)
       const projects = await getProjectsUseCase({
         sort: input.sort,
         sortDir: input.sortDir
@@ -33,7 +37,7 @@ export const projectsRouter = createTRPCRouter({
   }),
 
   getProjectById: publicProcedure
-    .input(z.object({ id: z.coerce.number() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const project = await getProjectByIdUseCase(input.id)
       return project

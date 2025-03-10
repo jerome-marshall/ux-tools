@@ -6,24 +6,38 @@ import { z } from 'zod'
 
 import { Form } from '@/components/ui/form'
 import StudyDetails from './study-details'
-
-export const FormSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  project: z.string().min(1, { message: 'Please select a project.' })
-})
+import { type StudyInsert, studyInsertSchema } from '@/server/db/schema'
+import { useTRPC } from '@/trpc/client'
+import { useMutation } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { projectUrl } from '@/utils/urls'
 
 const StudyForm = () => {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const trpc = useTRPC()
+  const router = useRouter()
+
+  const form = useForm<StudyInsert>({
+    resolver: zodResolver(studyInsertSchema),
     defaultValues: {
-      name: '',
-      project: ''
+      name: ''
     }
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data)
-    // Handle form submission
+  const { mutate, isPending } = useMutation(
+    trpc.studies.createStudy.mutationOptions({
+      onSuccess: data => {
+        toast.success('Study created successfully', {
+          description: data.name
+        })
+        form.reset()
+        router.push(projectUrl(data.projectId))
+      }
+    })
+  )
+
+  function onSubmit(data: StudyInsert) {
+    mutate(data)
   }
 
   return (

@@ -13,7 +13,7 @@ export default async function ProjectPage({ params }: PageProps) {
   const queryClient = getQueryClient()
   const project = await queryClient.fetchQuery(
     trpc.projects.getProjectById.queryOptions({
-      id: Number(projectId)
+      id: projectId
     })
   )
 

@@ -36,7 +36,7 @@ export const createProject = async (project: ProjectInsert) => {
   return newProject
 }
 
-export const getProjectById = async (projectId: number) => {
+export const getProjectById = async (projectId: string) => {
   const project = await db.query.projects.findFirst({
     where: (fields, { eq }) => eq(fields.id, projectId)
   })

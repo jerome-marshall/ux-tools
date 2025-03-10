@@ -6,7 +6,7 @@ export const PATH = {
   tests: '/tests'
 } as const
 
-export const projectUrl = (projectId: string | number) => `${PATH.projects}/${projectId}`
+export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
 
 export const BREADCRUMBS_DATA: Record<
   keyof typeof PATH,

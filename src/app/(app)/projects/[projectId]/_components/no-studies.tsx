@@ -1,4 +1,6 @@
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 const NoStudies = () => {
   return (
@@ -8,7 +10,12 @@ const NoStudies = () => {
         Looks like you haven’t created a study yet. You can create one by clicking the
         button below.
       </p>
-      <Button className='mt-8'>Create study</Button>
+      <Link
+        href={'/tests/new'}
+        className={cn(buttonVariants({ variant: 'default' }), 'mt-8')}
+      >
+        Create study
+      </Link>
     </div>
   )
 }

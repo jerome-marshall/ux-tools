@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { caller } from '@/trpc/server'
-import { BREADCRUMBS_DATA, PATH } from '@/utils/urls'
+import { BREADCRUMBS_DATA, PATH, projectUrl } from '@/utils/urls'
 import { HomeIcon } from 'lucide-react'
 import { Fragment, Suspense, use } from 'react'
 import { Separator } from './ui/separator'
@@ -75,14 +75,14 @@ const ProjectBreadcrumb = ({
 }) => {
   const trpc = useTRPC()
   const { data: project } = useSuspenseQuery(
-    trpc.projects.getProjectById.queryOptions({ id: Number(projectId) })
+    trpc.projects.getProjectById.queryOptions({ id: projectId })
   )
   return (
     <>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
         {isActive ? (
-          <BreadcrumbLink href={`/projects/${projectId}`}>
+          <BreadcrumbLink href={projectUrl(projectId)}>
             {project.name ?? projectId}
           </BreadcrumbLink>
         ) : (
