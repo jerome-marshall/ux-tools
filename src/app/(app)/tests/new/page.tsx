@@ -1,9 +1,9 @@
-import StudyDetails from './_components/study-details'
+import StudyForm from '@/components/study/study-form'
 
 export default function NewTestPage() {
   return (
     <div className='grid gap-4'>
-      <StudyDetails />
+      <StudyForm />
     </div>
   )
 }

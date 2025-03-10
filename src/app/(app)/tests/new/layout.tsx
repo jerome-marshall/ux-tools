@@ -28,7 +28,7 @@ export default function NewTestLayout({ children }: { children: React.ReactNode 
         <Button className='mt-3 bg-gray-200 hover:bg-gray-300' variant={'secondary'}>
           Save and preview
         </Button>
-        <Button className='' type='submit' form='study-details-form'>
+        <Button className='' type='submit' form='study-form'>
           Save and continue
         </Button>
       </div>
