@@ -10,10 +10,12 @@ import {
   Trash2
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Button } from '../../ui/button'
-import { Input } from '../../ui/input'
 import Tooltip from '../../custom-tooltip'
+import { Button } from '../../ui/button'
+import { Checkbox } from '../../ui/checkbox'
+import { Input } from '../../ui/input'
 import { type TreeItem } from './tree-builder'
+import { cn } from '@/lib/utils'
 
 interface SortableTreeItemProps {
   id: string
@@ -30,6 +32,9 @@ interface SortableTreeItemProps {
   index?: number
   forcedExpanded?: boolean
   onToggleExpand?: (nodeId: string, expanded: boolean) => void
+  isCorrect?: boolean
+  onToggleCorrect?: (nodeId: string) => void
+  getIsCorrect?: (nodeId: string) => boolean
 }
 
 export function SortableTreeItem({
@@ -46,7 +51,10 @@ export function SortableTreeItem({
   isRootLevel = false,
   index = 0,
   forcedExpanded = false,
-  onToggleExpand
+  onToggleExpand,
+  isCorrect = false,
+  onToggleCorrect,
+  getIsCorrect
 }: SortableTreeItemProps) {
   // Track the original expanded state
   const [wasExpanded, setWasExpanded] = useState(false)
@@ -206,6 +214,12 @@ export function SortableTreeItem({
     }
   }
 
+  const handleCorrectToggle = (checked: boolean) => {
+    if (onToggleCorrect) {
+      onToggleCorrect(id)
+    }
+  }
+
   // Only render children if expanded and not in a transitional state
   const shouldRenderChildren =
     isExpanded &&
@@ -249,14 +263,30 @@ export function SortableTreeItem({
           <GripVertical className='size-4' />
         </div>
 
-        <div className='max-w-[260px] flex-1'>
+        <div className='relative flex max-w-[260px] flex-1'>
           <Input
             value={nodeName}
             onChange={handleNameChange}
             onBlur={handleNameBlur}
             onKeyDown={handleKeyDown}
-            className='h-8 bg-white py-0'
+            className={cn('h-10 bg-white py-0 pr-9', isCorrect ? 'border-green-600' : '')}
             data-node-id={id}
+          />
+
+          <Tooltip
+            trigger={
+              <div className='absolute top-3 right-3 flex items-center'>
+                <Checkbox
+                  checked={isCorrect}
+                  onCheckedChange={handleCorrectToggle}
+                  className={cn(
+                    isCorrect ? '!border-green-600 !bg-green-600' : '',
+                    'size-4 rounded-full border-gray-300'
+                  )}
+                />
+              </div>
+            }
+            content='Mark as correct answer'
           />
         </div>
 
@@ -342,6 +372,9 @@ export function SortableTreeItem({
               index={childIndex}
               forcedExpanded={isExpanded}
               onToggleExpand={onToggleExpand}
+              isCorrect={getIsCorrect ? getIsCorrect(child.id) : false}
+              onToggleCorrect={onToggleCorrect}
+              getIsCorrect={getIsCorrect}
             />
           ))}
         </div>

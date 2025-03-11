@@ -19,10 +19,11 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
-import { Plus } from 'lucide-react'
+import { Check, CheckCircle, CircleCheck, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '../../ui/button'
 import { SortableTreeItem } from './tree-sortable-item'
+import { Label } from '@/components/ui/label'
 
 // Define the TreeItem type
 export interface TreeItem {
@@ -32,26 +33,41 @@ export interface TreeItem {
   parentId?: string
 }
 
-interface TreeBuilderProps {
-  initialItems?: TreeItem[]
-  onChange?: (items: TreeItem[]) => void
+// Define the CorrectPath type
+export interface CorrectPath {
+  id: string
+  path: string[]
 }
 
-const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
+interface TreeBuilderProps {
+  initialItems?: TreeItem[]
+  initialCorrectPaths?: CorrectPath[]
+  onChange?: (items: TreeItem[], correctPaths: CorrectPath[]) => void
+}
+
+const TreeBuilder = ({
+  initialItems = [],
+  initialCorrectPaths = [],
+  onChange
+}: TreeBuilderProps) => {
   const [items, setItems] = useState<TreeItem[]>(initialItems)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [newNodeId, setNewNodeId] = useState<string | null>(null)
   // Track expanded node IDs
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+  // Track correct paths
+  const [correctPaths, setCorrectPaths] = useState<CorrectPath[]>(
+    initialCorrectPaths || []
+  )
 
   const isTreeEmpty = items.length === 0
 
-  // Call onChange whenever items change
+  // Call onChange whenever items or correct paths change
   useEffect(() => {
     if (onChange) {
-      onChange(items)
+      onChange(items, correctPaths)
     }
-  }, [items, onChange])
+  }, [items, correctPaths, onChange])
 
   // Expand a node and ensure it's visible
   const expandNode = (nodeId: string) => {
@@ -832,6 +848,64 @@ const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
     return items.some(item => item.id === nodeId)
   }
 
+  // Get node path as array of names
+  const getNodePath = (nodeId: string): string[] => {
+    const path: string[] = []
+
+    // Recursive function to build path
+    const buildPath = (
+      items: TreeItem[],
+      id: string,
+      currentPath: string[] = []
+    ): boolean => {
+      for (const item of items) {
+        // Current path including this item
+        const itemPath = [...currentPath, item.name || item.id]
+
+        // If this is the node we're looking for
+        if (item.id === id) {
+          path.push(...itemPath)
+          return true
+        }
+
+        // Check children
+        if (item.children.length > 0) {
+          if (buildPath(item.children, id, itemPath)) {
+            return true
+          }
+        }
+      }
+
+      return false
+    }
+
+    buildPath(items, nodeId, [])
+    return path
+  }
+
+  // Toggle whether a node path is marked as correct
+  const toggleCorrectPath = (nodeId: string) => {
+    const nodePath = getNodePath(nodeId)
+
+    setCorrectPaths(prevPaths => {
+      // Check if this path is already marked correct
+      const existingIndex = prevPaths.findIndex(p => p.id === nodeId)
+
+      if (existingIndex >= 0) {
+        // Remove it from correct paths
+        return prevPaths.filter(p => p.id !== nodeId)
+      } else {
+        // Add it to correct paths
+        return [...prevPaths, { id: nodeId, path: nodePath }]
+      }
+    })
+  }
+
+  // Check if a node is marked as a correct path
+  const isCorrectPath = (nodeId: string): boolean => {
+    return correctPaths.some(p => p.id === nodeId)
+  }
+
   const AddNodeButton = ({ className }: { className?: string }) => (
     <Button
       type='button'
@@ -851,97 +925,122 @@ const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
 
   return (
     <div>
-      {isTreeEmpty ? (
-        <div className='flex flex-col items-center justify-center'>
-          <p className='text-sm text-gray-500'>
-            Create your tree by adding a node or import the data from a CSV file
-          </p>
-          <div className='mt-4 flex gap-2'>
-            <AddNodeButton />
-            <Button variant={'outline'} size={'sm'} type='button'>
-              Import from CSV
-            </Button>
+      <div className='rounded-md bg-gray-50 p-4'>
+        {isTreeEmpty ? (
+          <div className='flex flex-col items-center justify-center'>
+            <p className='text-sm text-gray-500'>
+              Create your tree by adding a node or import the data from a CSV file
+            </p>
+            <div className='mt-4 flex gap-2'>
+              <AddNodeButton />
+              <Button variant={'outline'} size={'sm'} type='button'>
+                Import from CSV
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={collisionDetectionStrategy}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragMove={handleDragMove}
-            onDragEnd={handleDragEnd}
-            onDragCancel={handleDragCancel}
-          >
-            <SortableContext items={allNodeIds} strategy={verticalListSortingStrategy}>
-              {items.map((item, index) => (
-                <SortableTreeItem
-                  key={item.id}
-                  id={item.id}
-                  item={item}
-                  onAddChild={addChildNode}
-                  onUpdateName={updateNodeName}
-                  onDeleteNode={deleteNode}
-                  onIndent={indentNode}
-                  onUnindent={unindentNode}
-                  isFirstChild={index === 0}
-                  isRootLevel={true}
-                  index={index}
-                  forcedExpanded={expandedNodes.has(item.id)}
-                  onToggleExpand={(nodeId, expanded) => {
-                    if (expanded) {
-                      expandNode(nodeId)
-                    } else {
-                      setExpandedNodes(prev => {
-                        const updated = new Set(prev)
-                        updated.delete(nodeId)
-                        return updated
-                      })
-                    }
-                  }}
-                  draggedNodeId={activeId}
-                />
-              ))}
-            </SortableContext>
+        ) : (
+          <div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={collisionDetectionStrategy}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragMove={handleDragMove}
+              onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
+            >
+              <SortableContext items={allNodeIds} strategy={verticalListSortingStrategy}>
+                {items.map((item, index) => (
+                  <SortableTreeItem
+                    key={item.id}
+                    id={item.id}
+                    item={item}
+                    onAddChild={addChildNode}
+                    onUpdateName={updateNodeName}
+                    onDeleteNode={deleteNode}
+                    onIndent={indentNode}
+                    onUnindent={unindentNode}
+                    isFirstChild={index === 0}
+                    isRootLevel={true}
+                    index={index}
+                    forcedExpanded={expandedNodes.has(item.id)}
+                    onToggleExpand={(nodeId, expanded) => {
+                      if (expanded) {
+                        expandNode(nodeId)
+                      } else {
+                        setExpandedNodes(prev => {
+                          const updated = new Set(prev)
+                          updated.delete(nodeId)
+                          return updated
+                        })
+                      }
+                    }}
+                    draggedNodeId={activeId}
+                    isCorrect={isCorrectPath(item.id)}
+                    onToggleCorrect={toggleCorrectPath}
+                    getIsCorrect={isCorrectPath}
+                  />
+                ))}
+              </SortableContext>
 
-            <DragOverlay dropAnimation={dropAnimation}>
-              {activeId ? (
-                <SortableTreeItem
-                  id={activeId}
-                  item={createCollapsedItem(
-                    findItemById(items, activeId) ?? {
-                      id: activeId,
-                      name: '',
-                      children: []
-                    }
-                  )}
-                  onAddChild={addChildNode}
-                  onUpdateName={updateNodeName}
-                  onDeleteNode={deleteNode}
-                  onIndent={indentNode}
-                  onUnindent={unindentNode}
-                  isDragOverlay={true}
-                  isRootLevel={isRootNode(activeId, items)}
-                  forcedExpanded={false}
-                  onToggleExpand={(nodeId, expanded) => {
-                    if (expanded) {
-                      expandNode(nodeId)
-                    } else {
-                      setExpandedNodes(prev => {
-                        const updated = new Set(prev)
-                        updated.delete(nodeId)
-                        return updated
-                      })
-                    }
-                  }}
-                />
-              ) : null}
-            </DragOverlay>
-          </DndContext>
-          <AddNodeButton className='mt-4' />
+              <DragOverlay dropAnimation={dropAnimation}>
+                {activeId ? (
+                  <SortableTreeItem
+                    id={activeId}
+                    item={createCollapsedItem(
+                      findItemById(items, activeId) ?? {
+                        id: activeId,
+                        name: '',
+                        children: []
+                      }
+                    )}
+                    onAddChild={addChildNode}
+                    onUpdateName={updateNodeName}
+                    onDeleteNode={deleteNode}
+                    onIndent={indentNode}
+                    onUnindent={unindentNode}
+                    isDragOverlay={true}
+                    isRootLevel={isRootNode(activeId, items)}
+                    forcedExpanded={false}
+                    onToggleExpand={(nodeId, expanded) => {
+                      if (expanded) {
+                        expandNode(nodeId)
+                      } else {
+                        setExpandedNodes(prev => {
+                          const updated = new Set(prev)
+                          updated.delete(nodeId)
+                          return updated
+                        })
+                      }
+                    }}
+                    isCorrect={isCorrectPath(activeId)}
+                    onToggleCorrect={toggleCorrectPath}
+                    getIsCorrect={isCorrectPath}
+                  />
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+            <AddNodeButton className='mt-4' />
+          </div>
+        )}
+      </div>
+      <div className='mt-6'>
+        <Label>Correct answers</Label>
+        <div className={'mt-3'}>
+          {correctPaths?.length > 0 ? (
+            correctPaths.map(path => (
+              <div key={path.id} className='flex items-center gap-2 py-1'>
+                <CircleCheck className='size-5 rounded-full fill-green-600 text-white' />
+                <span>{path.path.join(' › ')}</span>
+              </div>
+            ))
+          ) : (
+            <p className='mx-auto w-fit text-sm text-gray-500'>
+              Select at least one node from your tree
+            </p>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
