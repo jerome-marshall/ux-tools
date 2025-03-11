@@ -4,9 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
 import { Form } from '@/components/ui/form'
-import { type StudyInsert, studyInsertSchema } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { studyUrl } from '@/utils/urls'
+import { type StudyWithTestsInsert, studyWithTestsInsertSchema } from '@/zod-schemas'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -18,12 +18,17 @@ const StudyForm = () => {
   const trpc = useTRPC()
   const router = useRouter()
 
-  const form = useForm<StudyInsert>({
-    resolver: zodResolver(studyInsertSchema),
+  const form = useForm<StudyWithTestsInsert>({
+    resolver: zodResolver(studyWithTestsInsertSchema),
     defaultValues: {
-      name: ''
+      study: {
+        name: ''
+      },
+      tests: []
     }
   })
+  // console.log('🚀 ~ StudyForm ~ state:', form.watch())
+  // console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
 
   const { mutate, isPending } = useMutation(
     trpc.studies.createStudy.mutationOptions({
@@ -37,7 +42,8 @@ const StudyForm = () => {
     })
   )
 
-  function onSubmit(data: StudyInsert) {
+  function onSubmit(data: StudyWithTestsInsert) {
+    console.log('🚀 ~ onSubmit ~ data:', data)
     mutate(data)
   }
 

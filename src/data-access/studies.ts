@@ -1,5 +1,6 @@
 import { db } from '@/server/db'
-import { studies, type StudyInsert } from '@/server/db/schema'
+import { studies, type Study, type StudyInsert } from '@/server/db/schema'
+import { eq } from 'drizzle-orm'
 
 export const createStudy = async (study: StudyInsert) => {
   const [data] = await db.insert(studies).values(study).returning()
@@ -10,5 +11,10 @@ export const getStudiesByProjectId = async (projectId: string) => {
   const data = await db.query.studies.findMany({
     where: (fields, { eq }) => eq(fields.projectId, projectId)
   })
+  return data
+}
+
+export const updateStudy = async (id: string, study: Partial<Study>) => {
+  const [data] = await db.update(studies).set(study).where(eq(studies.id, id)).returning()
   return data
 }

@@ -1,16 +1,23 @@
+import { CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { type StudyInsert } from '@/server/db/schema'
+import { type StudyWithTestsInsert } from '@/zod-schemas'
 import { ListTree, Pencil } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import StudyFormCard from '../study-form-card'
 import TreeBuilder, { type CorrectPath, type TreeItem } from './tree-builder'
-import { CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
 
-const TreeTest = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
+const TreeTest = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
   const [treeData, setTreeData] = useState<TreeItem[]>([])
   const [correctPaths, setCorrectPaths] = useState<CorrectPath[]>([])
 
@@ -21,15 +28,18 @@ const TreeTest = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
   // Update form data whenever tree data or correct paths change
   useEffect(() => {
     // Convert tree data and correct paths to the format expected by the form
-    // const formattedData = {
-    //   treeData: JSON.stringify(treeData),
-    //   correctPaths: JSON.stringify(correctPaths)
-    // }
+    const formattedData = {
+      treeData: JSON.stringify(treeData),
+      correctPaths: JSON.stringify(correctPaths)
+    }
+
     // Update the form fields
-    // form.setValue('treeData', formattedData.treeData)
-    // form.setValue('correctPaths', formattedData.correctPaths)
+    form.setValue('tests.0.treeStructure', formattedData.treeData)
+    form.setValue('tests.0.correctPaths', formattedData.correctPaths)
     // Update test name in form
-    // form.setValue('name', testName)
+    form.setValue('tests.0.name', testName)
+
+    form.setValue('tests.0.type', 'TREE_TEST')
   }, [treeData, correctPaths, testName, form])
 
   // Handle tree data changes from the TreeBuilder
@@ -89,8 +99,23 @@ const TreeTest = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
       content={
         <div>
           <div className={sectionClasses}>
-            <Label>Task instructions</Label>
-            <Textarea placeholder='Keep this short and concise.' className='' />
+            <FormField
+              control={form.control}
+              name='tests.0.taskInstructions'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Task instructions</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='Keep this short and concise.'
+                      className=''
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <Separator className='my-6' />
           <div className={sectionClasses}>

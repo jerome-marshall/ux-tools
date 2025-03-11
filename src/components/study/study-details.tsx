@@ -11,11 +11,11 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { type StudyInsert } from '@/server/db/schema'
+import { type StudyWithTestsInsert } from '@/zod-schemas'
 import ProjectsDropdown from './projects-dropdown'
 import StudyFormCard from './study-form-card'
 
-const StudyDetails = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
+const StudyDetails = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
   return (
     <StudyFormCard
       title='Study details'
@@ -24,7 +24,7 @@ const StudyDetails = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
         <div className='grid grid-cols-2 gap-6' id='study-details-form'>
           <FormField
             control={form.control}
-            name='name'
+            name='study.name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Test name</FormLabel>

@@ -22,12 +22,12 @@ import {
 } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { type StudyInsert } from '@/server/db/schema'
+import { type StudyWithTests } from '@/zod-schemas'
 import { useTRPC } from '@/trpc/client'
 import { useQuery } from '@tanstack/react-query'
 
 interface ProjectsDropdownProps {
-  form: UseFormReturn<StudyInsert>
+  form: UseFormReturn<StudyWithTests>
 }
 
 const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
@@ -51,7 +51,7 @@ const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
   return (
     <FormField
       control={form.control}
-      name='projectId'
+      name='study.projectId'
       render={({ field }) => (
         <FormItem className='items-start gap-0'>
           <FormLabel className='mb-2'>Project</FormLabel>
@@ -96,8 +96,8 @@ const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
                               key={project.value}
                               value={project.value}
                               onSelect={value => {
-                                form.setValue('projectId', value)
-                                void form.trigger('projectId')
+                                form.setValue('study.projectId', value)
+                                void form.trigger('study.projectId')
                               }}
                               className={cn(
                                 'flex items-center gap-2',

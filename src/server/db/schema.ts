@@ -1,8 +1,8 @@
-import { relations } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
-import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
+import { generateId } from '@/lib/utils'
 
 const timestamps = {
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -15,7 +15,7 @@ const timestamps = {
 const uniqueId = text('id')
   .primaryKey()
   .notNull()
-  .$defaultFn(() => uuid())
+  .$defaultFn(() => generateId())
 
 export const projects = pgTable('projects', {
   id: uniqueId,
@@ -30,6 +30,10 @@ export const studies = pgTable('studies', {
   projectId: text('project_id')
     .notNull()
     .references(() => projects.id),
+  testsOrder: text('tests_order')
+    .array()
+    .notNull()
+    .default(sql`ARRAY[]::text[]`),
   ...timestamps
 })
 
@@ -53,6 +57,7 @@ export const treeTests = pgTable('tree_tests', {
     .references(() => tests.id),
   treeStructure: jsonb('tree_structure').notNull(),
   taskInstructions: text('task_instructions').notNull(),
+  correctPaths: jsonb('correct_paths').notNull(),
   ...timestamps
 })
 
@@ -97,6 +102,7 @@ export const projectInsertSchema = createInsertSchema(projects)
 export const studyInsertSchema = createInsertSchema(studies)
   .omit({
     id: true,
+    testsOrder: true,
     createdAt: true,
     updatedAt: true
   })
@@ -111,9 +117,9 @@ export const testInsertSchema = createInsertSchema(tests)
     updatedAt: true
   })
   .extend({
-    name: z.string().min(1, { message: 'Name is required' }),
     type: z.enum(testTypes),
-    studyId: z.string().min(1, { message: 'Study is required' })
+    studyId: z.string().min(1, { message: 'Study is required' }),
+    name: z.string().min(1, { message: 'Name is required' })
   })
 export const treeTestInsertSchema = createInsertSchema(treeTests)
   .omit({
@@ -124,7 +130,8 @@ export const treeTestInsertSchema = createInsertSchema(treeTests)
   .extend({
     testId: z.string().min(1, { message: 'Test is required' }),
     treeStructure: z.string().min(1, { message: 'Tree structure is required' }),
-    tasks: z.string().min(1, { message: 'Tasks are required' })
+    taskInstructions: z.string().min(1, { message: 'Task instructions are required' }),
+    correctPaths: z.string().min(1, { message: 'Correct paths are required' })
   })
 
 /* Types */
