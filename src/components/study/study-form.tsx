@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import StudyDetails from './study-details'
 import StudyAddSection from './study-add-section'
-import TreeTest from './tree-test'
+import TreeTest from './tree-test/tree-test'
 
 const StudyForm = () => {
   const trpc = useTRPC()
