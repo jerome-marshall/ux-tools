@@ -40,6 +40,11 @@ interface TreeBuilderProps {
 const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
   const [items, setItems] = useState<TreeItem[]>(initialItems)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [newNodeId, setNewNodeId] = useState<string | null>(null)
+  // Track expanded node IDs
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+
+  const isTreeEmpty = items.length === 0
 
   // Call onChange whenever items change
   useEffect(() => {
@@ -47,6 +52,47 @@ const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
       onChange(items)
     }
   }, [items, onChange])
+
+  // Expand a node and ensure it's visible
+  const expandNode = (nodeId: string) => {
+    setExpandedNodes(prev => {
+      const updated = new Set(prev)
+      updated.add(nodeId)
+      return updated
+    })
+  }
+
+  // Focus on the input field when a new node is created
+  useEffect(() => {
+    if (newNodeId) {
+      // Use a longer timeout to ensure DOM has updated, especially for nested nodes
+      const timeoutId = setTimeout(() => {
+        const input = document.querySelector(`input[data-node-id="${newNodeId}"]`)
+        if (input instanceof HTMLInputElement) {
+          input.focus()
+          // Clear the newNodeId after focus
+          setNewNodeId(null)
+        } else {
+          // If input isn't found immediately, try again with a longer delay
+          // This helps with deeply nested nodes that might take longer to render
+          const secondTimeoutId = setTimeout(() => {
+            const retryInput = document.querySelector(
+              `input[data-node-id="${newNodeId}"]`
+            )
+            if (retryInput instanceof HTMLInputElement) {
+              retryInput.focus()
+            }
+            // Clear the newNodeId regardless
+            setNewNodeId(null)
+          }, 50)
+
+          return () => clearTimeout(secondTimeoutId)
+        }
+      }, 10)
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [newNodeId])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -332,9 +378,12 @@ const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
     const newId = `item-${Date.now()}`
     const newNode: TreeItem = {
       id: newId,
-      name: `New Child ${newId.slice(-4)}`,
+      name: '',
       children: []
     }
+
+    // Ensure the parent node is expanded
+    expandNode(parentId)
 
     // Create a deep copy of the items array and add the new node
     setItems(prevItems => {
@@ -361,6 +410,9 @@ const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
 
       return addChildToParent(prevItems, parentId)
     })
+
+    // Set the new node ID to trigger focus
+    setNewNodeId(newId)
   }
 
   // Function to update a node's name
@@ -780,69 +832,116 @@ const TreeBuilder = ({ initialItems = [], onChange }: TreeBuilderProps) => {
     return items.some(item => item.id === nodeId)
   }
 
+  const AddNodeButton = ({ className }: { className?: string }) => (
+    <Button
+      type='button'
+      size={'sm'}
+      className={className}
+      onClick={() => {
+        const newId = `item-${Date.now()}`
+        setItems([...items, { id: newId, name: '', children: [] }])
+        // Set the new node ID to trigger focus
+        setNewNodeId(newId)
+      }}
+    >
+      <Plus className='size-4' />
+      Add node
+    </Button>
+  )
+
   return (
     <div>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={collisionDetectionStrategy}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragMove={handleDragMove}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <SortableContext items={allNodeIds} strategy={verticalListSortingStrategy}>
-          {items.map((item, index) => (
-            <SortableTreeItem
-              key={item.id}
-              id={item.id}
-              item={item}
-              onAddChild={addChildNode}
-              onUpdateName={updateNodeName}
-              onDeleteNode={deleteNode}
-              onIndent={indentNode}
-              onUnindent={unindentNode}
-              isFirstChild={index === 0}
-              isRootLevel={true}
-              index={index}
-            />
-          ))}
-        </SortableContext>
+      {isTreeEmpty ? (
+        <div className='flex flex-col items-center justify-center'>
+          <p className='text-sm text-gray-500'>
+            Create your tree by adding a node or import the data from a CSV file
+          </p>
+          <div className='mt-4 flex gap-2'>
+            <AddNodeButton />
+            <Button variant={'outline'} size={'sm'} type='button'>
+              Import from CSV
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={collisionDetectionStrategy}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragMove={handleDragMove}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <SortableContext items={allNodeIds} strategy={verticalListSortingStrategy}>
+              {items.map((item, index) => (
+                <SortableTreeItem
+                  key={item.id}
+                  id={item.id}
+                  item={item}
+                  onAddChild={addChildNode}
+                  onUpdateName={updateNodeName}
+                  onDeleteNode={deleteNode}
+                  onIndent={indentNode}
+                  onUnindent={unindentNode}
+                  isFirstChild={index === 0}
+                  isRootLevel={true}
+                  index={index}
+                  forcedExpanded={expandedNodes.has(item.id)}
+                  onToggleExpand={(nodeId, expanded) => {
+                    if (expanded) {
+                      expandNode(nodeId)
+                    } else {
+                      setExpandedNodes(prev => {
+                        const updated = new Set(prev)
+                        updated.delete(nodeId)
+                        return updated
+                      })
+                    }
+                  }}
+                  draggedNodeId={activeId}
+                />
+              ))}
+            </SortableContext>
 
-        <DragOverlay dropAnimation={dropAnimation}>
-          {activeId ? (
-            <SortableTreeItem
-              id={activeId}
-              item={createCollapsedItem(
-                findItemById(items, activeId) ?? {
-                  id: activeId,
-                  name: '',
-                  children: []
-                }
-              )}
-              onAddChild={addChildNode}
-              onUpdateName={updateNodeName}
-              onDeleteNode={deleteNode}
-              onIndent={indentNode}
-              onUnindent={unindentNode}
-              isDragOverlay={true}
-              isRootLevel={isRootNode(activeId, items)}
-            />
-          ) : null}
-        </DragOverlay>
-      </DndContext>
-
-      <Button
-        type='button'
-        className='mt-4'
-        onClick={() => {
-          const newId = `item-${Date.now()}`
-          setItems([...items, { id: newId, name: 'New Root Item', children: [] }])
-        }}
-      >
-        <Plus className='size-4' />
-        Add node
-      </Button>
+            <DragOverlay dropAnimation={dropAnimation}>
+              {activeId ? (
+                <SortableTreeItem
+                  id={activeId}
+                  item={createCollapsedItem(
+                    findItemById(items, activeId) ?? {
+                      id: activeId,
+                      name: '',
+                      children: []
+                    }
+                  )}
+                  onAddChild={addChildNode}
+                  onUpdateName={updateNodeName}
+                  onDeleteNode={deleteNode}
+                  onIndent={indentNode}
+                  onUnindent={unindentNode}
+                  isDragOverlay={true}
+                  isRootLevel={isRootNode(activeId, items)}
+                  forcedExpanded={false}
+                  onToggleExpand={(nodeId, expanded) => {
+                    if (expanded) {
+                      expandNode(nodeId)
+                    } else {
+                      setExpandedNodes(prev => {
+                        const updated = new Set(prev)
+                        updated.delete(nodeId)
+                        return updated
+                      })
+                    }
+                  }}
+                />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+          <AddNodeButton className='mt-4' />
+        </div>
+      )}
     </div>
   )
 }

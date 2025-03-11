@@ -6,20 +6,7 @@ import StudyFormCard from '../study-form-card'
 import TreeBuilder, { type TreeItem } from './tree-builder'
 
 const TreeTest = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
-  const [treeData, setTreeData] = useState<TreeItem[]>([
-    {
-      id: 'root1',
-      name: 'Root 1',
-      children: [
-        {
-          id: 'test1',
-          name: 'Test 1',
-          children: [{ id: 'test2', name: 'Test2', children: [] }]
-        }
-      ]
-    },
-    { id: 'root2', name: 'Root2', children: [] }
-  ])
+  const [treeData, setTreeData] = useState<TreeItem[]>([])
 
   // Update form data whenever tree data changes
   useEffect(() => {

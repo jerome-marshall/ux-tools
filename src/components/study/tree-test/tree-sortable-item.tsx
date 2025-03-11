@@ -28,6 +28,8 @@ interface SortableTreeItemProps {
   isFirstChild?: boolean
   isRootLevel?: boolean
   index?: number
+  forcedExpanded?: boolean
+  onToggleExpand?: (nodeId: string, expanded: boolean) => void
 }
 
 export function SortableTreeItem({
@@ -42,13 +44,15 @@ export function SortableTreeItem({
   draggedNodeId = null,
   isFirstChild = false,
   isRootLevel = false,
-  index = 0
+  index = 0,
+  forcedExpanded = false,
+  onToggleExpand
 }: SortableTreeItemProps) {
   // Track the original expanded state
   const [wasExpanded, setWasExpanded] = useState(false)
 
   // When it's a drag overlay, always show as collapsed
-  const [isExpanded, setIsExpanded] = useState(!isDragOverlay)
+  const [isExpanded, setIsExpanded] = useState(!isDragOverlay && forcedExpanded)
   const [nodeName, setNodeName] = useState(item.name)
 
   // Track if we're currently restoring state to prevent animation glitches
@@ -131,6 +135,13 @@ export function SortableTreeItem({
     }
   }, [isDragOverlay])
 
+  // Update expanded state when forcedExpanded changes
+  useEffect(() => {
+    if (!isDragOverlay) {
+      setIsExpanded(forcedExpanded)
+    }
+  }, [forcedExpanded, isDragOverlay])
+
   // Update local state when item name changes from props
   useEffect(() => {
     setNodeName(item.name)
@@ -212,7 +223,14 @@ export function SortableTreeItem({
           variant={'ghost'}
           size={'icon'}
           type='button'
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => {
+            const newExpanded = !isExpanded
+            setIsExpanded(newExpanded)
+            // Call the onToggleExpand callback if provided
+            if (onToggleExpand) {
+              onToggleExpand(id, newExpanded)
+            }
+          }}
           className='mr-2'
           disabled={!hasChildren}
         >
@@ -238,6 +256,7 @@ export function SortableTreeItem({
             onBlur={handleNameBlur}
             onKeyDown={handleKeyDown}
             className='h-8 bg-white py-0'
+            data-node-id={id}
           />
         </div>
 
@@ -321,6 +340,8 @@ export function SortableTreeItem({
               isFirstChild={childIndex === 0}
               isRootLevel={false}
               index={childIndex}
+              forcedExpanded={isExpanded}
+              onToggleExpand={onToggleExpand}
             />
           ))}
         </div>
