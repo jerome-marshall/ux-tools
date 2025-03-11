@@ -10,8 +10,8 @@ import { studyUrl } from '@/utils/urls'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import StudyDetails from './study-details'
 import StudyAddSection from './study-add-section'
+import StudyDetails from './study-details'
 import TreeTest from './tree-test/tree-test'
 
 const StudyForm = () => {

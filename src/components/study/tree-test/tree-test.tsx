@@ -1,12 +1,12 @@
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import { type StudyInsert } from '@/server/db/schema'
-import { CheckCircle, ListTree } from 'lucide-react'
+import { ListTree } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import StudyFormCard from '../study-form-card'
-import TreeBuilder, { type TreeItem, type CorrectPath } from './tree-builder'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Separator } from '@/components/ui/separator'
+import TreeBuilder, { type CorrectPath, type TreeItem } from './tree-builder'
 
 const TreeTest = ({ form }: { form: UseFormReturn<StudyInsert> }) => {
   const [treeData, setTreeData] = useState<TreeItem[]>([])

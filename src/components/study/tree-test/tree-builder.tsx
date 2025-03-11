@@ -1,3 +1,4 @@
+import { Label } from '@/components/ui/label'
 import {
   closestCenter,
   defaultDropAnimationSideEffects,
@@ -19,11 +20,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
-import { Check, CheckCircle, CircleCheck, Plus } from 'lucide-react'
+import { CircleCheck, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '../../ui/button'
 import { SortableTreeItem } from './tree-sortable-item'
-import { Label } from '@/components/ui/label'
 
 // Define the TreeItem type
 export interface TreeItem {
@@ -36,7 +36,7 @@ export interface TreeItem {
 // Define the CorrectPath type
 export interface CorrectPath {
   id: string
-  path: string[]
+  path: string[] // Array of node IDs that form the path, not node names
 }
 
 interface TreeBuilderProps {
@@ -391,7 +391,7 @@ const TreeBuilder = ({
 
   // Function to add a child node to a specific parent
   const addChildNode = (parentId: string) => {
-    const newId = `item-${Date.now()}`
+    const newId = `node-${Date.now()}`
     const newNode: TreeItem = {
       id: newId,
       name: '',
@@ -623,6 +623,37 @@ const TreeBuilder = ({
 
   // Function to delete a node and all its children
   const deleteNode = (nodeId: string) => {
+    // First collect all IDs that will be deleted (node + all children)
+    const collectNodeIds = (items: TreeItem[], targetId: string): string[] => {
+      const ids: string[] = []
+
+      const collectIds = (node: TreeItem): void => {
+        ids.push(node.id)
+        node.children.forEach(collectIds)
+      }
+
+      const findAndCollect = (items: TreeItem[], targetId: string): boolean => {
+        for (const item of items) {
+          if (item.id === targetId) {
+            collectIds(item)
+            return true
+          }
+
+          if (item.children.length > 0 && findAndCollect(item.children, targetId)) {
+            return true
+          }
+        }
+        return false
+      }
+
+      findAndCollect(items, targetId)
+      return ids
+    }
+
+    // Get all node IDs that will be deleted
+    const nodeIdsToDelete = collectNodeIds(items, nodeId)
+
+    // Update the items tree
     setItems(prevItems => {
       // Helper function to recursively filter out the node and its children
       const filterNode = (items: TreeItem[], nodeId: string): TreeItem[] => {
@@ -637,6 +668,19 @@ const TreeBuilder = ({
       }
 
       return filterNode(prevItems, nodeId)
+    })
+
+    // Update correct paths - remove any paths that include deleted nodes
+    setCorrectPaths(prevPaths => {
+      return prevPaths.filter(correctPath => {
+        // Check if this path contains the deleted node or any of its children
+        const containsDeletedNode = correctPath.path.some(pathNodeId =>
+          nodeIdsToDelete.includes(pathNodeId)
+        )
+
+        // Keep paths that don't contain any deleted nodes
+        return !containsDeletedNode
+      })
     })
   }
 
@@ -848,7 +892,7 @@ const TreeBuilder = ({
     return items.some(item => item.id === nodeId)
   }
 
-  // Get node path as array of names
+  // Get node path as array of IDs
   const getNodePath = (nodeId: string): string[] => {
     const path: string[] = []
 
@@ -859,8 +903,8 @@ const TreeBuilder = ({
       currentPath: string[] = []
     ): boolean => {
       for (const item of items) {
-        // Current path including this item
-        const itemPath = [...currentPath, item.name || item.id]
+        // Current path including this item's ID
+        const itemPath = [...currentPath, item.id]
 
         // If this is the node we're looking for
         if (item.id === id) {
@@ -881,6 +925,25 @@ const TreeBuilder = ({
 
     buildPath(items, nodeId, [])
     return path
+  }
+
+  // Helper function to get node name by ID
+  const getNodeNameById = (nodeId: string): string => {
+    const findName = (items: TreeItem[]): string => {
+      for (const item of items) {
+        if (item.id === nodeId) {
+          return item.name || item.id
+        }
+
+        if (item.children.length > 0) {
+          const foundName = findName(item.children)
+          if (foundName) return foundName
+        }
+      }
+      return nodeId // Fallback to ID if name not found
+    }
+
+    return findName(items)
   }
 
   // Toggle whether a node path is marked as correct
@@ -912,7 +975,7 @@ const TreeBuilder = ({
       size={'sm'}
       className={className}
       onClick={() => {
-        const newId = `item-${Date.now()}`
+        const newId = `node-${Date.now()}`
         setItems([...items, { id: newId, name: '', children: [] }])
         // Set the new node ID to trigger focus
         setNewNodeId(newId)
@@ -1031,7 +1094,9 @@ const TreeBuilder = ({
             correctPaths.map(path => (
               <div key={path.id} className='flex items-center gap-2 py-1'>
                 <CircleCheck className='size-5 rounded-full fill-green-600 text-white' />
-                <span>{path.path.join(' › ')}</span>
+                <span>
+                  {path.path.map(nodeId => getNodeNameById(nodeId)).join(' › ')}
+                </span>
               </div>
             ))
           ) : (

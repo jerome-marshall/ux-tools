@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
@@ -15,7 +16,6 @@ import { Button } from '../../ui/button'
 import { Checkbox } from '../../ui/checkbox'
 import { Input } from '../../ui/input'
 import { type TreeItem } from './tree-builder'
-import { cn } from '@/lib/utils'
 
 interface SortableTreeItemProps {
   id: string
