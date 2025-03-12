@@ -95,9 +95,9 @@ const StudyForm = () => {
     'cursor-pointer hover:bg-gray-50 transition-colors'
   )
 
-  const tests = form.watch('tests')
-
   const scrollToSection = (sectionId: string) => {
+    if (typeof window === 'undefined') return
+
     const section = document.getElementById(sectionId)
     if (section) {
       const yOffset = -120
