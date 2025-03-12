@@ -28,6 +28,13 @@ import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import Tooltip from '../custom-tooltip'
 
+export const SECTION_ID = {
+  STUDY_DETAILS: 'study-details',
+  WELCOME_SCREEN: 'welcome-screen',
+  TREE_TEST: 'tree-test',
+  THANK_YOU_SCREEN: 'thank-you-screen'
+}
+
 const StudyForm = () => {
   const trpc = useTRPC()
   const router = useRouter()
@@ -83,21 +90,40 @@ const StudyForm = () => {
     testsFieldArray.remove(index)
   }
 
-  const btnClasses =
-    'flex w-full h-fit items-center gap-3 rounded-md bg-white p-2 text-base shadow-sm'
+  const btnClasses = cn(
+    'flex w-full h-fit items-center gap-3 rounded-md bg-white p-2 text-base shadow-sm',
+    'cursor-pointer hover:bg-gray-50 transition-colors'
+  )
 
   const tests = form.watch('tests')
+
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId)
+    if (section) {
+      const yOffset = -120
+      const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: 'smooth' })
+    } else {
+      console.warn(`Section with ID "${sectionId}" not found in the DOM`)
+    }
+  }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='m-4 grid grid-cols-[310px_1fr] gap-8'>
           <div className='sticky top-4 flex h-fit flex-col gap-2'>
-            <div className={btnClasses}>
+            <div
+              className={btnClasses}
+              onClick={() => scrollToSection(SECTION_ID.STUDY_DETAILS)}
+            >
               <Text className='icon' />
               <p className=''>Study details</p>
             </div>
-            <div className={cn(btnClasses, 'mt-3')}>
+            <div
+              className={cn(btnClasses, 'mt-3')}
+              onClick={() => scrollToSection(SECTION_ID.WELCOME_SCREEN)}
+            >
               <Hand className='icon' />
               <p className=''>Welcome screen</p>
             </div>
@@ -114,7 +140,10 @@ const StudyForm = () => {
                   control={form.control}
                   name={`tests.${index}.name`}
                   render={({ field }) => (
-                    <div className={cn(btnClasses, '')}>
+                    <div
+                      className={cn(btnClasses, '')}
+                      onClick={() => scrollToSection(SECTION_ID.TREE_TEST + `-${index}`)}
+                    >
                       <Icon className='icon' />
                       <p className=''>
                         {index + 1}. {field.value}
@@ -134,7 +163,10 @@ const StudyForm = () => {
                 />
               )
             })}
-            <div className={cn(btnClasses)}>
+            <div
+              className={cn(btnClasses)}
+              onClick={() => scrollToSection(SECTION_ID.THANK_YOU_SCREEN)}
+            >
               <ThumbsUp className='icon' />
               <p className=''>Thank you screen</p>
             </div>

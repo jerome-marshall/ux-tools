@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { type StudyWithTestsInsert } from '@/zod-schemas'
 import ProjectsDropdown from './projects-dropdown'
 import StudyFormCard from './study-form-card'
+import { SECTION_ID } from './study-form'
 
 const StudyDetails = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
   return (
@@ -21,7 +22,7 @@ const StudyDetails = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) =
       title='Study details'
       icon={<Text className='icon' />}
       content={
-        <div className='grid grid-cols-2 gap-6' id='study-details-form'>
+        <div className='grid grid-cols-2 gap-6' id={SECTION_ID.STUDY_DETAILS}>
           <FormField
             control={form.control}
             name='study.name'

@@ -17,6 +17,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
+import { SECTION_ID } from '../study-form'
 
 const TreeTest = ({
   form,
@@ -70,7 +71,7 @@ const TreeTest = ({
   return (
     <StudyFormCard
       CustomHeader={
-        <div className='flex items-center justify-between' id={`tree-test-${index}`}>
+        <div className='flex items-center justify-between'>
           <div className='flex items-center gap-4'>
             <ListTree className='icon' />
             <FormField
@@ -122,7 +123,7 @@ const TreeTest = ({
         </div>
       }
       content={
-        <div>
+        <div id={SECTION_ID.TREE_TEST + `-${index}`}>
           <div className={sectionClasses}>
             <FormField
               control={form.control}
