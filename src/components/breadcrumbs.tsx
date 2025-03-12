@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { isValidUUID } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
-import { BREADCRUMBS_DATA, PATH, projectUrl } from '@/utils/urls'
+import { BREADCRUMBS_DATA, PATH, projectUrl, studyUrl } from '@/utils/urls'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { HomeIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
@@ -32,13 +32,22 @@ const Breadcrumbs = () => {
           </BreadcrumbItem>
 
           {breadcrumbs.map((breadcrumb, index) => {
-            const isLast = breadcrumb.length - 1 == index
+            const isLast = breadcrumbs.length - 1 === index
 
             // Projects Detail Page
             if (breadcrumbs[0] === 'projects' && isValidUUID(breadcrumb)) {
               return (
                 <Suspense key={breadcrumb} fallback={'Loading...'}>
                   <ProjectBreadcrumb projectId={breadcrumb} isActive={!isLast} />
+                </Suspense>
+              )
+            }
+
+            // Studies Detail Page
+            if (breadcrumbs[0] === 'studies' && isValidUUID(breadcrumb)) {
+              return (
+                <Suspense key={breadcrumb} fallback={'Loading...'}>
+                  <StudyBreadcrumb studyId={breadcrumb} isActive={!isLast} />
                 </Suspense>
               )
             }
@@ -87,6 +96,34 @@ const ProjectBreadcrumb = ({
           </BreadcrumbLink>
         ) : (
           (project?.name ?? projectId)
+        )}
+      </BreadcrumbItem>
+    </>
+  )
+}
+
+const StudyBreadcrumb = ({
+  studyId,
+  isActive
+}: {
+  studyId: string
+  isActive: boolean
+}) => {
+  const trpc = useTRPC()
+  const { data: study } = useSuspenseQuery(
+    trpc.studies.getStudyById.queryOptions({ studyId })
+  )
+
+  return (
+    <>
+      <BreadcrumbSeparator />
+      <BreadcrumbItem>
+        {isActive ? (
+          <BreadcrumbLink href={studyUrl(studyId)}>
+            {study.study.name ?? studyId}
+          </BreadcrumbLink>
+        ) : (
+          (study.study.name ?? studyId)
         )}
       </BreadcrumbItem>
     </>
