@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner'
 import Providers from '@/components/providers'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import NextTopLoader from 'nextjs-toploader'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} flex h-screen flex-col items-center bg-slate-100 antialiased`}
       >
+        <NextTopLoader color='#000' />
         <Providers>
           <NuqsAdapter>
             <Header />

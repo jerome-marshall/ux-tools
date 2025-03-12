@@ -11,7 +11,7 @@ import {
   studyWithTestsInsertSchema
 } from '@/zod-schemas/study.schema'
 import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { toast } from 'sonner'
 import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
