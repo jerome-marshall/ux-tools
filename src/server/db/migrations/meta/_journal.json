@@ -15,6 +15,20 @@
       "when": 1741687779427,
       "tag": "0001_foamy_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1741759268721,
+      "tag": "0002_spicy_stephen_strange",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1741759315720,
+      "tag": "0003_orange_ravenous",
+      "breakpoints": true
     }
   ]
 }

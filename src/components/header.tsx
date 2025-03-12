@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <header className='w-full border-b bg-white shadow-sm'>
-      <div className='flex items-center justify-between px-10 py-2'>
+      <div className='flex items-center justify-between px-10 py-3'>
         <div className='flex items-center gap-4'>
           <Link href='/'>
             <p className='text-xl font-bold'>Ux Lab</p>

@@ -29,7 +29,7 @@ export const studies = pgTable('studies', {
   name: text('name').notNull(),
   projectId: text('project_id')
     .notNull()
-    .references(() => projects.id),
+    .references(() => projects.id, { onDelete: 'cascade' }),
   testsOrder: text('tests_order')
     .array()
     .notNull()
@@ -46,7 +46,7 @@ export const tests = pgTable('tests', {
   type: text('type').$type<TestType>().notNull(),
   studyId: text('study_id')
     .notNull()
-    .references(() => studies.id),
+    .references(() => studies.id, { onDelete: 'cascade' }),
   ...timestamps
 })
 
@@ -54,7 +54,7 @@ export const treeTests = pgTable('tree_tests', {
   id: uniqueId,
   testId: text('test_id')
     .notNull()
-    .references(() => tests.id),
+    .references(() => tests.id, { onDelete: 'cascade' }),
   treeStructure: jsonb('tree_structure').notNull(),
   taskInstructions: text('task_instructions').notNull(),
   correctPaths: jsonb('correct_paths').notNull(),
