@@ -3,6 +3,9 @@ import ProjectsActiveDropdown from './_components/projects-active-dropdown'
 import ProjectsList from './_components/projects-list'
 import { Suspense } from 'react'
 
+// This prevents Next.js from trying to prerender this page during build
+export const dynamic = 'force-dynamic'
+
 export default async function ProjectsPage() {
   return (
     <div className='container'>
