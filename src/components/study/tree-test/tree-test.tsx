@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { type StudyWithTestsInsert } from '@/zod-schemas'
-import { ListTree, Pencil } from 'lucide-react'
+import { ListTree, Pencil, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import StudyFormCard from '../study-form-card'
@@ -16,8 +16,17 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
 
-const TreeTest = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
+const TreeTest = ({
+  form,
+  index,
+  onRemoveSection
+}: {
+  form: UseFormReturn<StudyWithTestsInsert>
+  index: number
+  onRemoveSection: (index: number) => void
+}) => {
   const [treeData, setTreeData] = useState<TreeItem[]>([])
   const [correctPaths, setCorrectPaths] = useState<CorrectPath[]>([])
 
@@ -34,22 +43,16 @@ const TreeTest = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
     }
 
     // Update the form fields
-    form.setValue('tests.0.treeStructure', formattedData.treeData)
-    form.setValue('tests.0.correctPaths', formattedData.correctPaths)
-    // Update test name in form
-    form.setValue('tests.0.name', testName)
+    form.setValue(`tests.${index}.treeStructure`, formattedData.treeData)
+    form.setValue(`tests.${index}.correctPaths`, formattedData.correctPaths)
 
-    form.setValue('tests.0.type', 'TREE_TEST')
+    form.setValue(`tests.${index}.type`, 'TREE_TEST')
   }, [treeData, correctPaths, testName, form])
 
   // Handle tree data changes from the TreeBuilder
   const handleTreeChange = (newTreeData: TreeItem[], newCorrectPaths: CorrectPath[]) => {
     setTreeData(newTreeData)
     setCorrectPaths(newCorrectPaths)
-  }
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTestName(e.target.value)
   }
 
   const handleNameBlur = () => {
@@ -66,42 +69,64 @@ const TreeTest = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
 
   return (
     <StudyFormCard
-      CustomTitle={
-        <div
-          className='relative flex items-center gap-2'
-          onMouseEnter={() => setIsHoveringTitle(true)}
-          onMouseLeave={() => setIsHoveringTitle(false)}
-        >
-          {isEditingName ? (
-            <Input
-              value={testName}
-              onChange={handleNameChange}
-              onBlur={handleNameBlur}
-              onKeyDown={handleNameKeyDown}
-              autoFocus
-              className='h-8 py-0 text-lg font-semibold'
+      CustomHeader={
+        <div className='flex items-center justify-between' id={`tree-test-${index}`}>
+          <div className='flex items-center gap-4'>
+            <ListTree className='icon' />
+            <FormField
+              control={form.control}
+              name={`tests.${index}.name`}
+              render={({ field }) => (
+                <div
+                  className='relative flex items-center gap-2'
+                  onMouseEnter={() => setIsHoveringTitle(true)}
+                  onMouseLeave={() => setIsHoveringTitle(false)}
+                >
+                  {isEditingName ? (
+                    <Input
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={handleNameBlur}
+                      onKeyDown={handleNameKeyDown}
+                      autoFocus
+                      className='h-8 py-0 text-lg font-semibold'
+                    />
+                  ) : (
+                    <CardTitle
+                      onClick={() => setIsEditingName(true)}
+                      className='cursor-pointer'
+                    >
+                      {index + 1}. {field.value}
+                    </CardTitle>
+                  )}
+                  {isHoveringTitle && !isEditingName && (
+                    <Pencil
+                      size={16}
+                      className='text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
+                      onClick={() => setIsEditingName(true)}
+                    />
+                  )}
+                </div>
+              )}
             />
-          ) : (
-            <CardTitle onClick={() => setIsEditingName(true)} className='cursor-pointer'>
-              {testName}
-            </CardTitle>
-          )}
-          {isHoveringTitle && !isEditingName && (
-            <Pencil
-              size={16}
-              className='text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
-              onClick={() => setIsEditingName(true)}
-            />
-          )}
+          </div>
+          <div className='flex items-center gap-2'>
+            <Button
+              variant='destructive'
+              size='icon'
+              onClick={() => onRemoveSection(index)}
+            >
+              <Trash className='size-4' />
+            </Button>
+          </div>
         </div>
       }
-      icon={<ListTree className='icon' />}
       content={
         <div>
           <div className={sectionClasses}>
             <FormField
               control={form.control}
-              name='tests.0.taskInstructions'
+              name={`tests.${index}.taskInstructions`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Task instructions</FormLabel>
@@ -124,6 +149,8 @@ const TreeTest = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
               initialItems={treeData}
               initialCorrectPaths={correctPaths}
               onChange={handleTreeChange}
+              form={form}
+              sectionIndex={index}
             />
           </div>
         </div>

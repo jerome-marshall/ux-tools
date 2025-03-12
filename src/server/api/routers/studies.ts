@@ -1,11 +1,5 @@
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
 import {
-  studyInsertSchema,
-  testInsertSchema,
-  testTypes,
-  treeTestInsertSchema
-} from '@/server/db/schema'
-import {
   createStudyUseCase,
   getStudiesByProjectIdUseCase,
   updateStudyUseCase

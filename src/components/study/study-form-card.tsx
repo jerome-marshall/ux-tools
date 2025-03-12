@@ -8,22 +8,24 @@ const StudyFormCard = ({
   title,
   icon,
   className,
-  CustomTitle
+  CustomHeader
 }: {
   content: React.ReactNode
   contentClassName?: string
   title?: string
   icon?: React.ReactNode
   className?: string
-  CustomTitle?: React.ReactNode
+  CustomHeader?: React.ReactNode
 }) => {
   return (
     <Card className={cn('border-none', className)}>
       <CardHeader>
-        <div className='flex items-center gap-4'>
-          {icon}
-          {CustomTitle ?? <CardTitle>{title}</CardTitle>}
-        </div>
+        {CustomHeader ?? (
+          <div className='flex items-center gap-4'>
+            {icon}
+            <CardTitle>{title}</CardTitle>
+          </div>
+        )}
       </CardHeader>
       <CardContent className={contentClassName}>{content}</CardContent>
     </Card>

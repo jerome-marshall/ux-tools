@@ -24,6 +24,9 @@ import { CircleCheck, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '../../ui/button'
 import { SortableTreeItem } from './tree-sortable-item'
+import { FormField, FormMessage } from '@/components/ui/form'
+import { type UseFormReturn } from 'react-hook-form'
+import { type StudyWithTestsInsert } from '@/zod-schemas'
 
 // Define the TreeItem type
 export interface TreeItem {
@@ -43,12 +46,16 @@ interface TreeBuilderProps {
   initialItems?: TreeItem[]
   initialCorrectPaths?: CorrectPath[]
   onChange?: (items: TreeItem[], correctPaths: CorrectPath[]) => void
+  form: UseFormReturn<StudyWithTestsInsert>
+  sectionIndex: number
 }
 
 const TreeBuilder = ({
   initialItems = [],
   initialCorrectPaths = [],
-  onChange
+  onChange,
+  form,
+  sectionIndex
 }: TreeBuilderProps) => {
   const [items, setItems] = useState<TreeItem[]>(initialItems)
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -67,7 +74,13 @@ const TreeBuilder = ({
     if (onChange) {
       onChange(items, correctPaths)
     }
-  }, [items, correctPaths, onChange])
+
+    // Delay the trigger to ensure the tree is fully rendered
+    setTimeout(() => {
+      void form.trigger(`tests.${sectionIndex}.treeStructure`)
+      void form.trigger(`tests.${sectionIndex}.correctPaths`)
+    }, 0)
+  }, [items, correctPaths, onChange, form, sectionIndex])
 
   // Expand a node and ensure it's visible
   const expandNode = (nodeId: string) => {
@@ -988,123 +1001,145 @@ const TreeBuilder = ({
 
   return (
     <div>
-      <div className='rounded-md bg-gray-50 p-4'>
-        {isTreeEmpty ? (
-          <div className='flex flex-col items-center justify-center'>
-            <p className='text-sm text-gray-500'>
-              Create your tree by adding a node or import the data from a CSV file
-            </p>
-            <div className='mt-4 flex gap-2'>
-              <AddNodeButton />
-              <Button variant={'outline'} size={'sm'} type='button'>
-                Import from CSV
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={collisionDetectionStrategy}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDragMove={handleDragMove}
-              onDragEnd={handleDragEnd}
-              onDragCancel={handleDragCancel}
-            >
-              <SortableContext items={allNodeIds} strategy={verticalListSortingStrategy}>
-                {items.map((item, index) => (
-                  <SortableTreeItem
-                    key={item.id}
-                    id={item.id}
-                    item={item}
-                    onAddChild={addChildNode}
-                    onUpdateName={updateNodeName}
-                    onDeleteNode={deleteNode}
-                    onIndent={indentNode}
-                    onUnindent={unindentNode}
-                    isFirstChild={index === 0}
-                    isRootLevel={true}
-                    index={index}
-                    forcedExpanded={expandedNodes.has(item.id)}
-                    onToggleExpand={(nodeId, expanded) => {
-                      if (expanded) {
-                        expandNode(nodeId)
-                      } else {
-                        setExpandedNodes(prev => {
-                          const updated = new Set(prev)
-                          updated.delete(nodeId)
-                          return updated
-                        })
-                      }
-                    }}
-                    draggedNodeId={activeId}
-                    isCorrect={isCorrectPath(item.id)}
-                    onToggleCorrect={toggleCorrectPath}
-                    getIsCorrect={isCorrectPath}
-                  />
-                ))}
-              </SortableContext>
+      <FormField
+        control={form.control}
+        name={`tests.${sectionIndex}.treeStructure`}
+        render={({ field }) => (
+          <>
+            <FormMessage className='mb-2' />
+            <div className='rounded-md bg-gray-50 p-4' ref={field.ref}>
+              {isTreeEmpty ? (
+                <div className='flex flex-col items-center justify-center'>
+                  <p className='text-sm text-gray-500'>
+                    Create your tree by adding a node or import the data from a CSV file
+                  </p>
+                  <div className='mt-4 flex gap-2'>
+                    <AddNodeButton />
+                    <Button variant={'outline'} size={'sm'} type='button'>
+                      Import from CSV
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={collisionDetectionStrategy}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDragMove={handleDragMove}
+                    onDragEnd={handleDragEnd}
+                    onDragCancel={handleDragCancel}
+                  >
+                    <SortableContext
+                      items={allNodeIds}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {items.map((item, index) => (
+                        <SortableTreeItem
+                          key={item.id}
+                          id={item.id}
+                          item={item}
+                          onAddChild={addChildNode}
+                          onUpdateName={updateNodeName}
+                          onDeleteNode={deleteNode}
+                          onIndent={indentNode}
+                          onUnindent={unindentNode}
+                          isFirstChild={index === 0}
+                          isRootLevel={true}
+                          index={index}
+                          forcedExpanded={expandedNodes.has(item.id)}
+                          onToggleExpand={(nodeId, expanded) => {
+                            if (expanded) {
+                              expandNode(nodeId)
+                            } else {
+                              setExpandedNodes(prev => {
+                                const updated = new Set(prev)
+                                updated.delete(nodeId)
+                                return updated
+                              })
+                            }
+                          }}
+                          draggedNodeId={activeId}
+                          isCorrect={isCorrectPath(item.id)}
+                          onToggleCorrect={toggleCorrectPath}
+                          getIsCorrect={isCorrectPath}
+                        />
+                      ))}
+                    </SortableContext>
 
-              <DragOverlay dropAnimation={dropAnimation}>
-                {activeId ? (
-                  <SortableTreeItem
-                    id={activeId}
-                    item={createCollapsedItem(
-                      findItemById(items, activeId) ?? {
-                        id: activeId,
-                        name: '',
-                        children: []
-                      }
-                    )}
-                    onAddChild={addChildNode}
-                    onUpdateName={updateNodeName}
-                    onDeleteNode={deleteNode}
-                    onIndent={indentNode}
-                    onUnindent={unindentNode}
-                    isDragOverlay={true}
-                    isRootLevel={isRootNode(activeId, items)}
-                    forcedExpanded={false}
-                    onToggleExpand={(nodeId, expanded) => {
-                      if (expanded) {
-                        expandNode(nodeId)
-                      } else {
-                        setExpandedNodes(prev => {
-                          const updated = new Set(prev)
-                          updated.delete(nodeId)
-                          return updated
-                        })
-                      }
-                    }}
-                    isCorrect={isCorrectPath(activeId)}
-                    onToggleCorrect={toggleCorrectPath}
-                    getIsCorrect={isCorrectPath}
-                  />
-                ) : null}
-              </DragOverlay>
-            </DndContext>
-            <AddNodeButton className='mt-4' />
-          </div>
+                    <DragOverlay dropAnimation={dropAnimation}>
+                      {activeId ? (
+                        <SortableTreeItem
+                          id={activeId}
+                          item={createCollapsedItem(
+                            findItemById(items, activeId) ?? {
+                              id: activeId,
+                              name: '',
+                              children: []
+                            }
+                          )}
+                          onAddChild={addChildNode}
+                          onUpdateName={updateNodeName}
+                          onDeleteNode={deleteNode}
+                          onIndent={indentNode}
+                          onUnindent={unindentNode}
+                          isDragOverlay={true}
+                          isRootLevel={isRootNode(activeId, items)}
+                          forcedExpanded={false}
+                          onToggleExpand={(nodeId, expanded) => {
+                            if (expanded) {
+                              expandNode(nodeId)
+                            } else {
+                              setExpandedNodes(prev => {
+                                const updated = new Set(prev)
+                                updated.delete(nodeId)
+                                return updated
+                              })
+                            }
+                          }}
+                          isCorrect={isCorrectPath(activeId)}
+                          onToggleCorrect={toggleCorrectPath}
+                          getIsCorrect={isCorrectPath}
+                        />
+                      ) : null}
+                    </DragOverlay>
+                  </DndContext>
+                  <AddNodeButton className='mt-4' />
+                </div>
+              )}
+            </div>
+          </>
         )}
-      </div>
+      />
       <div className='mt-6'>
         <Label>Correct answers</Label>
-        <div className={'mt-3'}>
-          {correctPaths?.length > 0 ? (
-            correctPaths.map(path => (
-              <div key={path.id} className='flex items-center gap-2 py-1'>
-                <CircleCheck className='size-5 rounded-full fill-green-600 text-white' />
-                <span>
-                  {path.path.map(nodeId => getNodeNameById(nodeId)).join(' › ')}
-                </span>
-              </div>
-            ))
-          ) : (
-            <p className='mx-auto w-fit text-sm text-gray-500'>
-              Select at least one node from your tree
-            </p>
+        <FormField
+          control={form.control}
+          name={`tests.${sectionIndex}.correctPaths`}
+          render={({ field }) => (
+            <div className='mt-3' ref={field.ref}>
+              <FormMessage className='mx-auto' />
+
+              {correctPaths?.length > 0 ? (
+                correctPaths.map(path => (
+                  <div key={path.id} className='flex items-center gap-2 py-1'>
+                    <CircleCheck className='size-5 rounded-full fill-green-600 text-white' />
+                    <span>
+                      {path.path.map(nodeId => getNodeNameById(nodeId)).join(' › ')}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className='flex flex-col items-center justify-center'>
+                  <p className='mx-auto w-fit text-sm text-gray-500'>
+                    Select at least one node from your tree
+                  </p>
+                </div>
+              )}
+            </div>
           )}
-        </div>
+        />
       </div>
     </div>
   )

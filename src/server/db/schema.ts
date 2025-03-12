@@ -37,7 +37,7 @@ export const studies = pgTable('studies', {
   ...timestamps
 })
 
-export const testTypes = ['TREE_TEST', 'CARD_SORT', 'USABILITY_TEST'] as const
+export const testTypes = ['TREE_TEST'] as const
 export type TestType = (typeof testTypes)[number]
 
 export const tests = pgTable('tests', {
@@ -129,9 +129,51 @@ export const treeTestInsertSchema = createInsertSchema(treeTests)
   })
   .extend({
     testId: z.string().min(1, { message: 'Test is required' }),
-    treeStructure: z.string().min(1, { message: 'Tree structure is required' }),
+    treeStructure: z
+      .string()
+      .min(1, { message: 'Tree structure is required' })
+      .superRefine((val, ctx) => {
+        try {
+          const parsed = JSON.parse(val) as unknown[]
+          if (parsed.length < 1) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.too_small,
+              minimum: 1,
+              type: 'array',
+              inclusive: true,
+              message: 'At least one node is required'
+            })
+          }
+        } catch (error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Invalid JSON'
+          })
+        }
+      }),
     taskInstructions: z.string().min(1, { message: 'Task instructions are required' }),
-    correctPaths: z.string().min(1, { message: 'Correct paths are required' })
+    correctPaths: z
+      .string()
+      .min(1, { message: 'Correct paths are required' })
+      .superRefine((val, ctx) => {
+        try {
+          const parsed = JSON.parse(val) as unknown[]
+          if (parsed.length < 1) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.too_small,
+              minimum: 1,
+              type: 'array',
+              inclusive: true,
+              message: 'At least one correct path is required'
+            })
+          }
+        } catch (error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Invalid JSON'
+          })
+        }
+      })
   })
 
 /* Types */
