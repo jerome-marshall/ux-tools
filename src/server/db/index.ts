@@ -1,14 +1,17 @@
 // Make sure to install the 'pg' package
 import { env } from '@/env'
-import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schema from '@/server/db/schema'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
+
+const pool = new Pool({
+  connectionString: env.DATABASE_URL
+})
 
 // You can specify any property from the node-postgres connection options
 const db = drizzle({
-  schema,
-  connection: {
-    connectionString: env.DATABASE_URL
-  }
+  client: pool,
+  schema
 })
 
 export { db }
