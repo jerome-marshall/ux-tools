@@ -1,5 +1,15 @@
 import StudyForm from '@/components/study/study-form'
 
 export default function NewTestPage() {
-  return <StudyForm />
+  return (
+    <StudyForm
+      initialData={{
+        study: {
+          name: '',
+          projectId: ''
+        },
+        tests: []
+      }}
+    />
+  )
 }

@@ -11,7 +11,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { type StudyWithTestsInsert } from '@/zod-schemas'
+import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import ProjectsDropdown from './projects-dropdown'
 import StudyFormCard from './study-form-card'
 import { SECTION_ID } from './study-form'

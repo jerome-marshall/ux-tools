@@ -22,12 +22,12 @@ import {
 } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { type StudyWithTests } from '@/zod-schemas'
 import { useTRPC } from '@/trpc/client'
 import { useQuery } from '@tanstack/react-query'
+import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 
 interface ProjectsDropdownProps {
-  form: UseFormReturn<StudyWithTests>
+  form: UseFormReturn<StudyWithTestsInsert>
 }
 
 const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {

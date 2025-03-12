@@ -15,7 +15,7 @@ import Tooltip from '../../custom-tooltip'
 import { Button } from '../../ui/button'
 import { Checkbox } from '../../ui/checkbox'
 import { Input } from '../../ui/input'
-import { type TreeItem } from './tree-builder'
+import { type TreeItem } from '@/zod-schemas/tree.schema'
 
 interface SortableTreeItemProps {
   id: string

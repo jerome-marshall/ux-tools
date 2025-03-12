@@ -1,12 +1,25 @@
-import { createStudy, getStudiesByProjectId, updateStudy } from '@/data-access/studies'
+import {
+  insertStudy,
+  getStudiesByProjectId,
+  updateStudy,
+  getStudyById
+} from '@/data-access/studies'
 import { type Study, type StudyInsert } from '@/server/db/schema'
 
-export const createStudyUseCase = async (study: StudyInsert) => {
-  const data = await createStudy(study)
+export const insertStudyUseCase = async (study: StudyInsert) => {
+  const data = await insertStudy(study)
   if (!data) {
     throw new Error('Failed to create study')
   }
 
+  return data
+}
+
+export const getStudyByIdUseCase = async (id: string) => {
+  const data = await getStudyById(id)
+  if (!data) {
+    throw new Error('Failed to get study')
+  }
   return data
 }
 

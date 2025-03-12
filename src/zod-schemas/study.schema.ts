@@ -4,7 +4,7 @@ import {
   testInsertSchema,
   testTypes,
   treeTestInsertSchema
-} from './server/db/schema'
+} from '@/server/db/schema'
 
 export const studyWithTestsInsertSchema = z.object({
   study: studyInsertSchema,

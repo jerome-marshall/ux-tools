@@ -3,6 +3,7 @@ import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { generateId } from '@/lib/utils'
+import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
 
 const timestamps = {
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -129,51 +130,9 @@ export const treeTestInsertSchema = createInsertSchema(treeTests)
   })
   .extend({
     testId: z.string().min(1, { message: 'Test is required' }),
-    treeStructure: z
-      .string()
-      .min(1, { message: 'Tree structure is required' })
-      .superRefine((val, ctx) => {
-        try {
-          const parsed = JSON.parse(val) as unknown[]
-          if (parsed.length < 1) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.too_small,
-              minimum: 1,
-              type: 'array',
-              inclusive: true,
-              message: 'At least one node is required'
-            })
-          }
-        } catch (error) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Invalid JSON'
-          })
-        }
-      }),
+    treeStructure: z.array(treeItemSchema),
     taskInstructions: z.string().min(1, { message: 'Task instructions are required' }),
-    correctPaths: z
-      .string()
-      .min(1, { message: 'Correct paths are required' })
-      .superRefine((val, ctx) => {
-        try {
-          const parsed = JSON.parse(val) as unknown[]
-          if (parsed.length < 1) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.too_small,
-              minimum: 1,
-              type: 'array',
-              inclusive: true,
-              message: 'At least one correct path is required'
-            })
-          }
-        } catch (error) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Invalid JSON'
-          })
-        }
-      })
+    correctPaths: z.array(correctPathSchema)
   })
 
 /* Types */

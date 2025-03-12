@@ -26,21 +26,8 @@ import { Button } from '../../ui/button'
 import { SortableTreeItem } from './tree-sortable-item'
 import { FormField, FormMessage } from '@/components/ui/form'
 import { type UseFormReturn } from 'react-hook-form'
-import { type StudyWithTestsInsert } from '@/zod-schemas'
-
-// Define the TreeItem type
-export interface TreeItem {
-  id: string
-  name: string
-  children: TreeItem[]
-  parentId?: string
-}
-
-// Define the CorrectPath type
-export interface CorrectPath {
-  id: string
-  path: string[] // Array of node IDs that form the path, not node names
-}
+import { type TreeItem, type CorrectPath } from '@/zod-schemas/tree.schema'
+import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 
 interface TreeBuilderProps {
   initialItems?: TreeItem[]

@@ -6,7 +6,10 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { Form, FormField, FormMessage } from '@/components/ui/form'
 import { useTRPC } from '@/trpc/client'
 import { studyUrl } from '@/utils/urls'
-import { type StudyWithTestsInsert, studyWithTestsInsertSchema } from '@/zod-schemas'
+import {
+  type StudyWithTestsInsert,
+  studyWithTestsInsertSchema
+} from '@/zod-schemas/study.schema'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -35,22 +38,17 @@ export const SECTION_ID = {
   THANK_YOU_SCREEN: 'thank-you-screen'
 }
 
-const StudyForm = () => {
+const StudyForm = ({ initialData }: { initialData: StudyWithTestsInsert }) => {
   const trpc = useTRPC()
   const router = useRouter()
 
   const form = useForm<StudyWithTestsInsert>({
     resolver: zodResolver(studyWithTestsInsertSchema),
-    defaultValues: {
-      study: {
-        name: ''
-      },
-      tests: []
-    }
+    defaultValues: initialData
   })
   const errors = form.formState.errors
   // console.log('🚀 ~ StudyForm ~ state:', form.watch())
-  console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
+  // console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
 
   const testsFieldArray = useFieldArray({
     control: form.control,
@@ -79,9 +77,9 @@ const StudyForm = () => {
       testsFieldArray.append({
         type: testType,
         name: 'New Tree Test',
-        treeStructure: '',
+        treeStructure: [],
         taskInstructions: '',
-        correctPaths: ''
+        correctPaths: []
       })
     }
   }
@@ -196,6 +194,8 @@ const StudyForm = () => {
                       form={form}
                       index={index}
                       onRemoveSection={onRemoveSection}
+                      initialTreeData={field.treeStructure}
+                      initialCorrectPaths={field.correctPaths}
                     />
                   )
                 }
