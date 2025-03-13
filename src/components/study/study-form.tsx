@@ -3,20 +3,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
 
-import { Form, FormField, FormMessage } from '@/components/ui/form'
+import { Form, FormField } from '@/components/ui/form'
+import { cn } from '@/lib/utils'
+import { type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { studyUrl } from '@/utils/urls'
+import { type StudyWithTests } from '@/types'
+import { previewUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
 } from '@/zod-schemas/study.schema'
 import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'nextjs-toploader/app'
-import { toast } from 'sonner'
-import StudyAddSection from './study-add-section'
-import StudyDetails from './study-details'
-import TreeTest from './tree-test/tree-test'
-import { type TestType } from '@/server/db/schema'
 import {
   Clock,
   FileQuestion,
@@ -27,9 +24,14 @@ import {
   ThumbsUp,
   TriangleAlert
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '../ui/button'
+import Link from 'next/link'
+import { useRouter } from 'nextjs-toploader/app'
+import { toast } from 'sonner'
 import Tooltip from '../custom-tooltip'
+import { Button, buttonVariants } from '../ui/button'
+import StudyAddSection from './study-add-section'
+import StudyDetails from './study-details'
+import TreeTest from './tree-test/tree-test'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -38,7 +40,15 @@ export const SECTION_ID = {
   THANK_YOU_SCREEN: 'thank-you-screen'
 }
 
-const StudyForm = ({ initialData }: { initialData: StudyWithTestsInsert }) => {
+const StudyForm = ({
+  initialData,
+  studyWithTests
+}: {
+  initialData: StudyWithTestsInsert
+  studyWithTests?: StudyWithTests
+}) => {
+  const isDetailsPage = !!studyWithTests?.study?.id
+
   const trpc = useTRPC()
   const router = useRouter()
 
@@ -172,13 +182,18 @@ const StudyForm = ({ initialData }: { initialData: StudyWithTestsInsert }) => {
               <Clock className='size-4' />
               <p className=''>Under a minute</p>
             </div>
-            <Button
-              className='mt-3 bg-gray-200 hover:bg-gray-300'
-              variant={'secondary'}
-              type='submit'
-            >
-              Save and preview
-            </Button>
+            {isDetailsPage && (
+              <Link
+                href={previewUrl(studyWithTests.study.id)}
+                className={cn(
+                  buttonVariants({ variant: 'secondary' }),
+                  'mt-3 bg-gray-200 hover:bg-gray-300'
+                )}
+                type='button'
+              >
+                Preview
+              </Link>
+            )}
             <Button className='' type='submit'>
               Save and continue
             </Button>

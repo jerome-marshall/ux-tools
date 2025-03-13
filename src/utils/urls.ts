@@ -4,12 +4,13 @@ export const PATH = {
   dashboard: '/dashboard',
   projects: '/projects',
   studies: '/studies',
-  newStudy: '/studies/new'
+  newStudy: '/studies/new',
+  preview: '/preview'
 } as const
 
 export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
 export const studyUrl = (studyId: string) => `${PATH.studies}/${studyId}`
-
+export const previewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
 export const BREADCRUMBS_DATA: Record<
   keyof typeof PATH,
   {
@@ -21,5 +22,6 @@ export const BREADCRUMBS_DATA: Record<
   dashboard: { name: 'Dashboard', href: PATH.dashboard, icon: HomeIcon },
   projects: { name: 'Projects', href: PATH.projects },
   studies: { name: 'Studies', href: PATH.studies },
-  newStudy: { name: 'New Study', href: PATH.newStudy }
+  newStudy: { name: 'New Study', href: PATH.newStudy },
+  preview: { name: 'Preview', href: PATH.preview }
 }
