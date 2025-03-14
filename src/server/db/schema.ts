@@ -1,9 +1,14 @@
 import { relations, sql } from 'drizzle-orm'
-import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { boolean, integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { generateId } from '@/lib/utils'
-import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
+import {
+  correctPathSchema,
+  treeItemSchema,
+  treeTestClickSchema,
+  type TreeTestClick
+} from '@/zod-schemas/tree.schema'
 
 const timestamps = {
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -62,6 +67,18 @@ export const treeTests = pgTable('tree_tests', {
   ...timestamps
 })
 
+export const treeTestResults = pgTable('tree_test_results', {
+  id: uniqueId,
+  testId: text('test_id')
+    .notNull()
+    .references(() => tests.id, { onDelete: 'cascade' }),
+  totalDurationMs: integer('total_duration_ms').notNull(),
+  taskDurationMs: integer('task_duration_ms').notNull(),
+  treeTestClicks: jsonb('tree_test_clicks').$type<TreeTestClick[]>().notNull(),
+  passed: boolean('passed').notNull(),
+  ...timestamps
+})
+
 /*Relations */
 export const projectRelations = relations(projects, ({ many }) => ({
   studies: many(studies)
@@ -73,7 +90,7 @@ export const studyRelations = relations(studies, ({ one, many }) => ({
   }),
   tests: many(tests)
 }))
-export const testRelations = relations(tests, ({ one }) => ({
+export const testRelations = relations(tests, ({ one, many }) => ({
   study: one(studies, {
     fields: [tests.studyId],
     references: [studies.id]
@@ -81,11 +98,18 @@ export const testRelations = relations(tests, ({ one }) => ({
   treeTest: one(treeTests, {
     fields: [tests.id],
     references: [treeTests.testId]
-  })
+  }),
+  treeTestResults: many(treeTestResults)
 }))
 export const treeTestRelations = relations(treeTests, ({ one }) => ({
   test: one(tests, {
     fields: [treeTests.testId],
+    references: [tests.id]
+  })
+}))
+export const treeTestResultRelations = relations(treeTestResults, ({ one }) => ({
+  test: one(tests, {
+    fields: [treeTestResults.testId],
     references: [tests.id]
   })
 }))
@@ -135,6 +159,20 @@ export const treeTestInsertSchema = createInsertSchema(treeTests)
     correctPaths: z.array(correctPathSchema)
   })
 
+export const treeTestResultInsertSchema = createInsertSchema(treeTestResults)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true
+  })
+  .extend({
+    testId: z.string().min(1, { message: 'Test is required' }),
+    totalDurationMs: z.number().int().positive(),
+    taskDurationMs: z.number().int().positive(),
+    treeTestClicks: z.array(treeTestClickSchema),
+    passed: z.boolean()
+  })
+
 /* Types */
 export type Project = typeof projects.$inferSelect
 export type ProjectInsert = z.infer<typeof projectInsertSchema>
@@ -144,3 +182,5 @@ export type Test = typeof tests.$inferSelect
 export type TestInsert = z.infer<typeof testInsertSchema>
 export type TreeTest = typeof treeTests.$inferSelect
 export type TreeTestInsert = z.infer<typeof treeTestInsertSchema>
+export type TreeTestResult = typeof treeTestResults.$inferSelect
+export type TreeTestResultInsert = z.infer<typeof treeTestResultInsertSchema>

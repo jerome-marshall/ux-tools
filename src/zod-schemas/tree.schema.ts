@@ -22,3 +22,9 @@ export const correctPathSchema = z.object({
   path: z.array(z.string())
 })
 export type CorrectPath = z.infer<typeof correctPathSchema>
+
+export const treeTestClickSchema = z.object({
+  nodeId: z.string(),
+  milliseconds: z.number()
+})
+export type TreeTestClick = z.infer<typeof treeTestClickSchema>
