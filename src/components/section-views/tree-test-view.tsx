@@ -1,7 +1,9 @@
 import { cn } from '@/lib/utils'
-import { type TreeItem } from '@/zod-schemas/tree.schema'
+import { type TreeItem, type TreeTestClick } from '@/zod-schemas/tree.schema'
 import { ChevronDown, ChevronRight } from 'lucide-react'
+import * as motion from 'motion/react-client'
 import { useState } from 'react'
+import { Button } from '../ui/button'
 
 const TreeTestView = ({
   treeStructure,
@@ -10,10 +12,30 @@ const TreeTestView = ({
 }: {
   treeStructure: TreeItem[]
   taskInstructions: string
-  onNextStep: () => void
+  onNextStep: (
+    totalDurationMs: number,
+    taskDurationMs: number,
+    navigationPath: TreeTestClick[]
+  ) => void
 }) => {
-  const handleNext = (passed: boolean, path: string[]) => {
-    // TODO: Implement the logic to handle the next step
+  const [startTime, setStartTime] = useState<number>(Date.now())
+  const [firstInteractionTime, setFirstInteractionTime] = useState<number | null>(null)
+
+  const handleNext = (passed: boolean, path: TreeTestClick[]) => {
+    const now = Date.now()
+    const totalDurationMs = now - startTime
+    const taskDurationMs = firstInteractionTime ? now - firstInteractionTime : 0
+
+    console.log('🚀 ~ handleNext ~ passed:', passed)
+    console.log('🚀 ~ startTime:', startTime)
+    console.log('🚀 ~ handleNext ~ totalDurationMs:', totalDurationMs)
+    console.log('🚀 ~ handleNext ~ taskDurationMs:', taskDurationMs)
+    console.log('🚀 ~ handleNext ~ path:', path)
+
+    setStartTime(now)
+    setFirstInteractionTime(null)
+
+    // onNextStep(totalDurationMs, taskDurationMs, path)
   }
 
   return (
@@ -25,31 +47,32 @@ const TreeTestView = ({
         </p>
       </div>
       <div className='mt-10'>
-        <TreeView treeStructure={treeStructure} onNextStep={onNextStep} />
+        <TreeView
+          treeStructure={treeStructure}
+          onNextStep={handleNext}
+          firstInteractionTime={firstInteractionTime}
+          setFirstInteractionTime={setFirstInteractionTime}
+        />
       </div>
-
-      {/* Pass button */}
-      <button
-        onClick={onNextStep}
-        className='absolute right-6 bottom-6 rounded-md bg-gray-200 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-300'
-      >
-        I'm not sure, pass
-      </button>
     </div>
   )
 }
 
 const TreeView = ({
   treeStructure,
-  onNextStep
+  onNextStep,
+  firstInteractionTime,
+  setFirstInteractionTime
 }: {
   treeStructure: TreeItem[]
-  onNextStep: () => void
+  onNextStep: (passed: boolean, navigationPath: TreeTestClick[]) => void
+  firstInteractionTime: number | null
+  setFirstInteractionTime: (time: number) => void
 }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(new Set())
-  const [navigationPath, setNavigationPath] = useState<string[]>([])
-  console.log('🚀 ~ TreeView ~ navigationPath:', navigationPath)
+  const [navigationPath, setNavigationPath] = useState<TreeTestClick[]>([])
+  const [lastClickTime, setLastClickTime] = useState<number>(Date.now())
 
   // Function to get all valid ancestors of a node
   const getNodeAncestors = (tree: TreeItem[], nodeId: string): string[] => {
@@ -170,13 +193,31 @@ const TreeView = ({
   }
 
   const handleNodeSelection = (nodeId: string, parentId?: string) => {
+    const now = Date.now()
+
+    // Record first interaction time if not set yet
+    if (!firstInteractionTime) {
+      setFirstInteractionTime(now)
+    }
+
     // Always select the node
     setSelectedNodeId(nodeId)
 
-    // Update the navigation path - append to history instead of replacing
+    // Update the navigation path - but don't add it if it's already selected
     setNavigationPath(prev => {
-      // Add current node to the history path
-      return [...prev, nodeId]
+      // Check if this node is already the last one in the path
+      if (prev.length > 0 && prev[prev.length - 1].nodeId === nodeId) {
+        return prev // Return unchanged if already the last selected
+      }
+
+      // Calculate time since last click
+      const timeAfterPreviousMs = now - lastClickTime
+
+      // Update the last click time
+      setLastClickTime(now)
+
+      // Add current node to the history path with timing info
+      return [...prev, { nodeId, milliseconds: timeAfterPreviousMs }]
     })
 
     // Update expanded nodes
@@ -215,45 +256,71 @@ const TreeView = ({
   }
 
   return (
-    <div className='w-[620px]'>
-      {/* Navigation History */}
-      {navigationPath.length > 0 && (
-        <div className='mb-4 overflow-x-auto'>
+    <>
+      <div className='w-[580px]'>
+        {/* Navigation History */}
+        {/* {navigationPath.length > 0 && (
+        <motion.div
+          className='mb-4 overflow-x-auto'
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <div className='mb-1 font-medium text-gray-700'>Navigation History:</div>
           <div className='flex flex-wrap items-center rounded-md bg-gray-50 p-2 text-sm text-gray-500'>
-            {navigationPath.map((id, index) => {
-              const nodeName = findNodeName(treeStructure, id) ?? id
+            {navigationPath.map((item, index) => {
+              const nodeName = findNodeName(treeStructure, item.nodeId) ?? item.nodeId
 
               return (
-                <span key={`${id}-${index}`} className='flex items-center'>
+                <motion.span
+                  key={`${item.nodeId}-${index}`}
+                  className='flex items-center'
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
                   {index > 0 && <span className='mx-1'>→</span>}
                   <span
                     className={cn(
                       'rounded px-2 py-1',
-                      selectedNodeId === id ? 'bg-teal-500 text-white' : 'bg-gray-100'
+                      selectedNodeId === item.nodeId ? 'bg-teal-500 text-white' : 'bg-gray-100'
                     )}
                   >
                     {nodeName}
                   </span>
-                </span>
+                </motion.span>
               )
             })}
           </div>
-        </div>
-      )}
+        </motion.div>
+      )} */}
 
-      {treeStructure.map(item => (
-        <TreeItem
-          key={item.id}
-          item={item}
-          parentId={undefined}
-          selectedNodeId={selectedNodeId}
-          expandedNodeIds={expandedNodeIds}
-          onSelect={handleNodeSelection}
-          onNextStep={onNextStep}
-        />
-      ))}
-    </div>
+        {treeStructure.map((item, index) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <TreeItem
+              item={item}
+              parentId={undefined}
+              selectedNodeId={selectedNodeId}
+              expandedNodeIds={expandedNodeIds}
+              onSelect={handleNodeSelection}
+              onNextStep={() => onNextStep(false, navigationPath)}
+            />
+          </motion.div>
+        ))}
+      </div>
+      {/* Pass button */}
+      <button
+        onClick={() => onNextStep(true, navigationPath)}
+        className='absolute right-6 bottom-6 rounded-md bg-gray-200 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-300'
+      >
+        I'm not sure, pass
+      </button>
+    </>
   )
 }
 
@@ -270,7 +337,7 @@ const TreeItem = ({
   selectedNodeId: string | null
   expandedNodeIds: Set<string>
   onSelect: (id: string, parentId?: string) => void
-  onNextStep: () => void
+  onNextStep: (navigationPath: TreeTestClick[]) => void
 }) => {
   const hasChildren = item.children && item.children.length > 0
   const isSelected = selectedNodeId === item.id
@@ -282,42 +349,65 @@ const TreeItem = ({
 
   return (
     <div>
-      <div
-        className={cn(
-          'my-1 flex cursor-pointer items-center rounded-md bg-white p-2 shadow-sm',
-          isSelected ? 'bg-teal-500 text-white' : ''
-        )}
-        onClick={handleSelect}
-      >
-        {hasChildren && (
-          <div className='mr-2 flex h-6 w-6 items-center justify-center text-gray-400'>
-            <span
-              className={`transform transition-transform ${isSelected ? 'text-white' : ''}`}
+      <div className='relative my-1 flex items-center'>
+        <motion.div
+          className={cn(
+            'flex w-full cursor-pointer items-center rounded-md bg-white px-2 py-2 shadow-sm transition-colors duration-200 hover:border-gray-300 hover:bg-gray-200',
+            isSelected ? 'bg-teal-500 text-white hover:bg-teal-600' : ''
+          )}
+          onClick={handleSelect}
+        >
+          {hasChildren && (
+            <motion.div
+              className='mr-2 flex h-6 w-6 items-center justify-center text-gray-400'
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 20
+              }}
             >
-              {isExpanded ? <ChevronDown /> : <ChevronRight />}
-            </span>
-          </div>
-        )}
-        {!hasChildren && <div className='mr-2 w-6' />}
-        <span>{item.name}</span>
+              <span className={isSelected ? 'text-white' : ''}>
+                {isExpanded ? <ChevronDown /> : <ChevronRight />}
+              </span>
+            </motion.div>
+          )}
+          {!hasChildren && <div className='mr-2 w-6' />}
+          <span>{item.name}</span>
+        </motion.div>
 
         {isSelected && (
-          <div className='ml-auto'>
-            <button
-              className='rounded-md bg-teal-600 px-4 py-1 text-white'
+          <motion.div
+            className='absolute -top-[0px] -right-[128px]'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Button
+              className='h-10 w-[120px] cursor-pointer rounded-md bg-teal-600 px-3 py-2 whitespace-nowrap text-white hover:bg-teal-700'
               onClick={e => {
                 e.stopPropagation()
-                onNextStep()
+                onNextStep([])
               }}
             >
               I'd find it here
-            </button>
-          </div>
+            </Button>
+          </motion.div>
         )}
       </div>
 
-      {hasChildren && isExpanded && (
-        <div className='ml-6 border-l border-gray-200 pl-4'>
+      {hasChildren && (
+        <motion.div
+          className='ml-6 border-l border-gray-200 pl-4'
+          animate={{
+            height: isExpanded ? 'auto' : 0,
+            opacity: isExpanded ? 1 : 0
+          }}
+          transition={{
+            height: { duration: 0.3, ease: 'easeInOut' },
+            opacity: { duration: 0.2 }
+          }}
+        >
           {item.children.map(child => (
             <TreeItem
               key={child.id}
@@ -329,7 +419,7 @@ const TreeItem = ({
               onNextStep={onNextStep}
             />
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   )

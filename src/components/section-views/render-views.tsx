@@ -7,13 +7,19 @@ import ThanksView from './thanks-view'
 import TreeTestView from './tree-test-view'
 import WelcomeView from './welcome-view'
 
-const RenderViews = ({ data }: { data: StudyWithTests }) => {
+const RenderViews = ({
+  data,
+  isPreview
+}: {
+  data: StudyWithTests
+  isPreview?: boolean
+}) => {
   const tests = data.tests
   const testOrder = data.study.testsOrder
 
   const steps = ['Welcome', ...testOrder, 'Thanks']
 
-  const [currentStep, setCurrentStep] = useState(steps[0])
+  const [currentStep, setCurrentStep] = useState(steps[1])
 
   const handleNextStep = () => {
     const currentStepIndex = steps.indexOf(currentStep)

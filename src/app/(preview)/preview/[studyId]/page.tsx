@@ -15,7 +15,7 @@ export default async function PreviewStudyPage({ params }: PageProps) {
 
   return (
     <div className='grid min-h-screen'>
-      <RenderViews data={data} />
+      <RenderViews data={data} isPreview />
     </div>
   )
 }
