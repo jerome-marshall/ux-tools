@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button'
-import React from 'react'
-
 const ThanksView = () => {
   return (
     <div className='grid grid-cols-2'>
@@ -11,7 +8,6 @@ const ThanksView = () => {
           <p className='text-muted-foreground'>
             Thank you for participating in this test.
           </p>
-          <Button className='mt-8 w-fit'>Start</Button>
         </div>
       </div>
     </div>

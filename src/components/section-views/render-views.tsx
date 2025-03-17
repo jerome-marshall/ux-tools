@@ -1,11 +1,13 @@
 'use client'
 import { type StudyWithTests } from '@/types'
 import { treeItemSchema } from '@/zod-schemas/tree.schema'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import ThanksView from './thanks-view'
 import TreeTestView from './tree-test-view'
 import WelcomeView from './welcome-view'
+import { useLocalStorage } from 'usehooks-ts'
+import { generateId } from '@/lib/utils'
 
 const RenderViews = ({
   data,
@@ -14,6 +16,14 @@ const RenderViews = ({
   data: StudyWithTests
   isPreview?: boolean
 }) => {
+  const [userId, setUserId] = useLocalStorage('user-id', '')
+
+  useEffect(() => {
+    if (!isPreview && !userId) {
+      setUserId(generateId())
+    }
+  }, [isPreview, userId, setUserId])
+
   const tests = data.tests
   const testOrder = data.study.testsOrder
 
@@ -62,6 +72,7 @@ const RenderViews = ({
                 taskInstructions={test.taskInstructions!}
                 treeStructure={parsedTreeStructure.data}
                 onNextStep={handleNextStep}
+                testId={test.testData.id}
               />
             )
           }

@@ -8,10 +8,12 @@ import { Button } from '../ui/button'
 const TreeTestView = ({
   treeStructure,
   taskInstructions,
-  onNextStep
+  onNextStep,
+  testId
 }: {
   treeStructure: TreeItem[]
   taskInstructions: string
+  testId: string
   onNextStep: (
     totalDurationMs: number,
     taskDurationMs: number,
