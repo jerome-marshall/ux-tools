@@ -929,7 +929,7 @@ const TreeBuilder = ({
 
   // Helper function to get node name by ID
   const getNodeNameById = (nodeId: string): string => {
-    const findName = (items: TreeItem[]): string => {
+    const findName = (items: TreeItem[]): string | null => {
       for (const item of items) {
         if (item.id === nodeId) {
           return item.name || item.id
@@ -937,13 +937,14 @@ const TreeBuilder = ({
 
         if (item.children.length > 0) {
           const foundName = findName(item.children)
-          if (foundName) return foundName
+          if (foundName !== null) return foundName
         }
       }
-      return nodeId // Fallback to ID if name not found
+      return null
     }
 
-    return findName(items)
+    const result = findName(items)
+    return result ?? nodeId // Fallback to ID if name not found
   }
 
   // Toggle whether a node path is marked as correct
