@@ -1,6 +1,6 @@
 import NextLink, { type LinkProps as NextLinkProps } from 'next/link'
 import React from 'react'
-export interface CustomLinkProps extends NextLinkProps {
+export interface LinkProps extends NextLinkProps {
   children: React.ReactNode
   className?: string
 }
@@ -8,7 +8,7 @@ export interface CustomLinkProps extends NextLinkProps {
 /**
  * Custom Link component wrapper with prefetching always enabled
  */
-const Link = ({ children, prefetch = true, ...rest }: CustomLinkProps) => {
+const Link = ({ children, prefetch = true, ...rest }: LinkProps) => {
   return (
     <NextLink prefetch={prefetch} {...rest}>
       {children}
