@@ -33,6 +33,7 @@ interface ProjectsDropdownProps {
 const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
   const projectSelectRef = React.useRef<HTMLDivElement>(null)
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null)
+  const [open, setOpen] = React.useState(false)
 
   const trpc = useTRPC()
   const { data: projects, isPending } = useQuery(trpc.projects.getProjects.queryOptions())
@@ -56,7 +57,7 @@ const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
         <FormItem className='items-start gap-0'>
           <FormLabel className='mb-2'>Project</FormLabel>
           <FormControl>
-            <Popover>
+            <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant='outline'
@@ -98,6 +99,7 @@ const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
                               onSelect={value => {
                                 form.setValue('study.projectId', value)
                                 void form.trigger('study.projectId')
+                                setOpen(false)
                               }}
                               className={cn(
                                 'flex items-center gap-2',
