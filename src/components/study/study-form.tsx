@@ -115,13 +115,13 @@ const BaseStudyForm = ({
               <Text className='icon' />
               <p className=''>Study details</p>
             </div>
-            <div
+            {/* <div
               className={cn(btnClasses, 'mt-3')}
               onClick={() => scrollToSection(SECTION_ID.WELCOME_SCREEN)}
             >
               <Hand className='icon' />
               <p className=''>Welcome screen</p>
-            </div>
+            </div> */}
             {testsFieldArray.fields.map((field, index) => {
               let Icon: LucideIcon = FileQuestion
 
@@ -158,7 +158,7 @@ const BaseStudyForm = ({
                 />
               )
             })}
-            <div
+            {/* <div
               className={cn(btnClasses)}
               onClick={() => scrollToSection(SECTION_ID.THANK_YOU_SCREEN)}
             >
@@ -168,7 +168,7 @@ const BaseStudyForm = ({
             <div className='text-muted-foreground mt-3 flex items-center gap-2'>
               <Clock className='size-4' />
               <p className=''>Under a minute</p>
-            </div>
+            </div> */}
             {isEditMode && studyId && (
               <Link
                 href={previewUrl(studyId)}
@@ -176,7 +176,6 @@ const BaseStudyForm = ({
                   buttonVariants({ variant: 'secondary' }),
                   'mt-3 bg-gray-200 hover:bg-gray-300'
                 )}
-                type='button'
               >
                 Preview
               </Link>
