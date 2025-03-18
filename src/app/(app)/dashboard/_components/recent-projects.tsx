@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils'
 import { PATH } from '@/utils/urls'
 import { LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense } from 'react'
 import RecentProjectsList from './recent-projects-list'
 
 const RecentProjects = () => {
@@ -25,9 +24,7 @@ const RecentProjects = () => {
         </div>
       </div>
       <div className='mt-6'>
-        <Suspense fallback={<div>Loading...</div>}>
-          <RecentProjectsList />
-        </Suspense>
+        <RecentProjectsList />
       </div>
     </div>
   )

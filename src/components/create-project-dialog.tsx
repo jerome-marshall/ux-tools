@@ -22,7 +22,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { type ProjectInsert, projectInsertSchema } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Folder } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -31,6 +31,7 @@ import { toast } from 'sonner'
 export function CreateProjectDialog() {
   const trpc = useTRPC()
   const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
 
   const form = useForm<ProjectInsert>({
     resolver: zodResolver(projectInsertSchema),
@@ -49,6 +50,13 @@ export function CreateProjectDialog() {
 
         setIsOpen(false)
         form.reset()
+
+        void queryClient.invalidateQueries({
+          queryKey: trpc.projects.getProjects.queryKey()
+        })
+        void queryClient.invalidateQueries({
+          queryKey: trpc.projects.getRecentProjects.queryKey()
+        })
       },
       onError: () => {
         toast.error('Failed to create project')
