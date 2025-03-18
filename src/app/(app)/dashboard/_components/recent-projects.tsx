@@ -2,7 +2,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { PATH } from '@/utils/urls'
 import { LayoutGrid } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/link'
 import RecentProjectsList from './recent-projects-list'
 
 const RecentProjects = () => {

@@ -1,7 +1,7 @@
 import { type Study } from '@/server/db/schema'
 import { format } from 'date-fns'
 import { FlaskConical } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/link'
 import { studyUrl } from '@/utils/urls'
 const StudyCard = ({ study }: { study: Study }) => {
   return (

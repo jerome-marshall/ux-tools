@@ -1,5 +1,5 @@
 import { PATH } from '@/utils/urls'
-import Link from 'next/link'
+import Link from '@/components/link'
 
 export default function Home() {
   return (

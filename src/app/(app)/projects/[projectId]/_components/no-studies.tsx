@@ -1,7 +1,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { PATH } from '@/utils/urls'
-import Link from 'next/link'
+import Link from '@/components/link'
 
 const NoStudies = () => {
   return (

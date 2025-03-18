@@ -23,7 +23,7 @@ import {
   ThumbsUp,
   TriangleAlert
 } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/link'
 import { useRouter } from 'nextjs-toploader/app'
 import { toast } from 'sonner'
 import Tooltip from '../custom-tooltip'

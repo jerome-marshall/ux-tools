@@ -1,7 +1,7 @@
 import { type ProjectWithStudiesCount } from '@/types'
 import { projectUrl } from '@/utils/urls'
 import { FolderClosed, FolderOpen } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/link'
 import ProjectCardOptions from './project-card-options'
 
 const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
