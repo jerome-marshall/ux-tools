@@ -16,7 +16,13 @@ import ProjectsDropdown from './projects-dropdown'
 import StudyFormCard from './study-form-card'
 import { SECTION_ID } from './study-form'
 
-const StudyDetails = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) => {
+const StudyDetails = ({
+  form,
+  disableFields
+}: {
+  form: UseFormReturn<StudyWithTestsInsert>
+  disableFields: boolean
+}) => {
   return (
     <StudyFormCard
       title='Study details'
@@ -30,14 +36,18 @@ const StudyDetails = ({ form }: { form: UseFormReturn<StudyWithTestsInsert> }) =
               <FormItem>
                 <FormLabel>Test name</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter test name' {...field} />
+                  <Input
+                    placeholder='Enter test name'
+                    {...field}
+                    disabled={disableFields}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <ProjectsDropdown form={form} />
+          <ProjectsDropdown form={form} disabled={disableFields} />
         </div>
       }
     />

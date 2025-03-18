@@ -4,13 +4,16 @@ import { type TestType } from '@/server/db/schema'
 import { type UseFormReturn } from 'react-hook-form'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { FormField, FormMessage } from '../ui/form'
+import { cn } from '@/lib/utils'
 
 const StudyAddSection = ({
   onAddSection,
-  form
+  form,
+  disableFields
 }: {
   onAddSection: (testType: TestType) => void
   form: UseFormReturn<StudyWithTestsInsert>
+  disableFields: boolean
 }) => {
   const errors = form.formState.errors
   return (
@@ -34,6 +37,7 @@ const StudyAddSection = ({
                     key={section.id}
                     section={section}
                     onAddSection={onAddSection}
+                    disabled={disableFields}
                   />
                 ))}
               </div>
@@ -62,17 +66,26 @@ const studySections: {
 
 const StudySection = ({
   section,
-  onAddSection
+  onAddSection,
+  disabled
 }: {
   section: (typeof studySections)[number]
   onAddSection: (testType: TestType) => void
+  disabled: boolean
 }) => {
   const Icon = section.icon
 
   return (
     <div
-      className='flex cursor-pointer gap-4 rounded-lg border p-4 transition-colors duration-100 hover:bg-gray-100'
-      onClick={() => onAddSection(section.id)}
+      className={cn(
+        'flex cursor-pointer gap-4 rounded-lg border p-4 transition-colors duration-100 hover:bg-gray-100',
+        disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent'
+      )}
+      onClick={() => {
+        if (!disabled) {
+          onAddSection(section.id)
+        }
+      }}
     >
       <Icon className='icon' />
       <div className='flex flex-1 flex-col'>

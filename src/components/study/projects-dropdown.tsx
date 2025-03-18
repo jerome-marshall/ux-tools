@@ -28,9 +28,10 @@ import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 
 interface ProjectsDropdownProps {
   form: UseFormReturn<StudyWithTestsInsert>
+  disabled: boolean
 }
 
-const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
+const ProjectsDropdown = ({ form, disabled }: ProjectsDropdownProps) => {
   const projectSelectRef = React.useRef<HTMLDivElement>(null)
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null)
   const [open, setOpen] = React.useState(false)
@@ -64,7 +65,7 @@ const ProjectsDropdown = ({ form }: ProjectsDropdownProps) => {
                   role='combobox'
                   className='h-10 w-full justify-between'
                   ref={field.ref}
-                  disabled={isPending}
+                  disabled={isPending || disabled}
                 >
                   {isPending ? (
                     <span>Loading...</span>

@@ -19,19 +19,22 @@ import {
 import { Button } from '@/components/ui/button'
 import { SECTION_ID } from '../study-form'
 import { type CorrectPath, type TreeItem } from '@/zod-schemas/tree.schema'
+import { cn } from '@/lib/utils'
 
 const TreeTest = ({
   form,
   index,
   onRemoveSection,
   initialTreeData,
-  initialCorrectPaths
+  initialCorrectPaths,
+  disableFields
 }: {
   form: UseFormReturn<StudyWithTestsInsert>
   index: number
   onRemoveSection: (index: number) => void
   initialTreeData: TreeItem[]
   initialCorrectPaths: CorrectPath[]
+  disableFields: boolean
 }) => {
   const [treeData, setTreeData] = useState<TreeItem[]>(initialTreeData)
   const [correctPaths, setCorrectPaths] = useState<CorrectPath[]>(initialCorrectPaths)
@@ -79,8 +82,16 @@ const TreeTest = ({
               render={({ field }) => (
                 <div
                   className='relative flex items-center gap-2'
-                  onMouseEnter={() => setIsHoveringTitle(true)}
-                  onMouseLeave={() => setIsHoveringTitle(false)}
+                  onMouseEnter={() => {
+                    if (!disableFields) {
+                      setIsHoveringTitle(true)
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (!disableFields) {
+                      setIsHoveringTitle(false)
+                    }
+                  }}
                 >
                   {isEditingName ? (
                     <Input
@@ -93,8 +104,15 @@ const TreeTest = ({
                     />
                   ) : (
                     <CardTitle
-                      onClick={() => setIsEditingName(true)}
-                      className='cursor-pointer'
+                      onClick={() => {
+                        if (!disableFields) {
+                          setIsEditingName(true)
+                        }
+                      }}
+                      className={cn(
+                        'cursor-pointer',
+                        disableFields && 'pointer-events-none cursor-default'
+                      )}
                     >
                       {index + 1}. {field.value}
                     </CardTitle>
@@ -102,8 +120,15 @@ const TreeTest = ({
                   {isHoveringTitle && !isEditingName && (
                     <Pencil
                       size={16}
-                      className='text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
-                      onClick={() => setIsEditingName(true)}
+                      className={cn(
+                        'text-muted-foreground hover:text-for eground cursor-pointer transition-colors',
+                        disableFields && 'pointer-events-none cursor-default'
+                      )}
+                      onClick={() => {
+                        if (!disableFields) {
+                          setIsEditingName(true)
+                        }
+                      }}
                     />
                   )}
                 </div>
@@ -115,6 +140,7 @@ const TreeTest = ({
               variant='destructive'
               size='icon'
               onClick={() => onRemoveSection(index)}
+              disabled={disableFields}
             >
               <Trash className='size-4' />
             </Button>
@@ -135,6 +161,7 @@ const TreeTest = ({
                       placeholder='Keep this short and concise.'
                       className=''
                       {...field}
+                      disabled={disableFields}
                     />
                   </FormControl>
                   <FormMessage />
@@ -151,6 +178,7 @@ const TreeTest = ({
               onChange={handleTreeChange}
               form={form}
               sectionIndex={index}
+              disableFields={disableFields}
             />
           </div>
         </div>

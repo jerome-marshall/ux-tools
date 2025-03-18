@@ -35,6 +35,7 @@ interface TreeBuilderProps {
   onChange?: (items: TreeItem[], correctPaths: CorrectPath[]) => void
   form: UseFormReturn<StudyWithTestsInsert>
   sectionIndex: number
+  disableFields: boolean
 }
 
 const TreeBuilder = ({
@@ -42,7 +43,8 @@ const TreeBuilder = ({
   initialCorrectPaths = [],
   onChange,
   form,
-  sectionIndex
+  sectionIndex,
+  disableFields
 }: TreeBuilderProps) => {
   const [items, setItems] = useState<TreeItem[]>(initialItems)
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -970,7 +972,13 @@ const TreeBuilder = ({
     return correctPaths.some(p => p.id === nodeId)
   }
 
-  const AddNodeButton = ({ className }: { className?: string }) => (
+  const AddNodeButton = ({
+    className,
+    disabled
+  }: {
+    className?: string
+    disabled?: boolean
+  }) => (
     <Button
       type='button'
       size={'sm'}
@@ -981,6 +989,7 @@ const TreeBuilder = ({
         // Set the new node ID to trigger focus
         setNewNodeId(newId)
       }}
+      disabled={disabled}
     >
       <Plus className='size-4' />
       Add node
@@ -1003,7 +1012,12 @@ const TreeBuilder = ({
                   </p>
                   <div className='mt-4 flex gap-2'>
                     <AddNodeButton />
-                    <Button variant={'outline'} size={'sm'} type='button'>
+                    <Button
+                      variant={'outline'}
+                      size={'sm'}
+                      type='button'
+                      disabled={disableFields}
+                    >
                       Import from CSV
                     </Button>
                   </div>
@@ -1052,6 +1066,7 @@ const TreeBuilder = ({
                           isCorrect={isCorrectPath(item.id)}
                           onToggleCorrect={toggleCorrectPath}
                           getIsCorrect={isCorrectPath}
+                          disabled={disableFields}
                         />
                       ))}
                     </SortableContext>
@@ -1089,11 +1104,12 @@ const TreeBuilder = ({
                           isCorrect={isCorrectPath(activeId)}
                           onToggleCorrect={toggleCorrectPath}
                           getIsCorrect={isCorrectPath}
+                          disabled={disableFields}
                         />
                       ) : null}
                     </DragOverlay>
                   </DndContext>
-                  <AddNodeButton className='mt-4' />
+                  <AddNodeButton className='mt-4' disabled={disableFields} />
                 </div>
               )}
             </div>

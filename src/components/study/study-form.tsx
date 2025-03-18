@@ -18,6 +18,7 @@ import {
   FileQuestion,
   Hand,
   ListTree,
+  LockKeyhole,
   type LucideIcon,
   Text,
   ThumbsUp,
@@ -31,6 +32,8 @@ import { Button, buttonVariants } from '../ui/button'
 import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
 import TreeTest from './tree-test/tree-test'
+import StudyEditModeDialog from './study-edit-mode-dialog'
+import { useState } from 'react'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -43,13 +46,17 @@ interface BaseStudyFormProps {
   defaultValues: StudyWithTestsInsert
   onSubmit: (data: StudyWithTestsInsert) => void
   isEditMode?: boolean
+  isEditPage?: boolean
 }
 
 const BaseStudyForm = ({
   defaultValues,
   onSubmit,
-  isEditMode = false
+  isEditMode = false,
+  isEditPage = false
 }: BaseStudyFormProps) => {
+  const disableFields = isEditPage && !isEditMode
+
   const { id: studyId } = defaultValues.study
 
   const form = useForm<StudyWithTestsInsert>({
@@ -169,7 +176,7 @@ const BaseStudyForm = ({
               <Clock className='size-4' />
               <p className=''>Under a minute</p>
             </div> */}
-            {isEditMode && studyId && (
+            {isEditPage && (
               <Link
                 href={previewUrl(studyId)}
                 className={cn(
@@ -180,13 +187,13 @@ const BaseStudyForm = ({
                 Preview
               </Link>
             )}
-            <Button className='' type='submit'>
+            <Button className='' type='submit' disabled={disableFields}>
               Save and continue
             </Button>
           </div>
           <div className=''>
             <div className='grid gap-4'>
-              <StudyDetails form={form} />
+              <StudyDetails form={form} disableFields={disableFields} />
               {testsFieldArray.fields.map((field, index) => {
                 if (field.type === 'TREE_TEST') {
                   return (
@@ -197,11 +204,18 @@ const BaseStudyForm = ({
                       onRemoveSection={onRemoveSection}
                       initialTreeData={field.treeStructure}
                       initialCorrectPaths={field.correctPaths}
+                      disableFields={disableFields}
                     />
                   )
                 }
               })}
-              <StudyAddSection onAddSection={onAddSection} form={form} />
+              {!disableFields && (
+                <StudyAddSection
+                  onAddSection={onAddSection}
+                  form={form}
+                  disableFields={disableFields}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -250,6 +264,8 @@ export const EditStudyForm = ({
   initialData: StudyWithTestsInsert
   studyId: string
 }) => {
+  const [isEditMode, setIsEditMode] = useState(false)
+
   const trpc = useTRPC()
   const router = useRouter()
 
@@ -274,6 +290,14 @@ export const EditStudyForm = ({
   }
 
   return (
-    <BaseStudyForm defaultValues={initialData} onSubmit={onSubmit} isEditMode={true} />
+    <>
+      <BaseStudyForm
+        defaultValues={initialData}
+        onSubmit={onSubmit}
+        isEditMode={isEditMode}
+        isEditPage={true}
+      />
+      <StudyEditModeDialog isEditMode={isEditMode} setIsEditMode={setIsEditMode} />
+    </>
   )
 }

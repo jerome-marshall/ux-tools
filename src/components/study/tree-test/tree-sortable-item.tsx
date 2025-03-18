@@ -35,6 +35,7 @@ interface SortableTreeItemProps {
   isCorrect?: boolean
   onToggleCorrect?: (nodeId: string) => void
   getIsCorrect?: (nodeId: string) => boolean
+  disabled?: boolean
 }
 
 export function SortableTreeItem({
@@ -54,7 +55,8 @@ export function SortableTreeItem({
   onToggleExpand,
   isCorrect = false,
   onToggleCorrect,
-  getIsCorrect
+  getIsCorrect,
+  disabled = false
 }: SortableTreeItemProps) {
   // Track the original expanded state
   const [wasExpanded, setWasExpanded] = useState(false)
@@ -246,7 +248,6 @@ export function SortableTreeItem({
             }
           }}
           className='mr-2'
-          disabled={!hasChildren}
         >
           {hasChildren ? (
             isExpanded ? (
@@ -259,9 +260,11 @@ export function SortableTreeItem({
           )}
         </Button>
 
-        <div {...attributes} {...listeners} className='mr-2 cursor-grab'>
-          <GripVertical className='size-4' />
-        </div>
+        {!disabled && (
+          <div {...attributes} {...listeners} className={'mr-2 cursor-grab'}>
+            <GripVertical className='size-4' />
+          </div>
+        )}
 
         <div className='relative flex max-w-[260px] flex-1'>
           <Input
@@ -271,6 +274,7 @@ export function SortableTreeItem({
             onKeyDown={handleKeyDown}
             className={cn('h-10 bg-white py-0 pr-9', isCorrect ? 'border-green-600' : '')}
             data-node-id={id}
+            disabled={disabled}
           />
 
           <Tooltip
@@ -283,6 +287,7 @@ export function SortableTreeItem({
                     isCorrect ? '!border-green-600 !bg-green-600' : '',
                     'size-4 rounded-full border-gray-300'
                   )}
+                  disabled={disabled}
                 />
               </div>
             }
@@ -298,7 +303,7 @@ export function SortableTreeItem({
               type='button'
               onClick={handleIndent}
               className='ml-2'
-              disabled={!canIndent}
+              disabled={!canIndent || disabled}
             >
               <ArrowRight size={16} className={!canIndent ? 'opacity-50' : ''} />
             </Button>
@@ -314,7 +319,7 @@ export function SortableTreeItem({
               type='button'
               onClick={handleUnindent}
               className='ml-2'
-              disabled={!canUnindent}
+              disabled={!canUnindent || disabled}
             >
               <ArrowLeft size={16} className={!canUnindent ? 'opacity-50' : ''} />
             </Button>
@@ -330,6 +335,7 @@ export function SortableTreeItem({
               type='button'
               onClick={handleAddChild}
               className='ml-2'
+              disabled={disabled}
             >
               <Plus size={16} />
             </Button>
@@ -345,6 +351,7 @@ export function SortableTreeItem({
               type='button'
               onClick={handleDeleteNode}
               className='ml-2'
+              disabled={disabled}
             >
               <Trash2 size={16} />
             </Button>
@@ -375,6 +382,7 @@ export function SortableTreeItem({
               isCorrect={getIsCorrect ? getIsCorrect(child.id) : false}
               onToggleCorrect={onToggleCorrect}
               getIsCorrect={getIsCorrect}
+              disabled={disabled}
             />
           ))}
         </div>
