@@ -10,7 +10,9 @@ export const PATH = {
 
 export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
 export const studyUrl = (studyId: string) => `${PATH.studies}/${studyId}`
+export const studyEditUrl = (studyId: string) => `${PATH.studies}/${studyId}/edit`
 export const previewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
+
 export const BREADCRUMBS_DATA: Record<
   keyof typeof PATH,
   {

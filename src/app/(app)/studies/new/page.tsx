@@ -1,12 +1,15 @@
-import StudyForm from '@/components/study/study-form'
+import { CreateStudyForm } from '@/components/study/study-form'
+import { generateId } from '@/lib/utils'
 
 export default function NewTestPage() {
   return (
-    <StudyForm
+    <CreateStudyForm
       initialData={{
         study: {
           name: '',
-          projectId: ''
+          projectId: '',
+          id: generateId(),
+          testsOrder: []
         },
         tests: []
       }}

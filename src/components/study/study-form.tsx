@@ -4,10 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
 
 import { Form, FormField } from '@/components/ui/form'
-import { cn } from '@/lib/utils'
+import { cn, generateId } from '@/lib/utils'
 import { type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { type StudyWithTests } from '@/types'
 import { previewUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
@@ -40,47 +39,32 @@ export const SECTION_ID = {
   THANK_YOU_SCREEN: 'thank-you-screen'
 }
 
-const StudyForm = ({
-  initialData,
-  studyWithTests
-}: {
-  initialData: StudyWithTestsInsert
-  studyWithTests?: StudyWithTests
-}) => {
-  const isDetailsPage = !!studyWithTests?.study?.id
+interface BaseStudyFormProps {
+  defaultValues: StudyWithTestsInsert
+  onSubmit: (data: StudyWithTestsInsert) => void
+  isEditMode?: boolean
+}
 
-  const trpc = useTRPC()
-  const router = useRouter()
+const BaseStudyForm = ({
+  defaultValues,
+  onSubmit,
+  isEditMode = false
+}: BaseStudyFormProps) => {
+  const { id: studyId } = defaultValues.study
 
   const form = useForm<StudyWithTestsInsert>({
     resolver: zodResolver(studyWithTestsInsertSchema),
-    defaultValues: initialData
+    defaultValues
   })
+
   const errors = form.formState.errors
-  // console.log('🚀 ~ StudyForm ~ state:', form.watch())
-  // console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
+  console.log('🚀 ~ StudyForm ~ state:', form.watch())
+  console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
 
   const testsFieldArray = useFieldArray({
     control: form.control,
     name: 'tests'
   })
-
-  const { mutate, isPending } = useMutation(
-    trpc.studies.createStudy.mutationOptions({
-      onSuccess: data => {
-        toast.success('Study created successfully', {
-          description: data.name
-        })
-        form.reset()
-        router.push(studyUrl(data.id))
-      }
-    })
-  )
-
-  const onSubmit = (data: StudyWithTestsInsert) => {
-    console.log('🚀 ~ onSubmit ~ data:', data)
-    mutate(data)
-  }
 
   const onAddSection = (testType: TestType) => {
     if (testType === 'TREE_TEST') {
@@ -89,7 +73,10 @@ const StudyForm = ({
         name: 'New Tree Test',
         treeStructure: [],
         taskInstructions: '',
-        correctPaths: []
+        correctPaths: [],
+        testId: generateId(),
+        sectionId: generateId(),
+        studyId
       })
     }
   }
@@ -182,9 +169,9 @@ const StudyForm = ({
               <Clock className='size-4' />
               <p className=''>Under a minute</p>
             </div>
-            {isDetailsPage && (
+            {isEditMode && studyId && (
               <Link
-                href={previewUrl(studyWithTests.study.id)}
+                href={previewUrl(studyId)}
                 className={cn(
                   buttonVariants({ variant: 'secondary' }),
                   'mt-3 bg-gray-200 hover:bg-gray-300'
@@ -224,4 +211,70 @@ const StudyForm = ({
   )
 }
 
-export default StudyForm
+export const CreateStudyForm = ({
+  initialData
+}: {
+  initialData: StudyWithTestsInsert
+}) => {
+  const trpc = useTRPC()
+  const router = useRouter()
+
+  const { mutate, isPending } = useMutation(
+    trpc.studies.createStudy.mutationOptions({
+      onSuccess: data => {
+        toast.success('Study created successfully', {
+          description: data.name
+        })
+        router.push(studyUrl(data.id))
+      },
+      onError: error => {
+        console.error('🚀 ~ CreateStudyForm ~ error:', error)
+        toast.error('Failed to create study', {
+          description: error.message
+        })
+      }
+    })
+  )
+
+  const onSubmit = (data: StudyWithTestsInsert) => {
+    console.log('🚀 ~ CreateStudyForm onSubmit ~ data:', data)
+    mutate(data)
+  }
+
+  return <BaseStudyForm defaultValues={initialData} onSubmit={onSubmit} />
+}
+
+export const EditStudyForm = ({
+  initialData,
+  studyId
+}: {
+  initialData: StudyWithTestsInsert
+  studyId: string
+}) => {
+  const trpc = useTRPC()
+  const router = useRouter()
+
+  const { mutate, isPending } = useMutation(
+    trpc.studies.updateStudy.mutationOptions({
+      onSuccess: data => {
+        toast.success('Study updated successfully', {
+          description: data.name
+        })
+        router.push(studyUrl(data.id))
+      }
+    })
+  )
+
+  const onSubmit = (data: StudyWithTestsInsert) => {
+    console.log('🚀 ~ EditStudyForm onSubmit ~ data:', data)
+
+    mutate({
+      studyId,
+      data
+    })
+  }
+
+  return (
+    <BaseStudyForm defaultValues={initialData} onSubmit={onSubmit} isEditMode={true} />
+  )
+}

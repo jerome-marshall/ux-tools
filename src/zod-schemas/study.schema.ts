@@ -6,27 +6,28 @@ import {
   treeTestInsertSchema
 } from '@/server/db/schema'
 
+// Base schema without IDs for creating new studies
 export const studyWithTestsInsertSchema = z.object({
   study: studyInsertSchema,
   tests: z
     .array(
       testInsertSchema
-        .omit({ studyId: true })
+        .omit({ id: true })
         .extend({
-          type: z.enum(testTypes)
+          type: z.enum(testTypes),
+          sectionId: z.string().min(1, { message: 'Section ID is required' })
         })
         .and(
           z.discriminatedUnion('type', [
             treeTestInsertSchema
-              .omit({
-                testId: true
-              })
               .extend({
                 type: z.literal('TREE_TEST')
               })
+              .omit({ id: true })
           ])
         )
     )
     .min(1, { message: 'At least one test is required' })
 })
+
 export type StudyWithTestsInsert = z.infer<typeof studyWithTestsInsertSchema>

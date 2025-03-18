@@ -126,37 +126,40 @@ export const projectInsertSchema = createInsertSchema(projects)
   })
 export const studyInsertSchema = createInsertSchema(studies)
   .omit({
-    id: true,
-    testsOrder: true,
     createdAt: true,
     updatedAt: true
   })
   .extend({
+    id: z.string().min(1, { message: 'Study ID is required' }),
     name: z.string().min(1, { message: 'Name is required' }),
     projectId: z.string().min(1, { message: 'Project is required' })
   })
 export const testInsertSchema = createInsertSchema(tests)
   .omit({
-    id: true,
     createdAt: true,
     updatedAt: true
   })
   .extend({
+    id: z.string().min(1, { message: 'Test ID is required' }),
     type: z.enum(testTypes),
     studyId: z.string().min(1, { message: 'Study is required' }),
     name: z.string().min(1, { message: 'Name is required' })
   })
 export const treeTestInsertSchema = createInsertSchema(treeTests)
   .omit({
-    id: true,
     createdAt: true,
     updatedAt: true
   })
   .extend({
+    id: z.string().min(1, { message: 'Tree test ID is required' }),
     testId: z.string().min(1, { message: 'Test is required' }),
-    treeStructure: z.array(treeItemSchema),
+    treeStructure: z
+      .array(treeItemSchema)
+      .min(1, { message: 'At least one tree structure is required' }),
     taskInstructions: z.string().min(1, { message: 'Task instructions are required' }),
-    correctPaths: z.array(correctPathSchema)
+    correctPaths: z
+      .array(correctPathSchema)
+      .min(1, { message: 'At least one correct path is required' })
   })
 
 export const treeTestResultInsertSchema = createInsertSchema(treeTestResults)

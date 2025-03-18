@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-interface TreeItemType {
+export interface TreeItemType {
   id: string
   name: string
   children: TreeItemType[]

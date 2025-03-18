@@ -1,9 +1,10 @@
-import { type TestInsert } from '@/server/db/schema'
+import { type Test, type TestInsert } from '@/server/db/schema'
 import {
   createTest,
   createTests,
   getTestById,
-  getTestsByStudyId
+  getTestsByStudyId,
+  updateTest
 } from '@/data-access/tests'
 
 export const createTestUseCase = async (test: TestInsert) => {
@@ -25,15 +26,20 @@ export const createTestsUseCase = async (tests: TestInsert[]) => {
 export const getTestByIdUseCase = async (id: string) => {
   const result = await getTestById(id)
   if (!result) {
-    throw new Error('Test not found')
+    throw new Error('Failed to get test')
   }
   return result
 }
 
 export const getTestsByStudyIdUseCase = async (studyId: string) => {
   const result = await getTestsByStudyId(studyId)
+  return result
+}
+
+export const updateTestUseCase = async (id: string, test: Partial<Test>) => {
+  const result = await updateTest(id, test)
   if (!result) {
-    throw new Error('Tests not found')
+    throw new Error('Failed to update test')
   }
   return result
 }
