@@ -4,6 +4,9 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import * as motion from 'motion/react-client'
 import { useState } from 'react'
 import { Button } from '../ui/button'
+import { useTRPC } from '@/trpc/client'
+import { useMutation } from '@tanstack/react-query'
+import { useLocalStorage } from 'usehooks-ts'
 
 const TreeTestView = ({
   treeStructure,
@@ -14,30 +17,34 @@ const TreeTestView = ({
   treeStructure: TreeItem[]
   taskInstructions: string
   testId: string
-  onNextStep: (
-    totalDurationMs: number,
-    taskDurationMs: number,
-    navigationPath: TreeTestClick[]
-  ) => void
+  onNextStep: () => void
 }) => {
+  const trpc = useTRPC()
+  const [userId] = useLocalStorage('user-id', '')
+
   const [startTime, setStartTime] = useState<number>(Date.now())
   const [firstInteractionTime, setFirstInteractionTime] = useState<number | null>(null)
+
+  const { mutate } = useMutation(trpc.tests.createTestResult.mutationOptions())
 
   const handleNext = (passed: boolean, path: TreeTestClick[]) => {
     const now = Date.now()
     const totalDurationMs = now - startTime
     const taskDurationMs = firstInteractionTime ? now - firstInteractionTime : 0
 
-    console.log('🚀 ~ handleNext ~ passed:', passed)
-    console.log('🚀 ~ startTime:', startTime)
-    console.log('🚀 ~ handleNext ~ totalDurationMs:', totalDurationMs)
-    console.log('🚀 ~ handleNext ~ taskDurationMs:', taskDurationMs)
-    console.log('🚀 ~ handleNext ~ path:', path)
-
     setStartTime(now)
     setFirstInteractionTime(null)
 
-    // onNextStep(totalDurationMs, taskDurationMs, path)
+    mutate({
+      testType: 'TREE_TEST',
+      testId,
+      userId,
+      totalDurationMs,
+      taskDurationMs,
+      treeTestResult: { passed, testId, treeTestClicks: path }
+    })
+
+    onNextStep()
   }
 
   return (

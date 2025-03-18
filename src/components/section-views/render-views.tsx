@@ -29,7 +29,7 @@ const RenderViews = ({
 
   const steps = ['Welcome', ...testOrder, 'Thanks']
 
-  const [currentStep, setCurrentStep] = useState(steps[1])
+  const [currentStep, setCurrentStep] = useState(steps[0])
 
   const handleNextStep = () => {
     const currentStepIndex = steps.indexOf(currentStep)

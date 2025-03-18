@@ -1,6 +1,7 @@
-import { type Test, type TestInsert } from '@/server/db/schema'
+import { type TestResultInsert, type Test, type TestInsert } from '@/server/db/schema'
 import {
   createTest,
+  createTestResult,
   createTests,
   getTestById,
   getTestsByStudyId,
@@ -40,6 +41,14 @@ export const updateTestUseCase = async (id: string, test: Partial<Test>) => {
   const result = await updateTest(id, test)
   if (!result) {
     throw new Error('Failed to update test')
+  }
+  return result
+}
+
+export const createTestResultUseCase = async (testResult: TestResultInsert) => {
+  const result = await createTestResult(testResult)
+  if (!result) {
+    throw new Error('Failed to create test result')
   }
   return result
 }

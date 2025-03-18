@@ -67,14 +67,6 @@ export const treeTests = pgTable('tree_tests', {
   ...timestamps
 })
 
-export const testResultStatuses = [
-  'NOT_STARTED',
-  'IN_PROGRESS',
-  'COMPLETED',
-  'FAILED'
-] as const
-export type TestResultStatus = (typeof testResultStatuses)[number]
-
 export const testResults = pgTable('test_results', {
   id: uniqueId,
   testId: text('test_id')
@@ -83,7 +75,6 @@ export const testResults = pgTable('test_results', {
   userId: text('user_id').notNull(),
   totalDurationMs: integer('total_duration_ms').notNull(),
   taskDurationMs: integer('task_duration_ms').notNull(),
-  status: text('status').$type<TestResultStatus>().notNull().default('NOT_STARTED'),
   ...timestamps
 })
 
@@ -195,10 +186,18 @@ export const treeTestResultInsertSchema = createInsertSchema(treeTestResults)
   })
   .extend({
     testId: z.string().min(1, { message: 'Test is required' }),
-    totalDurationMs: z.number().int().positive(),
-    taskDurationMs: z.number().int().positive(),
     treeTestClicks: z.array(treeTestClickSchema),
     passed: z.boolean()
+  })
+export const testResultInsertSchema = createInsertSchema(testResults)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true
+  })
+  .extend({
+    testId: z.string().min(1, { message: 'Test is required' }),
+    userId: z.string().min(1, { message: 'User is required' })
   })
 
 /* Types */
@@ -210,5 +209,7 @@ export type Test = typeof tests.$inferSelect
 export type TestInsert = z.infer<typeof testInsertSchema>
 export type TreeTest = typeof treeTests.$inferSelect
 export type TreeTestInsert = z.infer<typeof treeTestInsertSchema>
+export type TestResult = typeof testResults.$inferSelect
+export type TestResultInsert = z.infer<typeof testResultInsertSchema>
 export type TreeTestResult = typeof treeTestResults.$inferSelect
 export type TreeTestResultInsert = z.infer<typeof treeTestResultInsertSchema>

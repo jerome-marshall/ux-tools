@@ -1,5 +1,11 @@
 import { db } from '@/server/db'
-import { tests, type Test, type TestInsert } from '@/server/db/schema'
+import {
+  type TestResultInsert,
+  testResults,
+  tests,
+  type Test,
+  type TestInsert
+} from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
 export const createTest = async (test: TestInsert) => {
@@ -26,8 +32,12 @@ export const getTestsByStudyId = async (studyId: string) => {
   return result
 }
 
-// Add an update function for tests
 export const updateTest = async (id: string, test: Partial<Test>) => {
   const [result] = await db.update(tests).set(test).where(eq(tests.id, id)).returning()
+  return result
+}
+
+export const createTestResult = async (testResult: TestResultInsert) => {
+  const [result] = await db.insert(testResults).values(testResult).returning()
   return result
 }

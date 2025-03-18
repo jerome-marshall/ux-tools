@@ -1,5 +1,11 @@
 import { db } from '@/server/db'
-import { treeTests, type TreeTest, type TreeTestInsert } from '@/server/db/schema'
+import {
+  type TreeTestResultInsert,
+  treeTestResults,
+  treeTests,
+  type TreeTest,
+  type TreeTestInsert
+} from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
 export const createTreeTest = async (treeTest: TreeTestInsert) => {
@@ -21,5 +27,10 @@ export const updateTreeTest = async (id: string, treeTest: Partial<TreeTestInser
     .set(treeTest)
     .where(eq(treeTests.id, id))
     .returning()
+  return result
+}
+
+export const createTreeTestResult = async (treeTestResult: TreeTestResultInsert) => {
+  const [result] = await db.insert(treeTestResults).values(treeTestResult).returning()
   return result
 }
