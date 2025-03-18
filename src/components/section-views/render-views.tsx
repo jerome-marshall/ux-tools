@@ -42,7 +42,7 @@ const RenderViews = ({
       {currentStep !== 'Welcome' &&
         currentStep !== 'Thanks' &&
         (() => {
-          const test = tests.find(test => test.sectionData.sectionId === currentStep)
+          const test = tests.find(test => test.sectionData.testId === currentStep)
           if (!test) {
             return (
               <div className='flex h-full items-center justify-center'>

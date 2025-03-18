@@ -67,13 +67,31 @@ export const treeTests = pgTable('tree_tests', {
   ...timestamps
 })
 
-export const treeTestResults = pgTable('tree_test_results', {
+export const testResultStatuses = [
+  'NOT_STARTED',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'FAILED'
+] as const
+export type TestResultStatus = (typeof testResultStatuses)[number]
+
+export const testResults = pgTable('test_results', {
   id: uniqueId,
   testId: text('test_id')
     .notNull()
     .references(() => tests.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
   totalDurationMs: integer('total_duration_ms').notNull(),
   taskDurationMs: integer('task_duration_ms').notNull(),
+  status: text('status').$type<TestResultStatus>().notNull().default('NOT_STARTED'),
+  ...timestamps
+})
+
+export const treeTestResults = pgTable('tree_test_results', {
+  id: uniqueId,
+  testResultId: text('test_result_id')
+    .notNull()
+    .references(() => testResults.id, { onDelete: 'cascade' }),
   treeTestClicks: jsonb('tree_test_clicks').$type<TreeTestClick[]>().notNull(),
   passed: boolean('passed').notNull(),
   ...timestamps
@@ -107,10 +125,17 @@ export const treeTestRelations = relations(treeTests, ({ one }) => ({
     references: [tests.id]
   })
 }))
-export const treeTestResultRelations = relations(treeTestResults, ({ one }) => ({
+export const testResultRelations = relations(testResults, ({ one, many }) => ({
   test: one(tests, {
-    fields: [treeTestResults.testId],
+    fields: [testResults.testId],
     references: [tests.id]
+  }),
+  treeTestResults: many(treeTestResults)
+}))
+export const treeTestResultRelations = relations(treeTestResults, ({ one }) => ({
+  testResult: one(testResults, {
+    fields: [treeTestResults.testResultId],
+    references: [testResults.id]
   })
 }))
 
