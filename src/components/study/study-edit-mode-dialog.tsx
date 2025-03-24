@@ -13,10 +13,12 @@ import { Button } from '../ui/button'
 
 const StudyEditModeDialog = ({
   isEditMode,
-  setIsEditMode
+  setIsEditMode,
+  onDuplicateClick
 }: {
   isEditMode: boolean
   setIsEditMode: (isEditMode: boolean) => void
+  onDuplicateClick: () => void
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -49,7 +51,15 @@ const StudyEditModeDialog = ({
           </p>
         </div>
         <DialogFooter className='mt-4'>
-          <Button variant='ghost'>Duplicate this test instead</Button>
+          <Button
+            variant='ghost'
+            onClick={() => {
+              setIsOpen(false)
+              onDuplicateClick()
+            }}
+          >
+            Duplicate this test instead
+          </Button>
           <Button
             onClick={() => {
               setIsEditMode(true)

@@ -13,8 +13,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import ProjectsDropdown from './projects-dropdown'
-import StudyFormCard from './study-form-card'
 import { SECTION_ID } from './study-form'
+import StudyFormCard from './study-form-card'
 
 const StudyDetails = ({
   form,
@@ -47,7 +47,25 @@ const StudyDetails = ({
             )}
           />
 
-          <ProjectsDropdown form={form} disabled={disableFields} />
+          <FormField
+            control={form.control}
+            name='study.projectId'
+            render={({ field }) => (
+              <FormItem className='items-start gap-0'>
+                <FormLabel className='mb-2'>Project</FormLabel>
+                <FormControl>
+                  <ProjectsDropdown
+                    ref={field.ref}
+                    disabled={disableFields}
+                    onSelectChange={field.onChange}
+                    initialValue={field.value}
+                    error={!!form.formState.errors.study?.projectId}
+                  />
+                </FormControl>
+                <FormMessage className='mt-2' />
+              </FormItem>
+            )}
+          />
         </div>
       }
     />

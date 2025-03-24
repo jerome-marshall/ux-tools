@@ -29,5 +29,10 @@ export const studyWithTestsInsertSchema = z.object({
     )
     .min(1, { message: 'At least one test is required' })
 })
-
 export type StudyWithTestsInsert = z.infer<typeof studyWithTestsInsertSchema>
+
+export const duplicateStudySchema = z.object({
+  name: z.string().min(1, { message: 'Study name is required' }),
+  projectId: z.string().min(1, { message: 'Select a project' })
+})
+export type DuplicateStudy = z.infer<typeof duplicateStudySchema>

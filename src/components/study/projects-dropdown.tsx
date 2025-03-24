@@ -2,7 +2,6 @@
 
 import { ChevronsUpDown } from 'lucide-react'
 import React from 'react'
-import { type UseFormReturn } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,28 +12,30 @@ import {
   CommandItem,
   CommandList
 } from '@/components/ui/command'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 import { useQuery } from '@tanstack/react-query'
-import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
+import { type RefCallBack } from 'react-hook-form'
 
-interface ProjectsDropdownProps {
-  form: UseFormReturn<StudyWithTestsInsert>
-  disabled: boolean
-}
+const ProjectsDropdown = ({
+  ref,
+  disabled,
+  onSelectChange,
+  initialValue,
+  error
+}: {
+  ref?: RefCallBack
+  disabled?: boolean
+  onSelectChange: (value: string) => void
+  initialValue?: string | null
+  error?: boolean
+}) => {
+  const [open, setOpen] = React.useState(false)
+  const [value, setValue] = React.useState<string | null>(initialValue ?? null)
 
-const ProjectsDropdown = ({ form, disabled }: ProjectsDropdownProps) => {
   const projectSelectRef = React.useRef<HTMLDivElement>(null)
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null)
-  const [open, setOpen] = React.useState(false)
 
   const trpc = useTRPC()
   const { data: projects, isPending } = useQuery(trpc.projects.getProjects.queryOptions())
@@ -44,84 +45,88 @@ const ProjectsDropdown = ({ form, disabled }: ProjectsDropdownProps) => {
     label: project.name
   }))
 
+  // Update value when initialValue changes
+  React.useEffect(() => {
+    if (initialValue !== undefined) {
+      setValue(initialValue)
+    }
+  }, [initialValue])
+
   React.useEffect(() => {
     if (projectSelectRef.current) {
       setPopoverContainer(projectSelectRef.current)
     }
+
+    // Cleanup function
+    return () => {
+      setPopoverContainer(null)
+    }
   }, [])
 
   return (
-    <FormField
-      control={form.control}
-      name='study.projectId'
-      render={({ field }) => (
-        <FormItem className='items-start gap-0'>
-          <FormLabel className='mb-2'>Project</FormLabel>
-          <FormControl>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant='outline'
-                  role='combobox'
-                  className='h-10 w-full justify-between'
-                  ref={field.ref}
-                  disabled={isPending || disabled}
-                >
-                  {isPending ? (
-                    <span>Loading...</span>
-                  ) : field.value ? (
-                    projectOptions?.find(project => project.value === field.value)?.label
-                  ) : (
-                    'Select project...'
-                  )}
-                  <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                </Button>
-              </PopoverTrigger>
-              <div ref={projectSelectRef} className='relative w-full'>
-                <PopoverContent
-                  className='p-0'
-                  container={popoverContainer}
-                  align='start'
-                  sideOffset={4}
-                  avoidCollisions={false}
-                  style={{ minWidth: 'var(--radix-popover-trigger-width)' }}
-                >
-                  <Command className='w-full'>
-                    <CommandInput placeholder='Search project...' />
-                    <CommandList>
-                      <CommandEmpty>No project found.</CommandEmpty>
-                      <CommandGroup>
-                        {projectOptions?.map(project => {
-                          const isSelected = field.value === project.value
-                          return (
-                            <CommandItem
-                              key={project.value}
-                              value={project.value}
-                              onSelect={value => {
-                                form.setValue('study.projectId', value)
-                                void form.trigger('study.projectId')
-                                setOpen(false)
-                              }}
-                              className={cn(
-                                'flex items-center gap-2',
-                                isSelected && 'bg-gray-200'
-                              )}
-                            >
-                              {project.label}
-                            </CommandItem>
-                          )
-                        })}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </div>
-            </Popover>
-          </FormControl>
-          <FormMessage className='mt-2' />
-        </FormItem>
-      )}
-    />
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant='outline'
+          role='combobox'
+          className={cn(
+            'h-10 w-full justify-between',
+            error &&
+              'border-red-500 focus-visible:border-red-500 focus-visible:ring-[3px] focus-visible:ring-red-500/20'
+          )}
+          ref={ref}
+          disabled={isPending || disabled}
+        >
+          {isPending ? (
+            <span>Loading...</span>
+          ) : value ? (
+            projectOptions?.find(project => project.value === value)?.label
+          ) : (
+            'Select project...'
+          )}
+          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+        </Button>
+      </PopoverTrigger>
+      <div ref={projectSelectRef} className='relative w-full'>
+        <PopoverContent
+          className='p-0'
+          container={popoverContainer}
+          align='start'
+          sideOffset={4}
+          avoidCollisions={false}
+          style={{ minWidth: 'var(--radix-popover-trigger-width)' }}
+        >
+          <Command className='w-full'>
+            <CommandInput placeholder='Search project...' />
+            <CommandList>
+              <CommandEmpty>No project found.</CommandEmpty>
+              <CommandGroup>
+                {projectOptions?.map(project => {
+                  const isSelected = value === project.value
+                  return (
+                    <CommandItem
+                      key={project.value}
+                      value={project.value}
+                      onSelect={value => {
+                        onSelectChange(value)
+                        setValue(value)
+                        setOpen(false)
+                      }}
+                      className={cn(
+                        'flex items-center gap-2',
+                        isSelected && 'bg-gray-200'
+                      )}
+                    >
+                      {project.label}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </div>
+    </Popover>
   )
 }
 

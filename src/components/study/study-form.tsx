@@ -33,6 +33,7 @@ import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
 import TreeTest from './tree-test/tree-test'
+import { DuplicateStudyDialog } from './duplicate-study-dialog'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -308,6 +309,7 @@ export const EditStudyForm = ({
   hasTestResults: boolean
 }) => {
   const [isEditMode, setIsEditMode] = useState(!hasTestResults)
+  const [isDuplicateStudyDialogOpen, setIsDuplicateStudyDialogOpen] = useState(false)
 
   const trpc = useTRPC()
 
@@ -338,7 +340,18 @@ export const EditStudyForm = ({
         isEditMode={isEditMode}
         isEditPage={true}
       />
-      <StudyEditModeDialog isEditMode={isEditMode} setIsEditMode={setIsEditMode} />
+      <StudyEditModeDialog
+        isEditMode={isEditMode}
+        setIsEditMode={setIsEditMode}
+        onDuplicateClick={() => {
+          setIsDuplicateStudyDialogOpen(true)
+        }}
+      />
+      <DuplicateStudyDialog
+        isOpen={isDuplicateStudyDialogOpen}
+        setIsOpen={setIsDuplicateStudyDialogOpen}
+        study={initialData.study}
+      />
     </>
   )
 }
