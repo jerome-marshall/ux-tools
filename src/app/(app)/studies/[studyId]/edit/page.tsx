@@ -1,5 +1,6 @@
 import { EditStudyForm } from '@/components/study/study-form'
 import { trpc } from '@/trpc/server'
+import { getTestResultsByStudyIdUseCase } from '@/use-cases/tests'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -13,7 +14,7 @@ export default async function StudyPage({ params }: PageProps) {
   const data = await queryClient.fetchQuery(
     trpc.studies.getStudyById.queryOptions({ studyId })
   )
-
+  
   const transformedData: StudyWithTestsInsert = {
     study: {
       id: data.study.id,
@@ -33,9 +34,12 @@ export default async function StudyPage({ params }: PageProps) {
     }))
   }
 
+  const testResults = await getTestResultsByStudyIdUseCase(studyId)
+  const hasTestResults = testResults.some(testResult => testResult.length > 0)
+
   return (
     <div className='container'>
-      <EditStudyForm initialData={transformedData} studyId={studyId} />
+      <EditStudyForm initialData={transformedData} studyId={studyId} hasTestResults={hasTestResults} />
     </div>
   )
 }

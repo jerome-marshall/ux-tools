@@ -3,11 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
 
+import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
 import { cn, generateId } from '@/lib/utils'
 import { type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { previewUrl, studyUrl } from '@/utils/urls'
+import { doStudyUrl, previewUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
@@ -17,23 +18,21 @@ import {
   Clock,
   FileQuestion,
   Hand,
+  LinkIcon,
   ListTree,
-  LockKeyhole,
   type LucideIcon,
   Text,
-  ThumbsUp,
   TriangleAlert
 } from 'lucide-react'
-import Link from '@/components/link'
 import { useRouter } from 'nextjs-toploader/app'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import Tooltip from '../custom-tooltip'
 import { Button, buttonVariants } from '../ui/button'
 import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
-import TreeTest from './tree-test/tree-test'
 import StudyEditModeDialog from './study-edit-mode-dialog'
-import { useState } from 'react'
+import TreeTest from './tree-test/tree-test'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -65,8 +64,8 @@ const BaseStudyForm = ({
   })
 
   const errors = form.formState.errors
-  console.log('🚀 ~ StudyForm ~ state:', form.watch())
-  console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
+  // console.log('🚀 ~ StudyForm ~ state:', form.watch())
+  // console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
 
   const testsFieldArray = useFieldArray({
     control: form.control,
@@ -176,20 +175,62 @@ const BaseStudyForm = ({
               <Clock className='size-4' />
               <p className=''>Under a minute</p>
             </div> */}
-            {isEditPage && (
-              <Link
-                href={previewUrl(studyId)}
-                className={cn(
-                  buttonVariants({ variant: 'secondary' }),
-                  'mt-3 bg-gray-200 hover:bg-gray-300'
-                )}
-              >
-                Preview
-              </Link>
-            )}
-            <Button className='' type='submit' disabled={disableFields}>
-              Save and continue
-            </Button>
+            <div className='mt-3 flex flex-col gap-2'>
+              {isEditPage && (
+                <>
+                  <Link
+                    href={previewUrl(studyId)}
+                    className={cn(
+                      buttonVariants({ variant: 'secondary' }),
+                      'w-full justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                    )}
+                  >
+                    <Clock className='size-4' />
+                    Preview Study
+                  </Link>
+
+                  <div className='flex gap-1'>
+                    <Link
+                      href={doStudyUrl(studyId)}
+                      className={cn(
+                        buttonVariants({ variant: 'secondary' }),
+                        'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                      )}
+                    >
+                      <Hand className='size-4' />
+                      Start Study
+                    </Link>
+                    <Tooltip
+                      content='Copy study link to clipboard'
+                      trigger={
+                        <Button
+                          variant='secondary'
+                          size='icon'
+                          className='bg-gray-200 hover:bg-gray-300'
+                          onClick={e => {
+                            e.preventDefault()
+                            const fullUrl = `${window.location.origin}${doStudyUrl(studyId)}`
+                            navigator?.clipboard
+                              .writeText(fullUrl)
+                              .then(() => {
+                                toast.success('Study link copied to clipboard')
+                              })
+                              .catch(() => {
+                                toast.error('Failed to copy study link to clipboard')
+                              })
+                          }}
+                        >
+                          <LinkIcon className='size-4' />
+                        </Button>
+                      }
+                    />
+                  </div>
+                </>
+              )}
+              <Button className='mt-2 gap-2' type='submit' disabled={disableFields}>
+                {isEditPage ? 'Save Changes' : 'Save and Continue'}
+              </Button>
+            </div>
           </div>
           <div className=''>
             <div className='grid gap-4'>
@@ -259,15 +300,16 @@ export const CreateStudyForm = ({
 
 export const EditStudyForm = ({
   initialData,
-  studyId
+  studyId,
+  hasTestResults
 }: {
   initialData: StudyWithTestsInsert
   studyId: string
+  hasTestResults: boolean
 }) => {
-  const [isEditMode, setIsEditMode] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(!hasTestResults)
 
   const trpc = useTRPC()
-  const router = useRouter()
 
   const { mutate, isPending } = useMutation(
     trpc.studies.updateStudy.mutationOptions({
@@ -275,7 +317,6 @@ export const EditStudyForm = ({
         toast.success('Study updated successfully', {
           description: data.name
         })
-        router.push(studyUrl(data.id))
       }
     })
   )

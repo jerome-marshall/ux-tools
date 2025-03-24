@@ -37,47 +37,55 @@ const RenderViews = ({
   }
 
   return (
-    <div className='grid h-full bg-gray-100'>
-      {currentStep === 'Welcome' && <WelcomeView onNextStep={handleNextStep} />}
-      {currentStep !== 'Welcome' &&
-        currentStep !== 'Thanks' &&
-        (() => {
-          const test = tests.find(test => test.sectionData.testId === currentStep)
-          if (!test) {
-            return (
-              <div className='flex h-full items-center justify-center'>
-                <h1>Test not found</h1>
-              </div>
-            )
-          }
-
-          if (test.type === 'TREE_TEST') {
-            const parsedTreeStructure = z
-              .array(treeItemSchema)
-              .safeParse(test.treeStructure)
-
-            if (!parsedTreeStructure.success) {
+    <div className='h-screen bg-gray-100'>
+      {isPreview && (
+        <div className='absolute top-2 left-2 w-fit rounded-md bg-amber-600 px-3 py-1 text-center text-xs font-semibold text-white shadow-md'>
+          Preview
+        </div>
+      )}
+      <div className='h-full overflow-auto'>
+        {currentStep === 'Welcome' && <WelcomeView onNextStep={handleNextStep} />}
+        {currentStep !== 'Welcome' &&
+          currentStep !== 'Thanks' &&
+          (() => {
+            const test = tests.find(test => test.sectionData.testId === currentStep)
+            if (!test) {
               return (
                 <div className='flex h-full items-center justify-center'>
-                  <h1>
-                    Uh oh! Something there&apos;s wrong with the test, please contact
-                    support.
-                  </h1>
+                  <h1>Test not found</h1>
                 </div>
               )
             }
 
-            return (
-              <TreeTestView
-                taskInstructions={test.taskInstructions}
-                treeStructure={parsedTreeStructure.data}
-                onNextStep={handleNextStep}
-                testId={test.sectionData.testId}
-              />
-            )
-          }
-        })()}
-      {currentStep === 'Thanks' && <ThanksView />}
+            if (test.type === 'TREE_TEST') {
+              const parsedTreeStructure = z
+                .array(treeItemSchema)
+                .safeParse(test.treeStructure)
+
+              if (!parsedTreeStructure.success) {
+                return (
+                  <div className='flex h-full items-center justify-center'>
+                    <h1>
+                      Uh oh! Something there&apos;s wrong with the test, please contact
+                      support.
+                    </h1>
+                  </div>
+                )
+              }
+
+              return (
+                <TreeTestView
+                  taskInstructions={test.taskInstructions}
+                  treeStructure={parsedTreeStructure.data}
+                  onNextStep={handleNextStep}
+                  testId={test.sectionData.testId}
+                  isPreview={!!isPreview}
+                />
+              )
+            }
+          })()}
+        {currentStep === 'Thanks' && <ThanksView />}
+      </div>
     </div>
   )
 }

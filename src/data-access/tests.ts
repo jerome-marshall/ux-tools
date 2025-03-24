@@ -41,3 +41,10 @@ export const createTestResult = async (testResult: TestResultInsert) => {
   const [result] = await db.insert(testResults).values(testResult).returning()
   return result
 }
+
+export const getTestResultsByTestId = async (testId: string) => {
+  const result = await db.query.testResults.findMany({
+    where: (testResult, { eq }) => eq(testResult.testId, testId)
+  })
+  return result
+}

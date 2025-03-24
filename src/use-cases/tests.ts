@@ -4,6 +4,7 @@ import {
   createTestResult,
   createTests,
   getTestById,
+  getTestResultsByTestId,
   getTestsByStudyId,
   updateTest
 } from '@/data-access/tests'
@@ -51,4 +52,15 @@ export const createTestResultUseCase = async (testResult: TestResultInsert) => {
     throw new Error('Failed to create test result')
   }
   return result
+}
+
+export const getTestResultsByStudyIdUseCase = async (studyId: string) => {
+  const tests = await getTestsByStudyId(studyId)
+  const testResults = await Promise.all(
+    tests.map(async test => {
+      const result = await getTestResultsByTestId(test.id)
+      return result
+    })
+  )
+  return testResults
 }

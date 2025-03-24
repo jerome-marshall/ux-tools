@@ -12,15 +12,19 @@ const TreeTestView = ({
   treeStructure,
   taskInstructions,
   onNextStep,
-  testId
+  testId,
+  isPreview
 }: {
   treeStructure: TreeItem[]
   taskInstructions: string
   testId: string
+  isPreview: boolean
   onNextStep: () => void
 }) => {
   const trpc = useTRPC()
-  const [userId] = useLocalStorage('user-id', '')
+  
+  const [storedUserId] = useLocalStorage('user-id', '')
+  const userId = isPreview ? '' : storedUserId
 
   const [startTime, setStartTime] = useState<number>(Date.now())
   const [firstInteractionTime, setFirstInteractionTime] = useState<number | null>(null)
@@ -35,14 +39,16 @@ const TreeTestView = ({
     setStartTime(now)
     setFirstInteractionTime(null)
 
-    mutate({
-      testType: 'TREE_TEST',
-      testId,
-      userId,
-      totalDurationMs,
-      taskDurationMs,
-      treeTestResult: { passed, testId, treeTestClicks: path }
-    })
+    if (!isPreview) {
+      mutate({
+        testType: 'TREE_TEST',
+        testId,
+        userId,
+        totalDurationMs,
+        taskDurationMs,
+        treeTestResult: { passed, testId, treeTestClicks: path }
+      })
+    }
 
     onNextStep()
   }

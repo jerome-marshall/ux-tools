@@ -1,6 +1,6 @@
 const ThanksView = () => {
   return (
-    <div className='grid grid-cols-2'>
+    <div className='grid grid-cols-2 h-full'>
       <div className='bg-black bg-gradient-to-br from-black via-gray-700 to-white'></div>
       <div className='flex items-center justify-center px-[min(50px,8vw)]'>
         <div className='flex max-w-[500px] flex-col'>
