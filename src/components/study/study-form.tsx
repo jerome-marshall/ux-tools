@@ -13,7 +13,7 @@ import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
 } from '@/zod-schemas/study.schema'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Clock,
   FileQuestion,
@@ -312,12 +312,17 @@ export const EditStudyForm = ({
   const [isDuplicateStudyDialogOpen, setIsDuplicateStudyDialogOpen] = useState(false)
 
   const trpc = useTRPC()
+  const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation(
     trpc.studies.updateStudy.mutationOptions({
       onSuccess: data => {
         toast.success('Study updated successfully', {
           description: data.name
+        })
+
+        void queryClient.invalidateQueries({
+          queryKey: trpc.studies.getStudyById.queryKey({ studyId })
         })
       }
     })
