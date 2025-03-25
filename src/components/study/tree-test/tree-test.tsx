@@ -1,14 +1,5 @@
+import { Button } from '@/components/ui/button'
 import { CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Textarea } from '@/components/ui/textarea'
-import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
-import { ListTree, Pencil, Trash } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { type UseFormReturn } from 'react-hook-form'
-import StudyFormCard from '../study-form-card'
-import TreeBuilder from './tree-builder'
 import {
   FormControl,
   FormField,
@@ -16,10 +7,19 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
-import { SECTION_ID } from '../study-form'
-import { type CorrectPath, type TreeItem } from '@/zod-schemas/tree.schema'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
+import { type CorrectPath, type TreeItem } from '@/zod-schemas/tree.schema'
+import { ListTree, Pencil, Trash } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { type UseFormReturn } from 'react-hook-form'
+import { SECTION_ID } from '../study-form'
+import StudyFormCard from '../study-form-card'
+import TreeBuilder from './tree-builder'
 
 const TreeTest = ({
   form,
@@ -39,18 +39,41 @@ const TreeTest = ({
   const [treeData, setTreeData] = useState<TreeItem[]>(initialTreeData)
   const [correctPaths, setCorrectPaths] = useState<CorrectPath[]>(initialCorrectPaths)
 
-  const [testName, setTestName] = useState<string>('Tree test')
   const [isEditingName, setIsEditingName] = useState<boolean>(false)
   const [isHoveringTitle, setIsHoveringTitle] = useState<boolean>(false)
 
+  // Sync with props if they change after initial render
+  useEffect(() => {
+    setTreeData(initialTreeData)
+  }, [initialTreeData])
+
+  useEffect(() => {
+    setCorrectPaths(initialCorrectPaths)
+  }, [initialCorrectPaths])
+
   // Update form data whenever tree data or correct paths change
   useEffect(() => {
-    // Update the form fields
-    form.setValue(`tests.${index}.treeStructure`, treeData)
-    form.setValue(`tests.${index}.correctPaths`, correctPaths)
+    const currentTreeStructure = form.getValues(`tests.${index}.treeStructure`)
+    const currentCorrectPaths = form.getValues(`tests.${index}.correctPaths`)
 
-    form.setValue(`tests.${index}.type`, 'TREE_TEST')
-  }, [treeData, correctPaths, testName, form, index])
+    // Only update if values have changed to avoid unnecessary rerenders
+    const treeChanged = JSON.stringify(currentTreeStructure) !== JSON.stringify(treeData)
+    const pathsChanged =
+      JSON.stringify(currentCorrectPaths) !== JSON.stringify(correctPaths)
+
+    if (treeChanged) {
+      form.setValue(`tests.${index}.treeStructure`, treeData)
+    }
+
+    if (pathsChanged) {
+      form.setValue(`tests.${index}.correctPaths`, correctPaths)
+    }
+
+    // Always ensure type is set correctly
+    if (form.getValues(`tests.${index}.type`) !== 'TREE_TEST') {
+      form.setValue(`tests.${index}.type`, 'TREE_TEST')
+    }
+  }, [treeData, correctPaths, form, index])
 
   // Handle tree data changes from the TreeBuilder
   const handleTreeChange = (newTreeData: TreeItem[], newCorrectPaths: CorrectPath[]) => {
@@ -65,6 +88,15 @@ const TreeTest = ({
   const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setIsEditingName(false)
+    } else if (e.key === 'Escape') {
+      setIsEditingName(false)
+    }
+  }
+
+  // Clear hover state when mouse leaves the component
+  const handleMouseLeave = () => {
+    if (!disableFields) {
+      setIsHoveringTitle(false)
     }
   }
 
@@ -87,11 +119,7 @@ const TreeTest = ({
                       setIsHoveringTitle(true)
                     }
                   }}
-                  onMouseLeave={() => {
-                    if (!disableFields) {
-                      setIsHoveringTitle(false)
-                    }
-                  }}
+                  onMouseLeave={handleMouseLeave}
                 >
                   {isEditingName ? (
                     <Input
@@ -117,12 +145,11 @@ const TreeTest = ({
                       {index + 1}. {field.value}
                     </CardTitle>
                   )}
-                  {isHoveringTitle && !isEditingName && (
+                  {isHoveringTitle && !isEditingName && !disableFields && (
                     <Pencil
                       size={16}
                       className={cn(
-                        'text-muted-foreground hover:text-for eground cursor-pointer transition-colors',
-                        disableFields && 'pointer-events-none cursor-default'
+                        'text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
                       )}
                       onClick={() => {
                         if (!disableFields) {
