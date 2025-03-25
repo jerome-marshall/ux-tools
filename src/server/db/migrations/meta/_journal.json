@@ -50,6 +50,13 @@
       "when": 1742315403614,
       "tag": "0006_chubby_rick_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1742884766754,
+      "tag": "0007_simple_king_bedlam",
+      "breakpoints": true
     }
   ]
 }

@@ -42,6 +42,7 @@ export const studies = pgTable('studies', {
     .array()
     .notNull()
     .default(sql`ARRAY[]::text[]`),
+  isActive: boolean('is_active').notNull().default(true),
   ...timestamps
 })
 

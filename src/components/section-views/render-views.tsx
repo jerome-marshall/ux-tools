@@ -7,7 +7,10 @@ import ThanksView from './thanks-view'
 import TreeTestView from './tree-test-view'
 import WelcomeView from './welcome-view'
 import { useLocalStorage } from 'usehooks-ts'
-import { generateId } from '@/lib/utils'
+import { cn, generateId } from '@/lib/utils'
+import Link from '../link'
+import { buttonVariants } from '../ui/button'
+import { studyEditUrl } from '@/utils/urls'
 
 const RenderViews = ({
   data,
@@ -39,8 +42,13 @@ const RenderViews = ({
   return (
     <div className='h-screen bg-gray-100'>
       {isPreview && (
-        <div className='absolute top-2 left-2 w-fit rounded-md bg-amber-600 px-3 py-1 text-center text-xs font-semibold text-white shadow-md'>
-          Preview
+        <div className='absolute top-2 left-2'>
+          <Link
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
+            href={studyEditUrl(data.study.id)}
+          >
+            Go to edit
+          </Link>
         </div>
       )}
       <div className='h-full overflow-auto'>
