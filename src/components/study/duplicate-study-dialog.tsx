@@ -20,9 +20,12 @@ import { Input } from '@/components/ui/input'
 import { useTRPC } from '@/trpc/client'
 import { type DuplicateStudy, duplicateStudySchema } from '@/zod-schemas/study.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import ProjectsDropdown from './projects-dropdown'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { studyEditUrl } from '@/utils/urls'
 
 export function DuplicateStudyDialog({
   isOpen,
@@ -34,7 +37,20 @@ export function DuplicateStudyDialog({
   study: { projectId: string; id: string; name: string }
 }) {
   const trpc = useTRPC()
-  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  const { mutate: duplicateStudy, isPending } = useMutation(
+    trpc.studies.duplicateStudy.mutationOptions({
+      onSuccess: ({ id }) => {
+        toast.success(`Study "${study.name}" duplicated successfully`)
+        router.push(studyEditUrl(id))
+      },
+      onError: error => {
+        toast.error(`Failed to duplicate study "${study.name}"`)
+        console.error(error)
+      }
+    })
+  )
 
   const form = useForm<DuplicateStudy>({
     resolver: zodResolver(duplicateStudySchema),
@@ -43,11 +59,15 @@ export function DuplicateStudyDialog({
       projectId: study.projectId
     }
   })
-  console.log('🚀 ~ form:', form.formState.errors)
-  console.log('🚀 ~ form:', form.watch())
+  // console.log('🚀 ~ form:', form.formState.errors)
+  // console.log('🚀 ~ form:', form.watch())
 
   const onSubmit = async (data: DuplicateStudy) => {
-    // createProject(data)
+    duplicateStudy({
+      studyId: study.id,
+      projectId: data.projectId,
+      newStudyName: data.name
+    })
   }
 
   return (
@@ -102,7 +122,7 @@ export function DuplicateStudyDialog({
                 Cancel
               </Button>
               <Button type='submit' disabled={false}>
-                {false ? 'Saving...' : 'Save changes'}
+                {false ? 'Duplicating...' : 'Duplicate'}
               </Button>
             </DialogFooter>
           </form>

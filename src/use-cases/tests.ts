@@ -6,6 +6,7 @@ import {
   getTestById,
   getTestResultsByTestId,
   getTestsByStudyId,
+  getTestsByTestIds,
   updateTest
 } from '@/data-access/tests'
 
@@ -29,6 +30,14 @@ export const getTestByIdUseCase = async (id: string) => {
   const result = await getTestById(id)
   if (!result) {
     throw new Error('Failed to get test')
+  }
+  return result
+}
+
+export const getTestsByTestIdsUseCase = async (testIds: string[]) => {
+  const result = await getTestsByTestIds(testIds)
+  if (!result) {
+    throw new Error('Failed to get tests')
   }
   return result
 }

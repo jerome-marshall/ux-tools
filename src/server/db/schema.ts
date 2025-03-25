@@ -4,7 +4,9 @@ import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { generateId } from '@/lib/utils'
 import {
+  type CorrectPath,
   correctPathSchema,
+  type TreeItem,
   treeItemSchema,
   treeTestClickSchema,
   type TreeTestClick
@@ -61,9 +63,9 @@ export const treeTests = pgTable('tree_tests', {
   testId: text('test_id')
     .notNull()
     .references(() => tests.id, { onDelete: 'cascade' }),
-  treeStructure: jsonb('tree_structure').notNull(),
+  treeStructure: jsonb('tree_structure').$type<TreeItem[]>().notNull(),
   taskInstructions: text('task_instructions').notNull(),
-  correctPaths: jsonb('correct_paths').notNull(),
+  correctPaths: jsonb('correct_paths').$type<CorrectPath[]>().notNull(),
   ...timestamps
 })
 
@@ -161,22 +163,18 @@ export const testInsertSchema = createInsertSchema(tests)
     studyId: z.string().min(1, { message: 'Study is required' }),
     name: z.string().min(1, { message: 'Name is required' })
   })
-export const treeTestInsertSchema = createInsertSchema(treeTests)
-  .omit({
-    createdAt: true,
-    updatedAt: true
-  })
-  .extend({
-    id: z.string().min(1, { message: 'Tree test ID is required' }),
-    testId: z.string().min(1, { message: 'Test is required' }),
-    treeStructure: z
-      .array(treeItemSchema)
-      .min(1, { message: 'At least one tree structure is required' }),
-    taskInstructions: z.string().min(1, { message: 'Task instructions are required' }),
-    correctPaths: z
-      .array(correctPathSchema)
-      .min(1, { message: 'At least one correct path is required' })
-  })
+
+export const treeTestInsertSchema = z.object({
+  id: z.string().min(1, { message: 'Tree test ID is required' }),
+  testId: z.string().min(1, { message: 'Test is required' }),
+  treeStructure: z
+    .array(treeItemSchema)
+    .min(1, { message: 'At least one tree structure is required' }),
+  taskInstructions: z.string().min(1, { message: 'Task instructions are required' }),
+  correctPaths: z
+    .array(correctPathSchema)
+    .min(1, { message: 'At least one correct path is required' })
+})
 
 export const treeTestResultInsertSchema = createInsertSchema(treeTestResults)
   .omit({

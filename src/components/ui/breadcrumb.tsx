@@ -1,9 +1,9 @@
-import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { ChevronRight, MoreHorizontal } from 'lucide-react'
+import * as React from 'react'
 
-import { cn } from '@/lib/utils'
 import Link from '@/components/link'
+import { cn } from '@/lib/utils'
 
 function Breadcrumb({ ...props }: React.ComponentProps<'nav'>) {
   return <nav aria-label='breadcrumb' data-slot='breadcrumb' {...props} />
@@ -36,6 +36,7 @@ function BreadcrumbLink({
   asChild,
   className,
   href = '#',
+  children,
   ...props
 }: React.ComponentProps<'a'> & {
   asChild?: boolean
@@ -49,7 +50,9 @@ function BreadcrumbLink({
       className={cn('hover:text-foreground transition-colors', className)}
       href={href}
       {...props}
-    />
+    >
+      {children}
+    </Comp>
   )
 }
 
@@ -101,10 +104,10 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<'span'
 
 export {
   Breadcrumb,
-  BreadcrumbList,
+  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
-  BreadcrumbEllipsis
+  BreadcrumbSeparator
 }

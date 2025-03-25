@@ -2,6 +2,7 @@ import {
   createTreeTest,
   createTreeTestResult,
   getTreeTestByTestId,
+  getTreeTestsByTestIds,
   updateTreeTest
 } from '@/data-access/tree-tests'
 import { type TreeTestResultInsert, type TreeTestInsert } from '@/server/db/schema'
@@ -19,6 +20,14 @@ export const getTreeTestByTestIdUseCase = async (testId: string) => {
   const result = await getTreeTestByTestId(testId)
   if (!result) {
     throw new Error('Failed to get tree test')
+  }
+  return result
+}
+
+export const getTreeTestsByTestIdsUseCase = async (testIds: string[]) => {
+  const result = await getTreeTestsByTestIds(testIds)
+  if (!result) {
+    throw new Error('Failed to get tree tests')
   }
   return result
 }

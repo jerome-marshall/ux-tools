@@ -1,10 +1,11 @@
+import { generateId } from '@/lib/utils'
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
-import { type TreeTest } from '@/server/db/schema'
+import { type TestType, type TreeTest } from '@/server/db/schema'
 import {
-  insertStudyUseCase,
   getStudiesByProjectIdUseCase,
-  updateStudyUseCase,
-  getStudyByIdUseCase
+  getStudyByIdUseCase,
+  insertStudyUseCase,
+  updateStudyUseCase
 } from '@/use-cases/studies'
 import {
   createTestsUseCase,
@@ -178,5 +179,69 @@ export const studiesRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const studies = await getStudiesByProjectIdUseCase(input.projectId)
       return studies
+    }),
+
+  duplicateStudy: publicProcedure
+    .input(
+      z.object({ studyId: z.string(), newStudyName: z.string(), projectId: z.string() })
+    )
+    .mutation(async ({ input }) => {
+      // Fetch original study and tests
+      const study = await getStudyByIdUseCase(input.studyId)
+      const tests = await getTestsByStudyIdUseCase(input.studyId)
+
+      // Create the new study
+      const newStudy = await insertStudyUseCase({
+        id: generateId(),
+        name: input.newStudyName,
+        projectId: input.projectId,
+        testsOrder: [] // We'll update this after creating tests
+      })
+
+      const testIdMap = new Map<string, string>()
+      const newTestRecords = tests.map(test => {
+        const newId = generateId()
+        testIdMap.set(test.id, newId)
+
+        return {
+          id: newId,
+          type: test.type,
+          studyId: newStudy.id,
+          name: test.name
+        }
+      })
+
+      const newTestsOrder = study.testsOrder
+        .map(oldId => testIdMap.get(oldId) ?? '')
+        .filter(id => id !== '')
+      await updateStudyUseCase(newStudy.id, { testsOrder: newTestsOrder })
+
+      const newTests = await createTestsUseCase(newTestRecords)
+
+      const testsByType = new Map<TestType, Array<{ ogId: string; newId: string }>>()
+      tests.forEach((test, index) => {
+        if (!testsByType.has(test.type)) {
+          testsByType.set(test.type, [])
+        }
+        testsByType.get(test.type)!.push({ ogId: test.id, newId: newTests[index].id })
+      })
+
+      const treeTestPromises =
+        testsByType
+          .get('TREE_TEST')
+          ?.map(async ({ ogId, newId }) => {
+            const treeTest = await getTreeTestByTestIdUseCase(ogId)
+            if (treeTest) {
+              return createTreeTestUseCase({
+                ...treeTest,
+                id: generateId(),
+                testId: newId
+              })
+            }
+          })
+          .filter(Boolean) ?? []
+      await Promise.all(treeTestPromises)
+
+      return newStudy
     })
 })

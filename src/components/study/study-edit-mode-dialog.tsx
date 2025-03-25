@@ -34,20 +34,20 @@ const StudyEditModeDialog = ({
           <p className='font-semibold'>You are in view-only mode.</p>
         </div>
         <DialogTrigger asChild>
-          <Button size='sm'>Edit this test</Button>
+          <Button size='sm'>Edit this study</Button>
         </DialogTrigger>
       </div>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className='text-xl font-semibold'>
-            Be careful — this test already has responses!
+            Be careful — this study already has responses!
           </DialogTitle>
         </DialogHeader>
         <div className='text-gray-700'>
           <p className=''>
-            Some participants have already completed this test, while others may currently
-            be in the middle of taking it. Making changes now could disrupt their
-            experience and invalidate their responses.
+            Some participants have already completed this study, while others may
+            currently be in the middle of taking it. Making changes now could disrupt
+            their experience and invalidate their responses.
           </p>
         </div>
         <DialogFooter className='mt-4'>
@@ -58,7 +58,7 @@ const StudyEditModeDialog = ({
               onDuplicateClick()
             }}
           >
-            Duplicate this test instead
+            Duplicate this study instead
           </Button>
           <Button
             onClick={() => {

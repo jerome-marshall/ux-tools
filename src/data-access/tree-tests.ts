@@ -1,10 +1,9 @@
 import { db } from '@/server/db'
 import {
-  type TreeTestResultInsert,
   treeTestResults,
   treeTests,
-  type TreeTest,
-  type TreeTestInsert
+  type TreeTestInsert,
+  type TreeTestResultInsert
 } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
@@ -16,6 +15,13 @@ export const createTreeTest = async (treeTest: TreeTestInsert) => {
 export const getTreeTestByTestId = async (testId: string) => {
   const result = await db.query.treeTests.findFirst({
     where: (fields, { eq }) => eq(fields.testId, testId)
+  })
+  return result
+}
+
+export const getTreeTestsByTestIds = async (testIds: string[]) => {
+  const result = await db.query.treeTests.findMany({
+    where: (fields, { inArray }) => inArray(fields.testId, testIds)
   })
   return result
 }

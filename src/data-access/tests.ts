@@ -1,10 +1,10 @@
 import { db } from '@/server/db'
 import {
-  type TestResultInsert,
   testResults,
   tests,
   type Test,
-  type TestInsert
+  type TestInsert,
+  type TestResultInsert
 } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
@@ -21,6 +21,13 @@ export const createTests = async (testsData: TestInsert[]) => {
 export const getTestById = async (id: string) => {
   const result = await db.query.tests.findFirst({
     where: (test, { eq }) => eq(test.id, id)
+  })
+  return result
+}
+
+export const getTestsByTestIds = async (testIds: string[]) => {
+  const result = await db.query.tests.findMany({
+    where: (test, { inArray }) => inArray(test.id, testIds)
   })
   return result
 }
