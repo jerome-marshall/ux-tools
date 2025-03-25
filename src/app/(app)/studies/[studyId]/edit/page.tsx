@@ -14,7 +14,7 @@ export default async function StudyPage({ params }: PageProps) {
   const data = await queryClient.fetchQuery(
     trpc.studies.getStudyById.queryOptions({ studyId })
   )
-  
+
   const transformedData: StudyWithTestsInsert = {
     study: {
       id: data.study.id,
@@ -35,11 +35,17 @@ export default async function StudyPage({ params }: PageProps) {
   }
 
   const testResults = await getTestResultsByStudyIdUseCase(studyId)
-  const hasTestResults = testResults.some(testResult => testResult.length > 0)
+  const hasTestResults = testResults.resultsData.some(
+    testResult => testResult.results.length > 0
+  )
 
   return (
     <div className='container'>
-      <EditStudyForm initialData={transformedData} studyId={studyId} hasTestResults={hasTestResults} />
+      <EditStudyForm
+        initialData={transformedData}
+        studyId={studyId}
+        hasTestResults={hasTestResults}
+      />
     </div>
   )
 }

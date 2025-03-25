@@ -6,3 +6,5 @@ export type ProjectWithStudiesCount = Project & {
 }
 
 export type StudyWithTests = RouterOutputs['studies']['getStudyById']
+
+export type TestResultsWithTest = RouterOutputs['tests']['getTestResults']

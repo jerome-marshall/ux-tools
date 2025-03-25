@@ -9,6 +9,7 @@ import {
   getTestsByTestIds,
   updateTest
 } from '@/data-access/tests'
+import { getStudyByIdUseCase } from './studies'
 
 export const createTestUseCase = async (test: TestInsert) => {
   const result = await createTest(test)
@@ -64,12 +65,13 @@ export const createTestResultUseCase = async (testResult: TestResultInsert) => {
 }
 
 export const getTestResultsByStudyIdUseCase = async (studyId: string) => {
-  const tests = await getTestsByStudyId(studyId)
+  const study = await getStudyByIdUseCase(studyId)
+  const tests = await getTestsByStudyIdUseCase(studyId)
   const testResults = await Promise.all(
     tests.map(async test => {
-      const result = await getTestResultsByTestId(test.id)
-      return result
+      const results = await getTestResultsByTestId(test.id)
+      return { test, results }
     })
   )
-  return testResults
+  return { study, resultsData: testResults }
 }
