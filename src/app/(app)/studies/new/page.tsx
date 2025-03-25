@@ -3,16 +3,18 @@ import { generateId } from '@/lib/utils'
 
 export default function NewTestPage() {
   return (
-    <CreateStudyForm
-      initialData={{
-        study: {
-          name: '',
-          projectId: '',
-          id: generateId(),
-          testsOrder: []
-        },
-        tests: []
-      }}
-    />
+    <div className='container'>
+      <CreateStudyForm
+        initialData={{
+          study: {
+            name: '',
+            projectId: '',
+            id: generateId(),
+            testsOrder: []
+          },
+          tests: []
+        }}
+      />
+    </div>
   )
 }
