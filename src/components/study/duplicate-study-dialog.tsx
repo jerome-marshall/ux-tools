@@ -18,14 +18,14 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useTRPC } from '@/trpc/client'
+import { studyEditUrl } from '@/utils/urls'
 import { type DuplicateStudy, duplicateStudySchema } from '@/zod-schemas/study.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
-import ProjectsDropdown from './projects-dropdown'
+import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { studyEditUrl } from '@/utils/urls'
+import ProjectsDropdown from './projects-dropdown'
 
 export function DuplicateStudyDialog({
   isOpen,
@@ -43,11 +43,13 @@ export function DuplicateStudyDialog({
     trpc.studies.duplicateStudy.mutationOptions({
       onSuccess: ({ id }) => {
         toast.success(`Study "${study.name}" duplicated successfully`)
+        setIsOpen(false)
         router.push(studyEditUrl(id))
       },
       onError: error => {
         toast.error(`Failed to duplicate study "${study.name}"`)
         console.error(error)
+        setIsOpen(false)
       }
     })
   )
