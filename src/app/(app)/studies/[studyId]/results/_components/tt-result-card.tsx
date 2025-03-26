@@ -9,9 +9,10 @@ import {
 } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { ListTree, Text } from 'lucide-react'
+import { ChartColumn, ListTree, Text } from 'lucide-react'
 import TreeTestResultOverview from './tt-result-overview'
 import { checkBacktrack, getNodeNameById } from '@/utils/tree-utils'
+import TreeTestResultTabs from './tt-result-tabs'
 
 export type CategorizedResults = Record<
   `${'direct' | 'indirect'}-${'success' | 'failure' | 'pass'}`,
@@ -97,11 +98,18 @@ const TreeTestResultCard = ({
 
           <Separator className='my-6' />
 
-          <TreeTestResultOverview
-            correctNodeNames={correctNodeNames.join(', ')}
-            totalResponses={treeTestResults.length}
-            categorizedResults={categorizedResults}
-          />
+          <div className='flex flex-col gap-5'>
+            <div className='flex items-center gap-2'>
+              <ChartColumn className='size-4 stroke-3 text-gray-400' />
+              <span className='font-medium'>Results</span>
+            </div>
+            <TreeTestResultOverview
+              correctNodeNames={correctNodeNames.join(', ')}
+              totalResponses={treeTestResults.length}
+              categorizedResults={categorizedResults}
+            />
+            <TreeTestResultTabs categorizedResults={categorizedResults} />
+          </div>
         </div>
       }
     />
