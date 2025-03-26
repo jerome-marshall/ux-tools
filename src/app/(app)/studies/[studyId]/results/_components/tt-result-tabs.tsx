@@ -2,6 +2,8 @@ import React from 'react'
 import { type CategorizedResults } from './tt-result-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChartNoAxesColumnIncreasing, Route, UserRound, UsersRound } from 'lucide-react'
+import TreeTestResultTabNodeTotals from './tt-result-tab-node-totals'
+import { type TreeTest, type TreeTestResult } from '@/server/db/schema'
 
 const TAB_VALUES = {
   TOTALS: 'totals',
@@ -11,15 +13,21 @@ const TAB_VALUES = {
 }
 
 const TreeTestResultTabs = ({
-  categorizedResults
+  categorizedResults,
+  treeTestResults,
+  correctNodeIds,
+  treeTestData
 }: {
   categorizedResults: CategorizedResults
+  treeTestResults: TreeTestResult[]
+  correctNodeIds: string[]
+  treeTestData: TreeTest
 }) => {
   const tabTriggerClasses = 'gap-2 data-[state=inactive]:text-gray-500'
 
   return (
     <Tabs defaultValue={TAB_VALUES.TOTALS} className=''>
-      <TabsList className='gap-1'>
+      <TabsList className='mb-2 gap-1'>
         <TabsTrigger value={TAB_VALUES.TOTALS} className={tabTriggerClasses}>
           <ChartNoAxesColumnIncreasing /> <span>Totals</span>
         </TabsTrigger>
@@ -33,7 +41,13 @@ const TreeTestResultTabs = ({
           <Route /> <span>Path Diagram</span>
         </TabsTrigger>
       </TabsList>
-      <TabsContent value={TAB_VALUES.TOTALS}>Totals</TabsContent>
+      <TabsContent value={TAB_VALUES.TOTALS}>
+        <TreeTestResultTabNodeTotals
+          correctNodeIds={correctNodeIds}
+          treeTestResults={treeTestResults}
+          treeStructure={treeTestData.treeStructure}
+        />
+      </TabsContent>
       <TabsContent value={TAB_VALUES.COMMON_PATHS}>Common Paths</TabsContent>
       <TabsContent value={TAB_VALUES.INDIVIDUAL_PATHS}>Individual Paths</TabsContent>
       <TabsContent value={TAB_VALUES.PATH_DIAGRAM}>Path Diagram</TabsContent>

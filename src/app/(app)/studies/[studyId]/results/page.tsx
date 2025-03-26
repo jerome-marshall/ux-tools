@@ -12,7 +12,7 @@ export default async function StudyPage({ params }: PageProps) {
   const data = await caller.tests.getTestResults({ studyId })
 
   return (
-    <div className='container flex flex-col gap-6'>
+    <div className='container flex max-w-5xl flex-col gap-6'>
       <ResultCards data={data} />
       {data.resultsData.map(resultData => {
         if (resultData.test.type === 'TREE_TEST') {

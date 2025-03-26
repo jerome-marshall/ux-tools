@@ -108,7 +108,12 @@ const TreeTestResultCard = ({
               totalResponses={treeTestResults.length}
               categorizedResults={categorizedResults}
             />
-            <TreeTestResultTabs categorizedResults={categorizedResults} />
+            <TreeTestResultTabs
+              categorizedResults={categorizedResults}
+              treeTestResults={treeTestResults}
+              correctNodeIds={correctNodeIds}
+              treeTestData={treeTestData}
+            />
           </div>
         </div>
       }
