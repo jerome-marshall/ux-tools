@@ -40,3 +40,10 @@ export const createTreeTestResult = async (treeTestResult: TreeTestResultInsert)
   const [result] = await db.insert(treeTestResults).values(treeTestResult).returning()
   return result
 }
+
+export const getTreeTestResultsByTestResultIds = async (testResultIds: string[]) => {
+  const result = await db.query.treeTestResults.findMany({
+    where: (fields, { inArray }) => inArray(fields.testResultId, testResultIds)
+  })
+  return result
+}

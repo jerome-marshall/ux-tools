@@ -4,7 +4,10 @@ import {
   createTestResultUseCase,
   getTestResultsByStudyIdUseCase
 } from '@/use-cases/tests'
-import { createTreeTestResultUseCase } from '@/use-cases/tree-tests'
+import {
+  createTreeTestResultUseCase,
+  getTreeTestResultsByTestResultIdsUseCase
+} from '@/use-cases/tree-tests'
 import { z } from 'zod'
 
 export const testsRouter = createTRPCRouter({
@@ -52,5 +55,14 @@ export const testsRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const tests = await getTestResultsByStudyIdUseCase(input.studyId)
       return tests
+    }),
+
+  getTreeTestResults: publicProcedure
+    .input(z.object({ testResultIds: z.array(z.string()) }))
+    .query(async ({ input }) => {
+      const treeTestResults = await getTreeTestResultsByTestResultIdsUseCase(
+        input.testResultIds
+      )
+      return treeTestResults
     })
 })

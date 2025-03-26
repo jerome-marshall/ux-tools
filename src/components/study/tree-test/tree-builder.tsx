@@ -28,6 +28,8 @@ import { FormField, FormMessage } from '@/components/ui/form'
 import { type UseFormReturn } from 'react-hook-form'
 import { type TreeItem, type CorrectPath } from '@/zod-schemas/tree.schema'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
+import { getNodeNameById } from '@/utils/tree-utils'
+import { findItemById, getNodePath, isDescendant } from '@/utils/tree-utils'
 
 interface TreeBuilderProps {
   initialItems?: TreeItem[]
@@ -485,22 +487,6 @@ const TreeBuilder = ({
   // All node IDs for the SortableContext
   const allNodeIds = getAllNodeIds(items)
 
-  // Find an item by ID
-  const findItemById = (items: TreeItem[], id: string): TreeItem | null => {
-    for (const item of items) {
-      if (item.id === id) {
-        return item
-      }
-
-      if (item.children.length > 0) {
-        const found = findItemById(item.children, id)
-        if (found) return found
-      }
-    }
-
-    return null
-  }
-
   // Custom drop animation
   const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -510,23 +496,6 @@ const TreeBuilder = ({
         }
       }
     })
-  }
-
-  // Helper function to check if an item is a descendant of another item
-  function isDescendant(parent: TreeItem, childId: string): boolean {
-    // Check direct children
-    for (const child of parent.children) {
-      if (child.id === childId) {
-        return true
-      }
-
-      // Check descendants recursively
-      if (isDescendant(child, childId)) {
-        return true
-      }
-    }
-
-    return false
   }
 
   // Improve collision detection with a more forgiving algorithm
@@ -894,64 +863,9 @@ const TreeBuilder = ({
     return items.some(item => item.id === nodeId)
   }
 
-  // Get node path as array of IDs
-  const getNodePath = (nodeId: string): string[] => {
-    const path: string[] = []
-
-    // Recursive function to build path
-    const buildPath = (
-      items: TreeItem[],
-      id: string,
-      currentPath: string[] = []
-    ): boolean => {
-      for (const item of items) {
-        // Current path including this item's ID
-        const itemPath = [...currentPath, item.id]
-
-        // If this is the node we're looking for
-        if (item.id === id) {
-          path.push(...itemPath)
-          return true
-        }
-
-        // Check children
-        if (item.children.length > 0) {
-          if (buildPath(item.children, id, itemPath)) {
-            return true
-          }
-        }
-      }
-
-      return false
-    }
-
-    buildPath(items, nodeId, [])
-    return path
-  }
-
-  // Helper function to get node name by ID
-  const getNodeNameById = (nodeId: string): string => {
-    const findName = (items: TreeItem[]): string | null => {
-      for (const item of items) {
-        if (item.id === nodeId) {
-          return item.name || item.id
-        }
-
-        if (item.children.length > 0) {
-          const foundName = findName(item.children)
-          if (foundName !== null) return foundName
-        }
-      }
-      return null
-    }
-
-    const result = findName(items)
-    return result ?? nodeId // Fallback to ID if name not found
-  }
-
   // Toggle whether a node path is marked as correct
   const toggleCorrectPath = (nodeId: string) => {
-    const nodePath = getNodePath(nodeId)
+    const nodePath = getNodePath(items, nodeId)
 
     setCorrectPaths(prevPaths => {
       // Check if this path is already marked correct
@@ -1130,7 +1044,9 @@ const TreeBuilder = ({
                   <div key={path.id} className='flex items-center gap-2 py-1'>
                     <CircleCheck className='size-5 rounded-full fill-green-600 text-white' />
                     <span>
-                      {path.path.map(nodeId => getNodeNameById(nodeId)).join(' › ')}
+                      {path.path
+                        .map(nodeId => getNodeNameById(items, nodeId))
+                        .join(' › ')}
                     </span>
                   </div>
                 ))

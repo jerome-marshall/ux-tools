@@ -131,3 +131,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .tt-result-row {
+    @apply grid grid-cols-[1fr_112px_112px_112px] gap-4 font-medium;
+  }
+}

@@ -54,7 +54,6 @@ const ResultCards = ({ data }: { data: TestResultsWithTest }) => {
           content={<p className='text-3xl font-medium'>{responsesCount}</p>}
           description='Total responses'
         />
-        {/* <ResultCard isActive={false} /> */}
       </div>
       <div className='flex self-end'>
         <Button>
@@ -80,7 +79,7 @@ const ResultCard = ({
   description: string
 }) => {
   return (
-    <div className='w-full max-w-sm rounded-lg border bg-white'>
+    <div className='w-full rounded-lg border bg-white'>
       <div className='flex h-full flex-col justify-between gap-5 p-4'>
         <div className='flex justify-between'>
           <div className='flex h-fit items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-gray-500'>

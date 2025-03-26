@@ -1,4 +1,9 @@
-import { type TestResultInsert, type Test, type TestInsert } from '@/server/db/schema'
+import {
+  type TestResultInsert,
+  type Test,
+  type TestInsert,
+  type TreeTest
+} from '@/server/db/schema'
 import {
   createTest,
   createTestResult,
@@ -10,6 +15,7 @@ import {
   updateTest
 } from '@/data-access/tests'
 import { getStudyByIdUseCase } from './studies'
+import { getTreeTestByTestIdUseCase } from './tree-tests'
 
 export const createTestUseCase = async (test: TestInsert) => {
   const result = await createTest(test)
@@ -70,7 +76,21 @@ export const getTestResultsByStudyIdUseCase = async (studyId: string) => {
   const testResults = await Promise.all(
     tests.map(async test => {
       const results = await getTestResultsByTestId(test.id)
-      return { test, results }
+
+      let testData: TreeTest | null = null
+      if (test.type === 'TREE_TEST') {
+        testData = await getTreeTestByTestIdUseCase(test.id)
+      } else {
+        throw new Error('Test type not supported')
+      }
+
+      return {
+        test: {
+          ...test,
+          data: testData
+        },
+        results
+      }
     })
   )
   return { study, resultsData: testResults }
