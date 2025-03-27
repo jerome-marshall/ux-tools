@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChartNoAxesColumnIncreasing, Route, UserRound, UsersRound } from 'lucide-react'
 import TreeTestResultTabNodeTotals from './tt-result-tab-node-totals'
 import { type TreeTest, type TreeTestResult } from '@/server/db/schema'
+import { type EntireTreeTestResult } from '@/types'
 
 const TAB_VALUES = {
   TOTALS: 'totals',
@@ -14,12 +15,12 @@ const TAB_VALUES = {
 
 const TreeTestResultTabs = ({
   categorizedResults,
-  treeTestResults,
+  entireTestResults,
   correctNodeIds,
   treeTestData
 }: {
   categorizedResults: CategorizedResults
-  treeTestResults: TreeTestResult[]
+  entireTestResults: EntireTreeTestResult[]
   correctNodeIds: string[]
   treeTestData: TreeTest
 }) => {
@@ -44,7 +45,7 @@ const TreeTestResultTabs = ({
       <TabsContent value={TAB_VALUES.TOTALS}>
         <TreeTestResultTabNodeTotals
           correctNodeIds={correctNodeIds}
-          treeTestResults={treeTestResults}
+          entireTestResults={entireTestResults}
           treeStructure={treeTestData.treeStructure}
         />
       </TabsContent>

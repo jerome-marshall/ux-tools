@@ -1,6 +1,7 @@
-import { type TreeTest } from '@/server/db/schema'
+import { type TestResult, type TreeTestResult, type TreeTest } from '@/server/db/schema'
 
 import { type Test } from '@/server/db/schema'
+import { type EntireTreeTestResult } from '@/types'
 import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
 import { z } from 'zod'
 export const combineTestWithTreeTest = (test: Test, treeTest: TreeTest) => {
@@ -45,4 +46,27 @@ export const combineTestsWithTreeTests = (tests: Test[], treeTests: TreeTest[]) 
 
     return combineTestWithTreeTest(test, treeTest)
   })
+}
+
+export const combineTestResultsWithTreeTestResults = (
+  testResults: TestResult[],
+  treeTestResults: TreeTestResult[]
+): EntireTreeTestResult[] => {
+  const entireTestResults = []
+  for (const result of treeTestResults) {
+    const testResult = testResults.find(
+      testResult => testResult.id === result.testResultId
+    )
+
+    if (!testResult) continue
+
+    const entireTestResult = {
+      ...result,
+      testData: testResult
+    }
+
+    entireTestResults.push(entireTestResult)
+  }
+
+  return entireTestResults
 }

@@ -2,16 +2,17 @@
 import StudyFormCard from '@/components/study/study-form-card'
 import { Separator } from '@/components/ui/separator'
 import {
-  type TreeTestResult,
   type Test,
   type TestResult,
-  type TreeTest
+  type TreeTest,
+  type TreeTestResult
 } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
+import { combineTestResultsWithTreeTestResults } from '@/utils/transformers'
+import { checkBacktrack, getNodeNameById } from '@/utils/tree-utils'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChartColumn, ListTree, Text } from 'lucide-react'
 import TreeTestResultOverview from './tt-result-overview'
-import { checkBacktrack, getNodeNameById } from '@/utils/tree-utils'
 import TreeTestResultTabs from './tt-result-tabs'
 
 export type CategorizedResults = Record<
@@ -33,6 +34,11 @@ const TreeTestResultCard = ({
   const testResultIds = testResults.map(result => result.id)
   const { data: treeTestResults } = useSuspenseQuery(
     trpc.tests.getTreeTestResults.queryOptions({ testResultIds })
+  )
+
+  const entireTestResults = combineTestResultsWithTreeTestResults(
+    testResults,
+    treeTestResults
   )
 
   const correctPaths = treeTestData.correctPaths
@@ -110,7 +116,7 @@ const TreeTestResultCard = ({
             />
             <TreeTestResultTabs
               categorizedResults={categorizedResults}
-              treeTestResults={treeTestResults}
+              entireTestResults={entireTestResults}
               correctNodeIds={correctNodeIds}
               treeTestData={treeTestData}
             />
