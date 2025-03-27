@@ -19,7 +19,7 @@ export default async function StudyPage({ params }: PageProps) {
           return (
             <Suspense key={resultData.test.id} fallback={<div>Loading Tree Test...</div>}>
               <TreeTestResultCard
-                key={resultData.test.id}
+                key={resultData.test.id + 'test-card'}
                 testResults={resultData.results}
                 treeTestData={resultData.test.data}
                 testData={resultData.test}

@@ -1,4 +1,71 @@
+import { type PathTypeStatus } from '@/types'
 import { type TreeTestClick, type TreeItem } from '@/zod-schemas/tree.schema'
+
+export const PATH_TYPE: Record<
+  PathTypeStatus,
+  { label: string; bgColor: string; textColor: string }
+> = {
+  'direct-success': {
+    label: 'DIRECT SUCCESS',
+    bgColor: 'bg-green-600',
+    textColor: 'text-green-50'
+  },
+  'direct-failure': {
+    label: 'DIRECT FAILURE',
+    bgColor: 'bg-red-600',
+    textColor: 'text-red-50'
+  },
+  'direct-pass': {
+    label: 'DIRECT PASS',
+    bgColor: 'bg-gray-600',
+    textColor: 'text-gray-50'
+  },
+  'indirect-success': {
+    label: 'INDIRECT SUCCESS',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-700'
+  },
+  'indirect-failure': {
+    label: 'INDIRECT FAILURE',
+    bgColor: 'bg-red-50',
+    textColor: 'text-red-700'
+  },
+  'indirect-pass': {
+    label: 'INDIRECT PASS',
+    bgColor: 'bg-gray-50',
+    textColor: 'text-gray-700'
+  }
+}
+
+export function getNodePathTypeStatus(
+  clicks: TreeTestClick[],
+  treeStructure: TreeItem[],
+  correctNodeIds: string[],
+  passed: boolean
+): PathTypeStatus {
+  if (!clicks || clicks.length === 0) {
+    return 'direct-pass'
+  }
+
+  const hasBacktracked = checkBacktrack(clicks, treeStructure)
+  const lastClickedNodeId = clicks[clicks.length - 1]?.nodeId
+
+  if (!lastClickedNodeId) {
+    return 'direct-failure'
+  }
+
+  if (passed) {
+    return hasBacktracked ? 'indirect-pass' : 'direct-pass'
+  }
+
+  const isCorrect = correctNodeIds.includes(lastClickedNodeId)
+
+  if (isCorrect) {
+    return hasBacktracked ? 'indirect-success' : 'direct-success'
+  }
+
+  return hasBacktracked ? 'indirect-failure' : 'direct-failure'
+}
 
 // Helper function to check if an item is a descendant of another item
 export function isDescendant(parent: TreeItem, childId: string): boolean {

@@ -1,24 +1,20 @@
 'use client'
 import StudyFormCard from '@/components/study/study-form-card'
 import { Separator } from '@/components/ui/separator'
-import {
-  type Test,
-  type TestResult,
-  type TreeTest,
-  type TreeTestResult
-} from '@/server/db/schema'
+import { type Test, type TestResult, type TreeTest } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
+import { type CategorizedTreeResults, type EntireTreeTestResult } from '@/types'
 import { combineTestResultsWithTreeTestResults } from '@/utils/transformers'
-import { checkBacktrack, getNodeNameById } from '@/utils/tree-utils'
+import {
+  checkBacktrack,
+  getNodeNameById,
+  getNodePathTypeStatus
+} from '@/utils/tree-utils'
+import { type TreeItem } from '@/zod-schemas/tree.schema'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChartColumn, ListTree, Text } from 'lucide-react'
 import TreeTestResultOverview from './tt-result-overview'
 import TreeTestResultTabs from './tt-result-tabs'
-
-export type CategorizedResults = Record<
-  `${'direct' | 'indirect'}-${'success' | 'failure' | 'pass'}`,
-  TreeTestResult[]
->
 
 const TreeTestResultCard = ({
   treeTestData,
@@ -47,46 +43,12 @@ const TreeTestResultCard = ({
     getNodeNameById(treeTestData.treeStructure, id)
   )
 
-  const categorizedResults: CategorizedResults = {
-    'direct-success': [],
-    'indirect-success': [],
-    'direct-failure': [],
-    'indirect-failure': [],
-    'direct-pass': [],
-    'indirect-pass': []
-  }
-
-  treeTestResults.forEach(result => {
-    const hasBacktracked = checkBacktrack(
-      result.treeTestClicks,
-      treeTestData.treeStructure
-    )
-
-    if (result.passed || !result.treeTestClicks || result.treeTestClicks.length === 0) {
-      categorizedResults[hasBacktracked ? 'indirect-pass' : 'direct-pass'].push(result)
-      return
-    }
-
-    const lastClickedNodeId =
-      result.treeTestClicks[result.treeTestClicks.length - 1]?.nodeId
-    if (!lastClickedNodeId) {
-      categorizedResults['direct-failure'].push(result)
-      return
-    }
-
-    const isCorrect = correctNodeIds.includes(lastClickedNodeId)
-
-    if (isCorrect) {
-      categorizedResults[hasBacktracked ? 'indirect-success' : 'direct-success'].push(
-        result
-      )
-      return
-    }
-
-    categorizedResults[hasBacktracked ? 'indirect-failure' : 'direct-failure'].push(
-      result
-    )
-  })
+  const categorizedResults = categorizeTreeTestResults(
+    entireTestResults,
+    treeTestData.treeStructure,
+    correctNodeIds
+  )
+  console.log('🚀 ~ categorizedResults:', categorizedResults)
 
   return (
     <StudyFormCard
@@ -125,6 +87,34 @@ const TreeTestResultCard = ({
       }
     />
   )
+}
+
+export function categorizeTreeTestResults(
+  entireTestResults: EntireTreeTestResult[],
+  treeStructure: TreeItem[],
+  correctNodeIds: string[]
+): CategorizedTreeResults {
+  const categorizedResults: CategorizedTreeResults = {
+    'direct-success': [],
+    'indirect-success': [],
+    'direct-failure': [],
+    'indirect-failure': [],
+    'direct-pass': [],
+    'indirect-pass': []
+  }
+
+  entireTestResults.forEach(result => {
+    const pathTypeStatus = getNodePathTypeStatus(
+      result.treeTestClicks,
+      treeStructure,
+      correctNodeIds,
+      result.passed
+    )
+
+    categorizedResults[pathTypeStatus].push(result)
+  })
+
+  return categorizedResults
 }
 
 export default TreeTestResultCard

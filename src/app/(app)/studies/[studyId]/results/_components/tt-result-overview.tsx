@@ -1,4 +1,4 @@
-import { type CategorizedResults } from './tt-result-card'
+import { type CategorizedTreeResults } from './tt-result-card'
 
 const TreeTestResultOverview = ({
   correctNodeNames,
@@ -7,7 +7,7 @@ const TreeTestResultOverview = ({
 }: {
   correctNodeNames: string
   totalResponses: number
-  categorizedResults: CategorizedResults
+  categorizedResults: CategorizedTreeResults
 }) => {
   const directSuccessCount = categorizedResults['direct-success'].length
   const indirectSuccessCount = categorizedResults['indirect-success'].length

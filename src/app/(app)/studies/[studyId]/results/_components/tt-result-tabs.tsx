@@ -1,15 +1,13 @@
-import React from 'react'
-import { type CategorizedResults } from './tt-result-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ChartNoAxesColumnIncreasing, Route, UserRound, UsersRound } from 'lucide-react'
+import { type TreeTest } from '@/server/db/schema'
+import { type CategorizedTreeResults, type EntireTreeTestResult } from '@/types'
+import { ChartNoAxesColumnIncreasing, Route, UsersRound } from 'lucide-react'
+import TreeTestResultTabCommonPaths from './tt-result-tab-common-paths'
 import TreeTestResultTabNodeTotals from './tt-result-tab-node-totals'
-import { type TreeTest, type TreeTestResult } from '@/server/db/schema'
-import { type EntireTreeTestResult } from '@/types'
 
 const TAB_VALUES = {
   TOTALS: 'totals',
   COMMON_PATHS: 'common-paths',
-  INDIVIDUAL_PATHS: 'individual-paths',
   PATH_DIAGRAM: 'path-diagram'
 }
 
@@ -19,7 +17,7 @@ const TreeTestResultTabs = ({
   correctNodeIds,
   treeTestData
 }: {
-  categorizedResults: CategorizedResults
+  categorizedResults: CategorizedTreeResults
   entireTestResults: EntireTreeTestResult[]
   correctNodeIds: string[]
   treeTestData: TreeTest
@@ -35,22 +33,24 @@ const TreeTestResultTabs = ({
         <TabsTrigger value={TAB_VALUES.COMMON_PATHS} className={tabTriggerClasses}>
           <UsersRound /> <span>Common Paths</span>
         </TabsTrigger>
-        <TabsTrigger value={TAB_VALUES.INDIVIDUAL_PATHS} className={tabTriggerClasses}>
-          <UserRound /> <span>Individual Paths</span>
-        </TabsTrigger>
         <TabsTrigger value={TAB_VALUES.PATH_DIAGRAM} className={tabTriggerClasses}>
           <Route /> <span>Path Diagram</span>
         </TabsTrigger>
       </TabsList>
       <TabsContent value={TAB_VALUES.TOTALS}>
         <TreeTestResultTabNodeTotals
+          treeStructure={treeTestData.treeStructure}
           correctNodeIds={correctNodeIds}
           entireTestResults={entireTestResults}
-          treeStructure={treeTestData.treeStructure}
         />
       </TabsContent>
-      <TabsContent value={TAB_VALUES.COMMON_PATHS}>Common Paths</TabsContent>
-      <TabsContent value={TAB_VALUES.INDIVIDUAL_PATHS}>Individual Paths</TabsContent>
+      <TabsContent value={TAB_VALUES.COMMON_PATHS}>
+        <TreeTestResultTabCommonPaths
+          treeStructure={treeTestData.treeStructure}
+          correctNodeIds={correctNodeIds}
+          entireTestResults={entireTestResults}
+        />
+      </TabsContent>
       <TabsContent value={TAB_VALUES.PATH_DIAGRAM}>Path Diagram</TabsContent>
     </Tabs>
   )
