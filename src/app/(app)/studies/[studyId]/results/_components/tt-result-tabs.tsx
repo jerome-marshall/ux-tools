@@ -4,6 +4,7 @@ import { type CategorizedTreeResults, type EntireTreeTestResult } from '@/types'
 import { ChartNoAxesColumnIncreasing, Route, UsersRound } from 'lucide-react'
 import TreeTestResultTabCommonPaths from './tt-result-tab-common-paths'
 import TreeTestResultTabNodeTotals from './tt-result-tab-node-totals'
+import TreeTestPathDiagram from './tt-path-diagram'
 
 const TAB_VALUES = {
   TOTALS: 'totals',
@@ -25,7 +26,7 @@ const TreeTestResultTabs = ({
   const tabTriggerClasses = 'gap-2 data-[state=inactive]:text-gray-500'
 
   return (
-    <Tabs defaultValue={TAB_VALUES.TOTALS} className=''>
+    <Tabs defaultValue={TAB_VALUES.PATH_DIAGRAM} className=''>
       <TabsList className='mb-2 gap-1'>
         <TabsTrigger value={TAB_VALUES.TOTALS} className={tabTriggerClasses}>
           <ChartNoAxesColumnIncreasing /> <span>Totals</span>
@@ -51,7 +52,12 @@ const TreeTestResultTabs = ({
           entireTestResults={entireTestResults}
         />
       </TabsContent>
-      <TabsContent value={TAB_VALUES.PATH_DIAGRAM}>Path Diagram</TabsContent>
+      <TabsContent value={TAB_VALUES.PATH_DIAGRAM}>
+        <TreeTestPathDiagram
+          treeStructure={treeTestData.treeStructure}
+          entireTestResults={entireTestResults}
+        />
+      </TabsContent>
     </Tabs>
   )
 }
