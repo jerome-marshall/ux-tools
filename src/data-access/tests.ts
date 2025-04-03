@@ -13,8 +13,8 @@ export const createTest = async (test: TestInsert) => {
   return result
 }
 
-export const createTests = async (testsData: TestInsert[]) => {
-  const result = await db.insert(tests).values(testsData).returning()
+export const createTests = async (testsData: TestInsert[], trx = db) => {
+  const result = await trx.insert(tests).values(testsData).returning()
   return result
 }
 

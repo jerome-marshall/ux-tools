@@ -1,6 +1,7 @@
+import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
-import { type TestType, type TreeTest } from '@/server/db/schema'
+import { type Study, type TestType, type TreeTest } from '@/server/db/schema'
 import {
   getStudiesByProjectIdUseCase,
   getStudyByIdUseCase,
@@ -26,42 +27,46 @@ export const studiesRouter = createTRPCRouter({
   createStudy: publicProcedure
     .input(studyWithTestsInsertSchema)
     .mutation(async ({ input: { study, tests } }) => {
-      const newStudy = await insertStudyUseCase(study)
+      const newStudy = await createTransaction(async trx => {
+        const insertedStudy = await insertStudyUseCase(study, trx)
 
-      // Process each test based on its type
-      const testRecords = tests.map(testData => {
-        const baseTest = {
-          id: testData.testId,
-          type: testData.type,
-          studyId: newStudy.id,
-          name: testData.name
-        }
-
-        return baseTest
-      })
-
-      const newTests = await createTestsUseCase(testRecords)
-      const testsOrder = newTests.map(test => test.id)
-
-      await updateStudyUseCase(newStudy.id, { testsOrder })
-
-      const testCreationPromises: Promise<unknown>[] = []
-
-      // Process specific test types
-      tests.forEach((testData, index) => {
-        if (testData.type === 'TREE_TEST') {
-          const treeTestData = testData
-          const treeTestRecord = {
-            ...treeTestData,
-            id: testData.sectionId,
-            testId: newTests[index].id
+        // Process each test based on its type
+        const testRecords = tests.map(testData => {
+          const baseTest = {
+            id: testData.testId,
+            type: testData.type,
+            studyId: insertedStudy.id,
+            name: testData.name
           }
 
-          testCreationPromises.push(createTreeTestUseCase(treeTestRecord))
-        }
-      })
+          return baseTest
+        })
 
-      await Promise.all(testCreationPromises)
+        const newTests = await createTestsUseCase(testRecords, trx)
+        const testsOrder = newTests.map(test => test.id)
+
+        await updateStudyUseCase(insertedStudy.id, { testsOrder }, trx)
+
+        await Promise.all(
+          tests.map((testData, index) => {
+            if (testData.type === 'TREE_TEST') {
+              return createTreeTestUseCase(
+                {
+                  id: testData.sectionId,
+                  testId: newTests[index].id,
+                  treeStructure: testData.treeStructure,
+                  taskInstructions: testData.taskInstructions,
+                  correctPaths: testData.correctPaths
+                },
+                trx
+              )
+            }
+            return Promise.resolve()
+          })
+        )
+
+        return insertedStudy
+      })
 
       return newStudy
     }),

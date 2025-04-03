@@ -7,8 +7,8 @@ import {
 } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
-export const createTreeTest = async (treeTest: TreeTestInsert) => {
-  const [result] = await db.insert(treeTests).values(treeTest).returning()
+export const createTreeTest = async (treeTest: TreeTestInsert, trx = db) => {
+  const [result] = await trx.insert(treeTests).values(treeTest).returning()
   return result
 }
 

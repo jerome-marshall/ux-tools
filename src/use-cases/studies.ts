@@ -4,10 +4,11 @@ import {
   updateStudy,
   getStudyById
 } from '@/data-access/studies'
+import { type Db, type db } from '@/server/db'
 import { type Study, type StudyInsert } from '@/server/db/schema'
 
-export const insertStudyUseCase = async (study: StudyInsert) => {
-  const data = await insertStudy(study)
+export const insertStudyUseCase = async (study: StudyInsert, trx?: Db) => {
+  const data = await insertStudy(study, trx)
   if (!data) {
     throw new Error('Failed to create study')
   }
@@ -33,9 +34,10 @@ export const getStudiesByProjectIdUseCase = async (projectId: string) => {
 
 export const updateStudyUseCase = async (
   id: string,
-  { id: _, ...study }: Partial<Study>
+  { id: _, ...study }: Partial<Study>,
+  trx?: Db
 ) => {
-  const data = await updateStudy(id, study)
+  const data = await updateStudy(id, study, trx)
   if (!data) {
     throw new Error('Failed to update study')
   }

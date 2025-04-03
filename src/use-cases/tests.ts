@@ -16,6 +16,7 @@ import {
 } from '@/data-access/tests'
 import { getStudyByIdUseCase } from './studies'
 import { getTreeTestByTestIdUseCase } from './tree-tests'
+import { type Db } from '@/server/db'
 
 export const createTestUseCase = async (test: TestInsert) => {
   const result = await createTest(test)
@@ -25,8 +26,8 @@ export const createTestUseCase = async (test: TestInsert) => {
   return result
 }
 
-export const createTestsUseCase = async (tests: TestInsert[]) => {
-  const result = await createTests(tests)
+export const createTestsUseCase = async (tests: TestInsert[], trx?: Db) => {
+  const result = await createTests(tests, trx)
   if (!result) {
     throw new Error('Failed to create tests')
   }
