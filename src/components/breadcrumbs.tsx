@@ -20,6 +20,8 @@ const Breadcrumbs = () => {
   const pathname = usePathname()
   const breadcrumbs = pathname.split('/').filter(Boolean)
 
+  const dynamicParams: string[] = []
+
   return (
     <>
       <Separator orientation='vertical' className='!h-5 !w-0.5' />
@@ -45,6 +47,7 @@ const Breadcrumbs = () => {
 
             // Studies Detail Page
             if (breadcrumbs[0] === 'studies' && isValidUUID(breadcrumb)) {
+              dynamicParams.push(breadcrumb)
               return (
                 <Suspense key={breadcrumb} fallback={'Loading...'}>
                   <StudyBreadcrumb studyId={breadcrumb} isActive={!isLast} />
@@ -58,11 +61,16 @@ const Breadcrumbs = () => {
               return null
             }
 
+            const href =
+              typeof breadcrumbData.href === 'function'
+                ? breadcrumbData.href(breadcrumb, ...dynamicParams)
+                : breadcrumbData.href
+
             return (
               <Fragment key={breadcrumb}>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href={breadcrumbData.href}>
+                  <BreadcrumbLink href={href}>
                     {breadcrumbData.name || breadcrumb}
                   </BreadcrumbLink>
                 </BreadcrumbItem>

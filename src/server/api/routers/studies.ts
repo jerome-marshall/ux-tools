@@ -1,7 +1,7 @@
 import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
-import { type Study, type TestType, type TreeTest } from '@/server/db/schema'
+import { type TestType, type TreeTest } from '@/server/db/schema'
 import {
   getStudiesByProjectIdUseCase,
   getStudyByIdUseCase,

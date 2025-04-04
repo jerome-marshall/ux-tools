@@ -15,11 +15,15 @@ export const studyEditUrl = (studyId: string) => `${PATH.studies}/${studyId}/edi
 export const previewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
 export const doStudyUrl = (studyId: string) => `${PATH.doStudy}/${studyId}`
 
+export const getStudyEditBreadcrumbHref = (breadcrumb: string, ...args: string[]) => {
+  return `${PATH.studies}/${args[0]}/edit`
+}
+
 export const BREADCRUMBS_DATA: Record<
-  keyof typeof PATH,
+  string,
   {
     name: string
-    href: string
+    href: string | ((...args: string[]) => string)
     icon?: LucideIcon
   }
 > = {
@@ -28,5 +32,6 @@ export const BREADCRUMBS_DATA: Record<
   studies: { name: 'Studies', href: PATH.studies },
   newStudy: { name: 'New Study', href: PATH.newStudy },
   preview: { name: 'Preview', href: PATH.preview },
-  doStudy: { name: 'Do Study', href: PATH.doStudy }
+  doStudy: { name: 'Do Study', href: PATH.doStudy },
+  edit: { name: 'Edit Study', href: getStudyEditBreadcrumbHref }
 }
