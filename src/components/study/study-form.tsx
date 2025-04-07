@@ -101,7 +101,7 @@ const BaseStudyForm = ({
     if (testType === 'TREE_TEST') {
       testsFieldArray.append({
         type: testType,
-        name: 'New Tree Test',
+        name: 'Tree Test',
         treeStructure: [],
         taskInstructions: '',
         correctPaths: [],

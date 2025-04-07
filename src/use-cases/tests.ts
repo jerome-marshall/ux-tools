@@ -8,6 +8,7 @@ import {
   createTest,
   createTestResult,
   createTests,
+  deleteTestById,
   getTestById,
   getTestResultsByTestId,
   getTestsByStudyId,
@@ -18,8 +19,8 @@ import { getStudyByIdUseCase } from './studies'
 import { getTreeTestByTestIdUseCase } from './tree-tests'
 import { type Db } from '@/server/db'
 
-export const createTestUseCase = async (test: TestInsert) => {
-  const result = await createTest(test)
+export const createTestUseCase = async (test: TestInsert, trx?: Db) => {
+  const result = await createTest(test, trx)
   if (!result) {
     throw new Error('Failed to create test')
   }
@@ -55,10 +56,18 @@ export const getTestsByStudyIdUseCase = async (studyId: string) => {
   return result
 }
 
-export const updateTestUseCase = async (id: string, test: Partial<Test>) => {
-  const result = await updateTest(id, test)
+export const updateTestUseCase = async (id: string, test: Partial<Test>, trx?: Db) => {
+  const result = await updateTest(id, test, trx)
   if (!result) {
     throw new Error('Failed to update test')
+  }
+  return result
+}
+
+export const deleteTestByIdUseCase = async (id: string, trx?: Db) => {
+  const result = await deleteTestById(id, trx)
+  if (!result) {
+    throw new Error('Failed to delete test')
   }
   return result
 }

@@ -1,6 +1,7 @@
 import {
   createTreeTest,
   createTreeTestResult,
+  deleteTreeTestByTestId,
   getTreeTestByTestId,
   getTreeTestResultsByTestResultIds,
   getTreeTestsByTestIds,
@@ -36,9 +37,10 @@ export const getTreeTestsByTestIdsUseCase = async (testIds: string[]) => {
 
 export const updateTreeTestUseCase = async (
   id: string,
-  treeTest: Partial<TreeTestInsert>
+  treeTest: Partial<TreeTestInsert>,
+  trx?: Db
 ) => {
-  const result = await updateTreeTest(id, treeTest)
+  const result = await updateTreeTest(id, treeTest, trx)
   if (!result) {
     throw new Error('Failed to update tree test')
   }
@@ -62,5 +64,10 @@ export const getTreeTestResultsByTestResultIdsUseCase = async (
   if (!result) {
     throw new Error('Failed to get tree test results')
   }
+  return result
+}
+
+export const deleteTreeTestByTestIdUseCase = async (testId: string, trx?: Db) => {
+  const result = await deleteTreeTestByTestId(testId, trx)
   return result
 }

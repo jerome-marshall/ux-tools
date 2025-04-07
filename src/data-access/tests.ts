@@ -1,4 +1,4 @@
-import { db } from '@/server/db'
+import { Db, db } from '@/server/db'
 import {
   testResults,
   tests,
@@ -8,8 +8,8 @@ import {
 } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
-export const createTest = async (test: TestInsert) => {
-  const [result] = await db.insert(tests).values(test).returning()
+export const createTest = async (test: TestInsert, trx = db) => {
+  const [result] = await trx.insert(tests).values(test).returning()
   return result
 }
 
@@ -39,8 +39,13 @@ export const getTestsByStudyId = async (studyId: string) => {
   return result
 }
 
-export const updateTest = async (id: string, test: Partial<Test>) => {
-  const [result] = await db.update(tests).set(test).where(eq(tests.id, id)).returning()
+export const updateTest = async (id: string, test: Partial<Test>, trx = db) => {
+  const [result] = await trx.update(tests).set(test).where(eq(tests.id, id)).returning()
+  return result
+}
+
+export const deleteTestById = async (id: string, trx = db) => {
+  const [result] = await trx.delete(tests).where(eq(tests.id, id)).returning()
   return result
 }
 

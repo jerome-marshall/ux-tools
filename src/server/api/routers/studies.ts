@@ -11,13 +11,15 @@ import {
 import {
   createTestsUseCase,
   createTestUseCase,
+  deleteTestByIdUseCase,
   getTestsByStudyIdUseCase,
   updateTestUseCase
 } from '@/use-cases/tests'
 import {
   createTreeTestUseCase,
   getTreeTestByTestIdUseCase,
-  updateTreeTestUseCase
+  updateTreeTestUseCase,
+  deleteTreeTestByTestIdUseCase
 } from '@/use-cases/tree-tests'
 import { combineTestsWithTreeTests } from '@/utils/transformers'
 import { studyWithTestsInsertSchema } from '@/zod-schemas/study.schema'
@@ -86,72 +88,109 @@ export const studiesRouter = createTRPCRouter({
       const existingTests = await getTestsByStudyIdUseCase(studyId)
       const existingTestMap = new Map(existingTests.map(test => [test.id, test]))
 
-      // 2. Update the main study information
-      const updatedStudy = await updateStudyUseCase(studyId, {
-        name: study.name,
-        projectId: study.projectId
-      })
+      const finalUpdatedStudy = await createTransaction(async trx => {
+        // 2. Update the main study information
+        const updatedStudy = await updateStudyUseCase(
+          studyId,
+          {
+            name: study.name,
+            projectId: study.projectId
+          },
+          trx
+        )
 
-      // 3. Process tests - this is a simplified implementation for now
-      // In a real app, you'd need to detect new tests, deleted tests, and updated tests
-
-      // For now, we're assuming all tests are being updated (not added/removed)
-      // In a complete implementation, you'd handle test creation/deletion as well
-      const updatePromises = tests.map(async (testData, index) => {
-        // Use the existing test ID if available, or create a new test
-        const existingTest = existingTestMap.get(testData.testId)
-
-        if (existingTest) {
-          // Update existing test
-          const baseTest = {
-            type: testData.type,
-            name: testData.name
+        // Delete tests that are no longer in the incoming tests
+        const incomingTestIds = new Set(tests.map(test => test.testId))
+        const testsToDelete = existingTests.filter(test => !incomingTestIds.has(test.id))
+        const deletePromises = testsToDelete.map(async test => {
+          // For tree tests, explicitly delete the tree test record first
+          if (test.type === 'TREE_TEST') {
+            await deleteTreeTestByTestIdUseCase(test.id, trx)
           }
-
-          await updateTestUseCase(existingTest.id, baseTest)
-
-          // Update related test type data
-          if (testData.type === 'TREE_TEST') {
-            const treeTest = await getTreeTestByTestIdUseCase(existingTest.id)
-
-            if (treeTest) {
-              // Update existing tree test
-              await updateTreeTestUseCase(treeTest.id, {
-                treeStructure: testData.treeStructure,
-                taskInstructions: testData.taskInstructions,
-                correctPaths: testData.correctPaths
-              })
-            }
-          }
-
-          return existingTest.id
-        } else {
-          // Create new test (this branch would be executed if tests were added)
-          // Similar to the createStudy logic
-          const newTest = await createTestUseCase({
-            id: testData.testId,
-            type: testData.type,
-            studyId: studyId,
-            name: testData.name
-          })
-
-          if (testData.type === 'TREE_TEST') {
-            await createTreeTestUseCase({
-              ...testData,
-              testId: newTest.id,
-              id: testData.sectionId
-            })
-          }
-
-          return newTest.id
+          return deleteTestByIdUseCase(test.id, trx)
+        })
+        if (deletePromises.length > 0) {
+          await Promise.all(deletePromises)
         }
+
+        const updatePromises = tests.map(async (testData, index) => {
+          // Use the existing test ID if available, or create a new test
+          const existingTest = existingTestMap.get(testData.testId)
+
+          if (existingTest) {
+            // Update existing test
+            const baseTest = {
+              type: testData.type,
+              name: testData.name
+            }
+
+            await updateTestUseCase(existingTest.id, baseTest, trx)
+
+            // Update related test type data
+            if (testData.type === 'TREE_TEST') {
+              const treeTest = await getTreeTestByTestIdUseCase(existingTest.id)
+
+              if (treeTest) {
+                // Update existing tree test
+                await updateTreeTestUseCase(
+                  treeTest.id,
+                  {
+                    treeStructure: testData.treeStructure,
+                    taskInstructions: testData.taskInstructions,
+                    correctPaths: testData.correctPaths
+                  },
+                  trx
+                )
+              } else {
+                // If tree test doesn't exist but should, create it
+                await createTreeTestUseCase(
+                  {
+                    ...testData,
+                    testId: existingTest.id,
+                    id: testData.sectionId
+                  },
+                  trx
+                )
+              }
+            }
+
+            return existingTest.id
+          } else {
+            // Create new test (this branch would be executed if tests were added)
+            // Similar to the createStudy logic
+            const newTest = await createTestUseCase(
+              {
+                id: testData.testId,
+                type: testData.type,
+                studyId: studyId,
+                name: testData.name
+              },
+              trx
+            )
+
+            if (testData.type === 'TREE_TEST') {
+              await createTreeTestUseCase(
+                {
+                  ...testData,
+                  testId: newTest.id,
+                  id: testData.sectionId
+                },
+                trx
+              )
+            }
+
+            return newTest.id
+          }
+        })
+
+        // 4. Update the testsOrder array with the latest order
+        const testIds = await Promise.all(updatePromises)
+        await updateStudyUseCase(studyId, { testsOrder: testIds }, trx)
+
+        return updatedStudy
       })
 
-      // 4. Update the testsOrder array with the latest order
-      const testIds = await Promise.all(updatePromises)
-      await updateStudyUseCase(studyId, { testsOrder: testIds })
-
-      return updatedStudy
+      return finalUpdatedStudy
     }),
 
   getStudyById: publicProcedure
@@ -167,6 +206,8 @@ export const studiesRouter = createTRPCRouter({
               const treeTest = await getTreeTestByTestIdUseCase(test.id)
               return treeTest
             }
+            // Handle other test types here when implemented
+            return null
           })
         )
       ).filter(Boolean) as TreeTest[]

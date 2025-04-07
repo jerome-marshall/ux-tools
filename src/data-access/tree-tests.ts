@@ -27,11 +27,23 @@ export const getTreeTestsByTestIds = async (testIds: string[]) => {
 }
 
 // Add an update function for tree tests
-export const updateTreeTest = async (id: string, treeTest: Partial<TreeTestInsert>) => {
-  const [result] = await db
+export const updateTreeTest = async (
+  id: string,
+  treeTest: Partial<TreeTestInsert>,
+  trx = db
+) => {
+  const [result] = await trx
     .update(treeTests)
     .set(treeTest)
     .where(eq(treeTests.id, id))
+    .returning()
+  return result
+}
+
+export const deleteTreeTestByTestId = async (testId: string, trx = db) => {
+  const [result] = await trx
+    .delete(treeTests)
+    .where(eq(treeTests.testId, testId))
     .returning()
   return result
 }
