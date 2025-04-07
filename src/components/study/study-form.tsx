@@ -1,11 +1,17 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useFieldArray, useForm } from 'react-hook-form'
+import {
+  type FieldArrayWithId,
+  FieldErrors,
+  useFieldArray,
+  useForm,
+  type UseFormReturn
+} from 'react-hook-form'
 
 import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
-import { cn, generateId } from '@/lib/utils'
+import { cn, generateId, scrollToSection } from '@/lib/utils'
 import { type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { doStudyUrl, previewUrl, studyUrl } from '@/utils/urls'
@@ -17,6 +23,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Clock,
   FileQuestion,
+  GripVertical,
   Hand,
   LinkIcon,
   ListTree,
@@ -34,6 +41,23 @@ import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
 import TreeTest from './tree-test/tree-test'
 import { DuplicateStudyDialog } from './duplicate-study-dialog'
+import {
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DndContext,
+  type DragEndEvent,
+  closestCenter
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { restrictToParentElement } from '@dnd-kit/modifiers'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -97,27 +121,47 @@ const BaseStudyForm = ({
     'cursor-pointer hover:bg-gray-50 transition-colors'
   )
 
-  const scrollToSection = (sectionId: string) => {
-    if (typeof window === 'undefined') return
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  )
 
-    const section = document.getElementById(sectionId)
-    if (section) {
-      const yOffset = -120
-      const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset
-      window.scrollTo({ top: y, behavior: 'smooth' })
-    } else {
-      console.warn(`Section with ID "${sectionId}" not found in the DOM`)
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+
+    if (active.id !== over?.id && over) {
+      const oldIndex = testsFieldArray.fields.findIndex(field => field.id === active.id)
+      const newIndex = testsFieldArray.fields.findIndex(field => field.id === over.id)
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        testsFieldArray.move(oldIndex, newIndex)
+
+        const tests = form.getValues('tests')
+        form.setValue('tests', tests, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true
+        })
+      }
     }
+  }
+
+  const onFormSubmit = (data: StudyWithTestsInsert) => {
+    data.study.testsOrder = data.tests.map(test => test.testId)
+
+    onSubmit(data)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onFormSubmit)}>
         <div className='m-4 grid grid-cols-[310px_1fr] gap-8'>
           <div className='sticky top-4 flex h-fit flex-col gap-2'>
             <div
               className={btnClasses}
-              onClick={() => scrollToSection(SECTION_ID.STUDY_DETAILS)}
+              onClick={() => scrollToSection(SECTION_ID.STUDY_DETAILS, -120)}
             >
               <Text className='icon' />
               <p className=''>Study details</p>
@@ -129,42 +173,30 @@ const BaseStudyForm = ({
               <Hand className='icon' />
               <p className=''>Welcome screen</p>
             </div> */}
-            {testsFieldArray.fields.map((field, index) => {
-              let Icon: LucideIcon = FileQuestion
-
-              if (field.type === 'TREE_TEST') {
-                Icon = ListTree
-              }
-
-              return (
-                <FormField
-                  key={field.id}
-                  control={form.control}
-                  name={`tests.${index}.name`}
-                  render={({ field }) => (
-                    <div
-                      className={cn(btnClasses, '')}
-                      onClick={() => scrollToSection(SECTION_ID.TREE_TEST + `-${index}`)}
-                    >
-                      <Icon className='icon' />
-                      <p className=''>
-                        {index + 1}. {field.value}
-                      </p>
-                      {errors?.tests?.[index] && (
-                        <Tooltip
-                          trigger={
-                            <TriangleAlert className='ml-auto size-7 fill-red-600 stroke-white' />
-                          }
-                          content={
-                            'This section has errors. Please fix them before saving.'
-                          }
-                        />
-                      )}
-                    </div>
-                  )}
-                />
-              )
-            })}
+            <div className='grid gap-2'>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToParentElement]}
+                autoScroll={false}
+              >
+                <SortableContext
+                  items={testsFieldArray.fields.map(field => field.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {testsFieldArray.fields.map((field, index) => (
+                    <SortableItem
+                      key={field.id}
+                      field={field}
+                      index={index}
+                      form={form}
+                      btnClasses={btnClasses}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </div>
             {/* <div
               className={cn(btnClasses)}
               onClick={() => scrollToSection(SECTION_ID.THANK_YOU_SCREEN)}
@@ -263,6 +295,83 @@ const BaseStudyForm = ({
         </div>
       </form>
     </Form>
+  )
+}
+
+const SortableItem = ({
+  field,
+  index,
+  form,
+  btnClasses
+}: {
+  field: FieldArrayWithId<StudyWithTestsInsert, 'tests', 'id'>
+  index: number
+  form: UseFormReturn<StudyWithTestsInsert>
+  btnClasses: string
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id: field.id,
+      data: {
+        index,
+        id: field.id
+      }
+    })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    position: 'relative' as const,
+    zIndex: isDragging ? 50 : 0
+  }
+
+  let Icon: LucideIcon = FileQuestion
+
+  if (field.type === 'TREE_TEST') {
+    Icon = ListTree
+  }
+
+  const errors = form.formState.errors
+
+  return (
+    <FormField
+      control={form.control}
+      name={`tests.${index}.name`}
+      render={({ field: formField }) => (
+        <div
+          ref={setNodeRef}
+          style={style}
+          className={cn(
+            btnClasses,
+            'flex items-center justify-between',
+            isDragging && 'opacity-75'
+          )}
+          onClick={() => scrollToSection(SECTION_ID.TREE_TEST + `-${index}`, -120)}
+        >
+          <div className='flex items-center gap-2'>
+            <Icon className='icon' />
+            <p className=''>
+              {index + 1}. {formField.value}
+            </p>
+          </div>
+          <div className='flex items-center gap-2'>
+            {errors?.tests?.[index] && (
+              <Tooltip
+                trigger={
+                  <TriangleAlert className='ml-auto size-7 fill-red-600 stroke-white' />
+                }
+                content={'This section has errors. Please fix them before saving.'}
+              />
+            )}
+            <GripVertical
+              className='text-muted-foreground ml-auto size-7 cursor-grab active:cursor-grabbing'
+              {...listeners}
+              {...attributes}
+            />
+          </div>
+        </div>
+      )}
+    />
   )
 }
 

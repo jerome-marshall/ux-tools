@@ -16,3 +16,16 @@ export const isValidUUID = (uuid: string) => {
     uuid
   )
 }
+
+export const scrollToSection = (sectionId: string, offset = 0) => {
+  if (typeof window === 'undefined') return
+
+  const section = document.getElementById(sectionId)
+  if (section) {
+    const yOffset = offset
+    const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset
+    window.scrollTo({ top: y, behavior: 'smooth' })
+  } else {
+    console.warn(`Section with ID "${sectionId}" not found in the DOM`)
+  }
+}

@@ -62,16 +62,25 @@ const TreeTest = ({
       JSON.stringify(currentCorrectPaths) !== JSON.stringify(correctPaths)
 
     if (treeChanged) {
-      form.setValue(`tests.${index}.treeStructure`, treeData)
+      form.setValue(`tests.${index}.treeStructure`, treeData, {
+        shouldDirty: true,
+        shouldTouch: true
+      })
     }
 
     if (pathsChanged) {
-      form.setValue(`tests.${index}.correctPaths`, correctPaths)
+      form.setValue(`tests.${index}.correctPaths`, correctPaths, {
+        shouldDirty: true,
+        shouldTouch: true
+      })
     }
 
     // Always ensure type is set correctly
     if (form.getValues(`tests.${index}.type`) !== 'TREE_TEST') {
-      form.setValue(`tests.${index}.type`, 'TREE_TEST')
+      form.setValue(`tests.${index}.type`, 'TREE_TEST', {
+        shouldDirty: true,
+        shouldTouch: true
+      })
     }
   }, [treeData, correctPaths, form, index])
 
@@ -111,7 +120,7 @@ const TreeTest = ({
             <FormField
               control={form.control}
               name={`tests.${index}.name`}
-              render={({ field }) => (
+              render={({ field: formField }) => (
                 <div
                   className='relative flex items-center gap-2'
                   onMouseEnter={() => {
@@ -123,9 +132,11 @@ const TreeTest = ({
                 >
                   {isEditingName ? (
                     <Input
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={handleNameBlur}
+                      {...formField}
+                      onBlur={e => {
+                        formField.onBlur()
+                        handleNameBlur()
+                      }}
                       onKeyDown={handleNameKeyDown}
                       autoFocus
                       className='h-8 py-0 text-lg font-semibold'
@@ -142,7 +153,7 @@ const TreeTest = ({
                         disableFields && 'pointer-events-none cursor-default'
                       )}
                     >
-                      {index + 1}. {field.value}
+                      {index + 1}. {formField.value}
                     </CardTitle>
                   )}
                   {isHoveringTitle && !isEditingName && !disableFields && (
