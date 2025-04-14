@@ -1,5 +1,5 @@
 import { generateId } from '@/lib/utils'
-import { timestamp, text } from 'drizzle-orm/pg-core'
+import { text, timestamp } from 'drizzle-orm/pg-core'
 
 export const timestamps = {
   createdAt: timestamp('created_at').defaultNow().notNull(),

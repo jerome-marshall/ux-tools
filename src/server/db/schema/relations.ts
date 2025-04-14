@@ -1,17 +1,12 @@
-import { testResults } from './test'
-
-import { treeTestResults } from './tree-test'
-
-import { studies } from './project-study'
-
 import { relations } from 'drizzle-orm'
-import { projects } from './project-study'
-import { tests } from './test'
-import { treeTests } from './tree-test'
+import { projects, studies } from './project-study'
+import { testResults, tests } from './test'
+import { treeTestResults, treeTests } from './tree-test'
 
 export const projectRelations = relations(projects, ({ many }) => ({
   studies: many(studies)
 }))
+
 export const studyRelations = relations(studies, ({ one, many }) => ({
   project: one(projects, {
     fields: [studies.projectId],
@@ -19,6 +14,7 @@ export const studyRelations = relations(studies, ({ one, many }) => ({
   }),
   tests: many(tests)
 }))
+
 export const testRelations = relations(tests, ({ one, many }) => ({
   study: one(studies, {
     fields: [tests.studyId],
@@ -30,12 +26,14 @@ export const testRelations = relations(tests, ({ one, many }) => ({
   }),
   treeTestResults: many(treeTestResults)
 }))
+
 export const treeTestRelations = relations(treeTests, ({ one }) => ({
   test: one(tests, {
     fields: [treeTests.testId],
     references: [tests.id]
   })
 }))
+
 export const testResultRelations = relations(testResults, ({ one, many }) => ({
   test: one(tests, {
     fields: [testResults.testId],
@@ -43,6 +41,7 @@ export const testResultRelations = relations(testResults, ({ one, many }) => ({
   }),
   treeTestResults: many(treeTestResults)
 }))
+
 export const treeTestResultRelations = relations(treeTestResults, ({ one }) => ({
   testResult: one(testResults, {
     fields: [treeTestResults.testResultId],

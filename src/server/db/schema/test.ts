@@ -1,9 +1,8 @@
-import { boolean, integer, jsonb, pgTable, text } from 'drizzle-orm/pg-core'
-import { timestamps, uniqueId } from './utils'
-import { sql } from 'drizzle-orm'
-import { studies } from './project-study'
+import { integer, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
+import { studies } from './project-study'
+import { timestamps, uniqueId } from './utils'
 
 export const testTypes = ['TREE_TEST'] as const
 export type TestType = (typeof testTypes)[number]

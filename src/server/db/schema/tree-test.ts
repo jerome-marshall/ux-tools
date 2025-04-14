@@ -7,10 +7,10 @@ import {
   type TreeTestClick
 } from '@/zod-schemas/tree.schema'
 import { boolean, jsonb, pgTable, text } from 'drizzle-orm/pg-core'
-import { timestamps, uniqueId } from './utils'
-import { testResults, tests } from './test'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
+import { testResults, tests } from './test'
+import { timestamps, uniqueId } from './utils'
 
 export const treeTests = pgTable('tree_tests', {
   id: uniqueId,

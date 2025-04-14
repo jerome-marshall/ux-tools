@@ -1,8 +1,8 @@
-import { boolean, integer, jsonb, pgTable, text } from 'drizzle-orm/pg-core'
-import { timestamps, uniqueId } from './utils'
 import { sql } from 'drizzle-orm'
+import { boolean, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
+import { timestamps, uniqueId } from './utils'
 
 export const projects = pgTable('projects', {
   id: uniqueId,
