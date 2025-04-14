@@ -3,11 +3,15 @@ import { boolean, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { timestamps, uniqueId } from './utils'
+import { user } from './auth'
 
 export const projects = pgTable('projects', {
   id: uniqueId,
   name: text('name').notNull(),
   description: text('description'),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
   ...timestamps
 })
 
@@ -22,6 +26,9 @@ export const studies = pgTable('studies', {
     .notNull()
     .default(sql`ARRAY[]::text[]`),
   isActive: boolean('is_active').notNull().default(true),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
   ...timestamps
 })
 

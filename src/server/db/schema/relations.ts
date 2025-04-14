@@ -2,9 +2,14 @@ import { relations } from 'drizzle-orm'
 import { projects, studies } from './project-study'
 import { testResults, tests } from './test'
 import { treeTestResults, treeTests } from './tree-test'
+import { user } from './auth'
 
-export const projectRelations = relations(projects, ({ many }) => ({
-  studies: many(studies)
+export const projectRelations = relations(projects, ({ many, one }) => ({
+  studies: many(studies),
+  owner: one(user, {
+    fields: [projects.ownerId],
+    references: [user.id]
+  })
 }))
 
 export const studyRelations = relations(studies, ({ one, many }) => ({
@@ -12,7 +17,11 @@ export const studyRelations = relations(studies, ({ one, many }) => ({
     fields: [studies.projectId],
     references: [projects.id]
   }),
-  tests: many(tests)
+  tests: many(tests),
+  owner: one(user, {
+    fields: [studies.ownerId],
+    references: [user.id]
+  })
 }))
 
 export const testRelations = relations(tests, ({ one, many }) => ({
