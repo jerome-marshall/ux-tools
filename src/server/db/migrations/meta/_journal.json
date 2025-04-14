@@ -5,64 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1741685340168,
-      "tag": "0000_cheerful_princess_powerful",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1741687779427,
-      "tag": "0001_foamy_tarantula",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1741759268721,
-      "tag": "0002_spicy_stephen_strange",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1741759315720,
-      "tag": "0003_orange_ravenous",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1741932063026,
-      "tag": "0004_eager_leo",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1742305994592,
-      "tag": "0005_naive_ezekiel_stane",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1742315403614,
-      "tag": "0006_chubby_rick_jones",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1742884766754,
-      "tag": "0007_simple_king_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1744559964159,
-      "tag": "0008_lumpy_barracuda",
+      "when": 1744632826167,
+      "tag": "0000_futuristic_riptide",
       "breakpoints": true
     }
   ]
