@@ -1,4 +1,4 @@
-import { type Study } from '@/server/db/schema'
+import { type Study } from '@/server/db/schema/schema'
 import { format } from 'date-fns'
 import { FlaskConical } from 'lucide-react'
 import Link from '@/components/link'

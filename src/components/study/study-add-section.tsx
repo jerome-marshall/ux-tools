@@ -1,6 +1,6 @@
 import { ListTree, type LucideIcon } from 'lucide-react'
 import StudyFormCard from './study-form-card'
-import { type TestType } from '@/server/db/schema'
+import { type TestType } from '@/server/db/schema/schema'
 import { type UseFormReturn } from 'react-hook-form'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { FormField, FormMessage } from '../ui/form'

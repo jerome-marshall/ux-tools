@@ -7,6 +7,7 @@ import Link from '@/components/link'
 import Breadcrumbs from './breadcrumbs'
 import { CreateProjectDialog } from './create-project-dialog'
 import { usePathname } from 'next/navigation'
+import { UserButton } from '@daveyplate/better-auth-ui'
 
 const Header = () => {
   const pathname = usePathname()
@@ -21,18 +22,30 @@ const Header = () => {
           </Link>
           <Breadcrumbs />
         </div>
-        {!isNewStudy && (
-          <div className='flex items-center gap-3'>
-            <CreateProjectDialog />
-            <Link
-              href={PATH.newStudy}
-              className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'gap-2')}
-            >
-              <Plus className='size-4' />
-              <span>Create study</span>
-            </Link>
-          </div>
-        )}
+        <div className='flex items-center gap-5'>
+          {!isNewStudy && (
+            <div className='flex items-center gap-3'>
+              <CreateProjectDialog />
+              <Link
+                href={PATH.newStudy}
+                className={cn(
+                  buttonVariants({ variant: 'default', size: 'sm' }),
+                  'gap-2'
+                )}
+              >
+                <Plus className='size-4' />
+                <span>Create study</span>
+              </Link>
+            </div>
+          )}
+          <UserButton
+            classNames={{
+              trigger: {
+                base: 'border-gray-300 flex items-center gap-2 justify-center'
+              }
+            }}
+          />
+        </div>
       </div>
     </header>
   )

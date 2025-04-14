@@ -1,7 +1,7 @@
 'use client'
 import StudyFormCard from '@/components/study/study-form-card'
 import { Separator } from '@/components/ui/separator'
-import { type Test, type TestResult, type TreeTest } from '@/server/db/schema'
+import { type Test, type TestResult, type TreeTest } from '@/server/db/schema/schema'
 import { useTRPC } from '@/trpc/client'
 import { type CategorizedTreeResults, type EntireTreeTestResult } from '@/types'
 import { combineTestResultsWithTreeTestResults } from '@/utils/transformers'

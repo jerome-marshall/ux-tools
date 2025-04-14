@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
-import { projectInsertSchema } from '@/server/db/schema'
+import { projectInsertSchema } from '@/server/db/schema/schema'
 import {
   createProjectUseCase,
   getProjectByIdUseCase,

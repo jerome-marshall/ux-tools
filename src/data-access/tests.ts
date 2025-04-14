@@ -5,7 +5,7 @@ import {
   type Test,
   type TestInsert,
   type TestResultInsert
-} from '@/server/db/schema'
+} from '@/server/db/schema/schema'
 import { eq } from 'drizzle-orm'
 
 export const createTest = async (test: TestInsert, trx = db) => {

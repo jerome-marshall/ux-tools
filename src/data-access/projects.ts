@@ -1,5 +1,5 @@
 import { db } from '@/server/db'
-import { type ProjectInsert, projects } from '@/server/db/schema'
+import { type ProjectInsert, projects } from '@/server/db/schema/schema'
 import { type ProjectWithStudiesCount } from '@/types'
 
 export const getProjects = async (): Promise<ProjectWithStudiesCount[]> => {

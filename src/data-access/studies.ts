@@ -1,5 +1,5 @@
 import { db } from '@/server/db'
-import { studies, type Study, type StudyInsert } from '@/server/db/schema'
+import { studies, type Study, type StudyInsert } from '@/server/db/schema/schema'
 import { eq } from 'drizzle-orm'
 
 export const insertStudy = async (study: StudyInsert, trx = db) => {

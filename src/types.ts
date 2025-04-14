@@ -1,4 +1,8 @@
-import { type Project, type TreeTestResult, type TestResult } from './server/db/schema'
+import {
+  type Project,
+  type TreeTestResult,
+  type TestResult
+} from './server/db/schema/schema'
 import { type RouterOutputs } from './trpc/client'
 
 export type PathTypeStatus = `${'direct' | 'indirect'}-${'success' | 'failure' | 'pass'}`

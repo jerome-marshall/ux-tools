@@ -1,29 +1,16 @@
-import { relations, sql } from 'drizzle-orm'
-import { boolean, integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
-import { createInsertSchema } from 'drizzle-zod'
-import { z } from 'zod'
-import { generateId } from '@/lib/utils'
 import {
   type CorrectPath,
   correctPathSchema,
   type TreeItem,
   treeItemSchema,
-  treeTestClickSchema,
-  type TreeTestClick
+  type TreeTestClick,
+  treeTestClickSchema
 } from '@/zod-schemas/tree.schema'
-
-const timestamps = {
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
-    .defaultNow()
-    .$onUpdateFn(() => new Date())
-    .notNull()
-}
-
-const uniqueId = text('id')
-  .primaryKey()
-  .notNull()
-  .$defaultFn(() => generateId())
+import { relations, sql } from 'drizzle-orm'
+import { boolean, integer, jsonb, pgTable, text } from 'drizzle-orm/pg-core'
+import { createInsertSchema } from 'drizzle-zod'
+import { z } from 'zod'
+import { timestamps, uniqueId } from './utils'
 
 export const projects = pgTable('projects', {
   id: uniqueId,

@@ -3,7 +3,7 @@ import {
   type Test,
   type TestInsert,
   type TreeTest
-} from '@/server/db/schema'
+} from '@/server/db/schema/schema'
 import {
   createTest,
   createTestResult,

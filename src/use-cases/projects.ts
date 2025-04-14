@@ -4,7 +4,7 @@ import {
   getProjects,
   getRecentProjects
 } from '@/data-access/projects'
-import { type ProjectInsert } from '@/server/db/schema'
+import { type ProjectInsert } from '@/server/db/schema/schema'
 
 export const getProjectsUseCase = async () => {
   const projects = await getProjects()
