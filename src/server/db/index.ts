@@ -1,7 +1,6 @@
 // Make sure to install the 'pg' package
 import { env } from '@/env'
-import * as schema from '@/server/db/schema/schema'
-import * as authSchema from '@/server/db/schema/auth-schema'
+import * as schema from '@/server/db/schema'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
@@ -12,10 +11,7 @@ const pool = new Pool({
 // You can specify any property from the node-postgres connection options
 const db = drizzle({
   client: pool,
-  schema: {
-    ...schema,
-    ...authSchema
-  }
+  schema
 })
 
 export type Db = typeof db

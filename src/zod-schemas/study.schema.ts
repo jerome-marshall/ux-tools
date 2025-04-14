@@ -4,7 +4,7 @@ import {
   testInsertSchema,
   testTypes,
   treeTestInsertSchema
-} from '@/server/db/schema/schema'
+} from '@/server/db/schema'
 
 // Base schema without IDs for creating new studies
 export const studyWithTestsInsertSchema = z.object({

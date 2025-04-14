@@ -1,4 +1,4 @@
-import { type CategorizedTreeResults } from './tt-result-card'
+import { type CategorizedTreeResults } from '@/types'
 
 const TreeTestResultOverview = ({
   correctNodeNames,

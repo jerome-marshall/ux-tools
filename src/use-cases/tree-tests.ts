@@ -8,7 +8,7 @@ import {
   updateTreeTest
 } from '@/data-access/tree-tests'
 import { type Db } from '@/server/db'
-import { type TreeTestResultInsert, type TreeTestInsert } from '@/server/db/schema/schema'
+import { type TreeTestResultInsert, type TreeTestInsert } from '@/server/db/schema'
 
 export const createTreeTestUseCase = async (treeTest: TreeTestInsert, trx?: Db) => {
   const result = await createTreeTest(treeTest, trx)

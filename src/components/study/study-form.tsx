@@ -12,7 +12,7 @@ import {
 import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
-import { type TestType } from '@/server/db/schema/schema'
+import { type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { doStudyUrl, previewUrl, studyUrl } from '@/utils/urls'
 import {

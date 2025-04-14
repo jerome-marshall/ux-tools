@@ -4,7 +4,7 @@ import {
   treeTests,
   type TreeTestInsert,
   type TreeTestResultInsert
-} from '@/server/db/schema/schema'
+} from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
 export const createTreeTest = async (treeTest: TreeTestInsert, trx = db) => {

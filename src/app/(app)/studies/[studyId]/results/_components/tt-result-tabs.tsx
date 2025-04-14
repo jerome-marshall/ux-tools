@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { type TreeTest } from '@/server/db/schema/schema'
+import { type TreeTest } from '@/server/db/schema'
 import { type CategorizedTreeResults, type EntireTreeTestResult } from '@/types'
 import { ChartNoAxesColumnIncreasing, Route, UsersRound } from 'lucide-react'
 import TreeTestResultTabCommonPaths from './tt-result-tab-common-paths'

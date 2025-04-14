@@ -1,10 +1,6 @@
-import {
-  type TestResult,
-  type TreeTestResult,
-  type TreeTest
-} from '@/server/db/schema/schema'
+import { type TestResult, type TreeTestResult, type TreeTest } from '@/server/db/schema'
 
-import { type Test } from '@/server/db/schema/schema'
+import { type Test } from '@/server/db/schema'
 import { type EntireTreeTestResult } from '@/types'
 import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
 import { z } from 'zod'

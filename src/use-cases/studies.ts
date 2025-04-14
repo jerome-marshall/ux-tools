@@ -5,7 +5,7 @@ import {
   getStudyById
 } from '@/data-access/studies'
 import { type Db, type db } from '@/server/db'
-import { type Study, type StudyInsert } from '@/server/db/schema/schema'
+import { type Study, type StudyInsert } from '@/server/db/schema'
 
 export const insertStudyUseCase = async (study: StudyInsert, trx?: Db) => {
   const data = await insertStudy(study, trx)
