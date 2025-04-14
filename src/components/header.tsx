@@ -9,7 +9,7 @@ import { CreateProjectDialog } from './create-project-dialog'
 import { usePathname } from 'next/navigation'
 import { UserButton } from '@daveyplate/better-auth-ui'
 
-const Header = () => {
+const Header = ({ isHome = false }: { isHome?: boolean }) => {
   const pathname = usePathname()
   const isNewStudy = pathname === PATH.newStudy
 
@@ -23,7 +23,7 @@ const Header = () => {
           <Breadcrumbs />
         </div>
         <div className='flex items-center gap-5'>
-          {!isNewStudy && (
+          {!isNewStudy && !isHome && (
             <div className='flex items-center gap-3'>
               <CreateProjectDialog />
               <Link
@@ -38,13 +38,7 @@ const Header = () => {
               </Link>
             </div>
           )}
-          <UserButton
-            classNames={{
-              trigger: {
-                base: 'border-gray-300 flex items-center gap-2 justify-center'
-              }
-            }}
-          />
+          <UserButton />
         </div>
       </div>
     </header>

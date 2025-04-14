@@ -22,6 +22,11 @@ const Breadcrumbs = () => {
 
   const dynamicParams: string[] = []
 
+  const isHome = pathname === '/'
+  if (isHome) {
+    return null
+  }
+
   return (
     <>
       <Separator orientation='vertical' className='!h-5 !w-0.5' />
