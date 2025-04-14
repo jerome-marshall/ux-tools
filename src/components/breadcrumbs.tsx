@@ -15,16 +15,24 @@ import { HomeIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { Fragment, Suspense } from 'react'
 import { Separator } from './ui/separator'
+import { authClient } from '@/lib/auth-client'
 
 const Breadcrumbs = () => {
+  const { data: session } = authClient.useSession()
   const pathname = usePathname()
   const breadcrumbs = pathname.split('/').filter(Boolean)
 
   const dynamicParams: string[] = []
+  const homeHref = session ? PATH.dashboard : '/'
 
   const isHome = pathname === '/'
   if (isHome) {
     return null
+  }
+
+  const isAuth = pathname.includes('/auth')
+  if (isAuth) {
+    breadcrumbs.shift()
   }
 
   return (
@@ -33,7 +41,7 @@ const Breadcrumbs = () => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={PATH.dashboard}>
+            <BreadcrumbLink href={homeHref}>
               <HomeIcon className='size-4' />
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -75,9 +83,13 @@ const Breadcrumbs = () => {
               <Fragment key={breadcrumb}>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href={href}>
-                    {breadcrumbData.name || breadcrumb}
-                  </BreadcrumbLink>
+                  {isLast ? (
+                    breadcrumbData.name || breadcrumb
+                  ) : (
+                    <BreadcrumbLink href={href}>
+                      {breadcrumbData.name || breadcrumb}
+                    </BreadcrumbLink>
+                  )}
                 </BreadcrumbItem>
               </Fragment>
             )

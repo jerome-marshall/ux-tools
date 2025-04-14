@@ -26,7 +26,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <div className='w-full'>{children}</div>
+          <div className='size-full'>{children}</div>
         </Providers>
       </body>
     </html>

@@ -3,6 +3,7 @@ import { authViewPaths } from '@daveyplate/better-auth-ui/server'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { AuthView } from './view'
+import { cn } from '@/lib/utils'
 
 export function generateStaticParams() {
   return Object.values(authViewPaths).map(pathname => ({ pathname }))
@@ -14,11 +15,38 @@ export default async function AuthPage({
   params: Promise<{ pathname: string }>
 }) {
   const { pathname } = await params
+  const sessionData = await auth.api.getSession({ headers: await headers() })
 
-  if (pathname === 'settings') {
-    const sessionData = await auth.api.getSession({ headers: await headers() })
-    if (!sessionData) redirect('/auth/sign-in?redirectTo=/auth/settings')
+  // Validate if pathname is a valid auth path
+  const validAuthPaths = Object.values(authViewPaths)
+  const isValidAuthPath = validAuthPaths.includes(pathname)
+
+  if (!isValidAuthPath) {
+    redirect('/auth/sign-in') // Redirect to sign-in for invalid paths
   }
 
-  return <AuthView pathname={pathname} />
+  const isSettingsPage = pathname === 'settings'
+  const isSignoutPage = pathname === 'sign-out'
+  const isUserLoggedIn = !!sessionData
+
+  // Redirect to login if trying to access settings while not logged in
+  if (isSettingsPage && !isUserLoggedIn) {
+    redirect('/auth/sign-in?redirectTo=/auth/settings')
+  }
+
+  // Redirect to settings if user is logged in but trying to access other auth pages
+  if (isUserLoggedIn && !isSettingsPage && !isSignoutPage) {
+    redirect('/auth/settings')
+  }
+
+  return (
+    <div
+      className={cn(
+        'flex size-full items-center justify-center',
+        isSettingsPage && 'items-start'
+      )}
+    >
+      <AuthView pathname={pathname} />
+    </div>
+  )
 }

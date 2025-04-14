@@ -6,7 +6,16 @@ export const PATH = {
   studies: '/studies',
   newStudy: '/studies/new',
   preview: '/preview',
-  doStudy: '/do'
+  doStudy: '/do',
+  auth: '/auth',
+  authCallback: '/auth/callback',
+  authForgotPassword: '/auth/forgot-password',
+  authMagicLink: '/auth/magic-link',
+  authResetPassword: '/auth/reset-password',
+  authSettings: '/auth/settings',
+  authSignIn: '/auth/sign-in',
+  authSignOut: '/auth/sign-out',
+  authSignUp: '/auth/sign-up'
 } as const
 
 export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
@@ -33,5 +42,14 @@ export const BREADCRUMBS_DATA: Record<
   newStudy: { name: 'New Study', href: PATH.newStudy },
   preview: { name: 'Preview', href: PATH.preview },
   doStudy: { name: 'Do Study', href: PATH.doStudy },
-  edit: { name: 'Edit Study', href: getStudyEditBreadcrumbHref }
+  edit: { name: 'Edit Study', href: getStudyEditBreadcrumbHref },
+  auth: { name: 'Auth', href: PATH.auth },
+  callback: { name: 'Callback', href: PATH.authCallback },
+  'forgot-password': { name: 'Forgot Password', href: PATH.authForgotPassword },
+  'magic-link': { name: 'Magic Link', href: PATH.authMagicLink },
+  'reset-password': { name: 'Reset Password', href: PATH.authResetPassword },
+  settings: { name: 'Settings', href: PATH.authSettings },
+  'sign-in': { name: 'Sign In', href: PATH.authSignIn },
+  'sign-out': { name: 'Sign Out', href: PATH.authSignOut },
+  'sign-up': { name: 'Sign Up', href: PATH.authSignUp }
 }
