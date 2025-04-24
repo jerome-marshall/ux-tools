@@ -2,8 +2,9 @@ import { db } from '@/server/db'
 import { type ProjectInsert, projects } from '@/server/db/schema'
 import { type ProjectWithStudiesCount } from '@/types'
 
-export const getProjects = async (): Promise<ProjectWithStudiesCount[]> => {
+export const getProjects = async (userId: string): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
+    where: (fields, { eq }) => eq(fields.ownerId, userId),
     orderBy: (fields, { desc }) => desc(fields.updatedAt),
     with: {
       studies: {
@@ -24,8 +25,11 @@ export const getProjects = async (): Promise<ProjectWithStudiesCount[]> => {
   return projectsWithStudiesCount
 }
 
-export const getRecentProjects = async (): Promise<ProjectWithStudiesCount[]> => {
+export const getRecentProjects = async (
+  userId: string
+): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
+    where: (fields, { eq }) => eq(fields.ownerId, userId),
     orderBy: (fields, { desc }) => desc(fields.updatedAt),
     limit: 10,
     with: {

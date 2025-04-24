@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import { projectInsertSchema } from '@/server/db/schema'
 import {
   createProjectUseCase,
@@ -16,20 +16,20 @@ export const projectsRouter = createTRPCRouter({
       return newProject
     }),
 
-  getProjects: publicProcedure.query(async () => {
-    const projects = await getProjectsUseCase()
+  getProjects: protectedProcedure.query(async ({ ctx: { userId } }) => {
+    const projects = await getProjectsUseCase(userId)
     return projects
   }),
 
-  getRecentProjects: publicProcedure.query(async () => {
-    const projects = await getRecentProjectsUseCase()
+  getRecentProjects: protectedProcedure.query(async ({ ctx: { userId } }) => {
+    const projects = await getRecentProjectsUseCase(userId)
     return projects
   }),
 
-  getProjectById: publicProcedure
+  getProjectById: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
-      const project = await getProjectByIdUseCase(input.id)
+    .query(async ({ input, ctx: { userId } }) => {
+      const project = await getProjectByIdUseCase(userId, input.id)
       return project
     })
 })

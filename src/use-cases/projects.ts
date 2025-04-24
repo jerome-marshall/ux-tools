@@ -5,14 +5,16 @@ import {
   getRecentProjects
 } from '@/data-access/projects'
 import { type ProjectInsert } from '@/server/db/schema'
+import { assertProjectOwner } from './authorization'
+import { NotFoundError } from '@/utils/error-utils'
 
-export const getProjectsUseCase = async () => {
-  const projects = await getProjects()
+export const getProjectsUseCase = async (userId: string) => {
+  const projects = await getProjects(userId)
   return projects
 }
 
-export const getRecentProjectsUseCase = async () => {
-  const projects = await getRecentProjects()
+export const getRecentProjectsUseCase = async (userId: string) => {
+  const projects = await getRecentProjects(userId)
   return projects
 }
 
@@ -21,10 +23,13 @@ export const createProjectUseCase = async (userId: string, project: ProjectInser
   return newProject
 }
 
-export const getProjectByIdUseCase = async (projectId: string) => {
+export const getProjectByIdUseCase = async (userId: string, projectId: string) => {
   const project = await getProjectById(projectId)
   if (!project) {
-    throw new Error('Project not found')
+    throw new NotFoundError('Project not found')
   }
+
+  assertProjectOwner(userId, project)
+
   return project
 }
