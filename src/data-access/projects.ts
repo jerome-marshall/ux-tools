@@ -46,8 +46,11 @@ export const getRecentProjects = async (): Promise<ProjectWithStudiesCount[]> =>
   return projectsWithStudiesCount
 }
 
-export const createProject = async (project: ProjectInsert) => {
-  const [newProject] = await db.insert(projects).values(project).returning()
+export const createProject = async (userId: string, project: ProjectInsert) => {
+  const [newProject] = await db
+    .insert(projects)
+    .values({ ...project, ownerId: userId })
+    .returning()
   return newProject
 }
 

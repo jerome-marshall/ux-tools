@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { projectInsertSchema } from '@/server/db/schema'
 import {
   createProjectUseCase,
@@ -9,10 +9,10 @@ import {
 import { z } from 'zod'
 
 export const projectsRouter = createTRPCRouter({
-  createProject: publicProcedure
+  createProject: protectedProcedure
     .input(projectInsertSchema)
-    .mutation(async ({ input }) => {
-      const newProject = await createProjectUseCase(input)
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const newProject = await createProjectUseCase(userId, input)
       return newProject
     }),
 

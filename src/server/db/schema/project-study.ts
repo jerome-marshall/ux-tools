@@ -36,7 +36,8 @@ export const projectInsertSchema = createInsertSchema(projects)
   .omit({
     id: true,
     createdAt: true,
-    updatedAt: true
+    updatedAt: true,
+    ownerId: true
   })
   .extend({
     name: z.string().min(1, { message: 'Name is required' })
@@ -44,7 +45,8 @@ export const projectInsertSchema = createInsertSchema(projects)
 export const studyInsertSchema = createInsertSchema(studies)
   .omit({
     createdAt: true,
-    updatedAt: true
+    updatedAt: true,
+    ownerId: true
   })
   .extend({
     id: z.string().min(1, { message: 'Study ID is required' }),

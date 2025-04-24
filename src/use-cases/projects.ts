@@ -16,8 +16,8 @@ export const getRecentProjectsUseCase = async () => {
   return projects
 }
 
-export const createProjectUseCase = async (project: ProjectInsert) => {
-  const newProject = await createProject(project)
+export const createProjectUseCase = async (userId: string, project: ProjectInsert) => {
+  const newProject = await createProject(userId, project)
   return newProject
 }
 

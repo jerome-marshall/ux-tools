@@ -18,6 +18,7 @@ import {
 import { getStudyByIdUseCase } from './studies'
 import { getTreeTestByTestIdUseCase } from './tree-tests'
 import { type Db } from '@/server/db'
+import { NotFoundError } from '@/utils/error-utils'
 
 export const createTestUseCase = async (test: TestInsert, trx?: Db) => {
   const result = await createTest(test, trx)
@@ -38,7 +39,7 @@ export const createTestsUseCase = async (tests: TestInsert[], trx?: Db) => {
 export const getTestByIdUseCase = async (id: string) => {
   const result = await getTestById(id)
   if (!result) {
-    throw new Error('Failed to get test')
+    throw new NotFoundError('Failed to get test')
   }
   return result
 }
@@ -46,7 +47,7 @@ export const getTestByIdUseCase = async (id: string) => {
 export const getTestsByTestIdsUseCase = async (testIds: string[]) => {
   const result = await getTestsByTestIds(testIds)
   if (!result) {
-    throw new Error('Failed to get tests')
+    throw new NotFoundError('Failed to get tests')
   }
   return result
 }
