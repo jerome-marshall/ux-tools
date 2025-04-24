@@ -1,10 +1,11 @@
 import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
-import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { type TestType, type TreeTest } from '@/server/db/schema'
 import {
   getStudiesByProjectIdUseCase,
   getStudyByIdUseCase,
+  getPublicStudyByIdUseCase,
   insertStudyUseCase,
   updateStudyUseCase
 } from '@/use-cases/studies'
@@ -13,6 +14,7 @@ import {
   createTestUseCase,
   deleteTestByIdUseCase,
   getTestsByStudyIdUseCase,
+  getPublicTestsByStudyIdUseCase,
   updateTestUseCase
 } from '@/use-cases/tests'
 import {
@@ -202,6 +204,33 @@ export const studiesRouter = createTRPCRouter({
       const testsData = (
         await Promise.all(
           tests.map(async test => {
+            if (test.type === 'TREE_TEST') {
+              const treeTest = await getTreeTestByTestIdUseCase(test.id)
+              return treeTest
+            }
+            // Handle other test types here when implemented
+            return null
+          })
+        )
+      ).filter(Boolean) as TreeTest[]
+
+      const combinedTests = combineTestsWithTreeTests(tests, testsData)
+
+      return {
+        study,
+        tests: combinedTests
+      }
+    }),
+
+  getPublicStudyById: publicProcedure
+    .input(z.object({ studyId: z.string() }))
+    .query(async ({ input }) => {
+      const study = await getPublicStudyByIdUseCase(input.studyId)
+      const tests = await getPublicTestsByStudyIdUseCase(input.studyId)
+
+      const testsData = (
+        await Promise.all(
+          tests.map(async (test: { id: string; type: TestType }) => {
             if (test.type === 'TREE_TEST') {
               const treeTest = await getTreeTestByTestIdUseCase(test.id)
               return treeTest

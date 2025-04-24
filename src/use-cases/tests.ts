@@ -15,7 +15,7 @@ import {
   getTestsByTestIds,
   updateTest
 } from '@/data-access/tests'
-import { getStudyByIdUseCase } from './studies'
+import { getStudyByIdUseCase, getPublicStudyByIdUseCase } from './studies'
 import { getTreeTestByTestIdUseCase } from './tree-tests'
 import { type Db } from '@/server/db'
 import { NotFoundError } from '@/utils/error-utils'
@@ -54,6 +54,12 @@ export const getTestsByTestIdsUseCase = async (testIds: string[]) => {
 
 export const getTestsByStudyIdUseCase = async (userId: string, studyId: string) => {
   const study = await getStudyByIdUseCase(userId, studyId)
+  const result = await getTestsByStudyId(study.id)
+  return result
+}
+
+export const getPublicTestsByStudyIdUseCase = async (studyId: string) => {
+  const study = await getPublicStudyByIdUseCase(studyId)
   const result = await getTestsByStudyId(study.id)
   return result
 }

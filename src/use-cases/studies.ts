@@ -31,6 +31,15 @@ export const getStudyByIdUseCase = async (userId: string, id: string) => {
   return data
 }
 
+export const getPublicStudyByIdUseCase = async (id: string) => {
+  const data = await getStudyById(id)
+  if (!data) {
+    throw new Error('Failed to get study')
+  }
+  // No authorization check for public access
+  return data
+}
+
 export const getStudiesByProjectIdUseCase = async (userId: string, projectId: string) => {
   const data = await getStudiesByProjectId(userId, projectId)
   if (!data) {
