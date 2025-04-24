@@ -1,6 +1,6 @@
 import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import { type TestType, type TreeTest } from '@/server/db/schema'
 import {
   getStudiesByProjectIdUseCase,
@@ -17,9 +17,9 @@ import {
 } from '@/use-cases/tests'
 import {
   createTreeTestUseCase,
+  deleteTreeTestByTestIdUseCase,
   getTreeTestByTestIdUseCase,
-  updateTreeTestUseCase,
-  deleteTreeTestByTestIdUseCase
+  updateTreeTestUseCase
 } from '@/use-cases/tree-tests'
 import { combineTestsWithTreeTests } from '@/utils/transformers'
 import { studyWithTestsInsertSchema } from '@/zod-schemas/study.schema'
@@ -84,7 +84,7 @@ export const studiesRouter = createTRPCRouter({
       const { study, tests } = data
 
       // 1. Get existing tests for this study
-      const existingTests = await getTestsByStudyIdUseCase(studyId)
+      const existingTests = await getTestsByStudyIdUseCase(userId, studyId)
       const existingTestMap = new Map(existingTests.map(test => [test.id, test]))
 
       const finalUpdatedStudy = await createTransaction(async trx => {
@@ -193,11 +193,11 @@ export const studiesRouter = createTRPCRouter({
       return finalUpdatedStudy
     }),
 
-  getStudyById: publicProcedure
+  getStudyById: protectedProcedure
     .input(z.object({ studyId: z.string() }))
-    .query(async ({ input }) => {
-      const study = await getStudyByIdUseCase(input.studyId)
-      const tests = await getTestsByStudyIdUseCase(input.studyId)
+    .query(async ({ input, ctx: { userId } }) => {
+      const study = await getStudyByIdUseCase(userId, input.studyId)
+      const tests = await getTestsByStudyIdUseCase(userId, input.studyId)
 
       const testsData = (
         await Promise.all(
@@ -220,10 +220,10 @@ export const studiesRouter = createTRPCRouter({
       }
     }),
 
-  getStudiesByProjectId: publicProcedure
+  getStudiesByProjectId: protectedProcedure
     .input(z.object({ projectId: z.string() }))
-    .query(async ({ input }) => {
-      const studies = await getStudiesByProjectIdUseCase(input.projectId)
+    .query(async ({ input, ctx: { userId } }) => {
+      const studies = await getStudiesByProjectIdUseCase(userId, input.projectId)
       return studies
     }),
 
@@ -233,8 +233,8 @@ export const studiesRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx: { userId } }) => {
       // Fetch original study and tests
-      const study = await getStudyByIdUseCase(input.studyId)
-      const tests = await getTestsByStudyIdUseCase(input.studyId)
+      const study = await getStudyByIdUseCase(userId, input.studyId)
+      const tests = await getTestsByStudyIdUseCase(userId, input.studyId)
 
       // Create the new study
       const newStudy = await insertStudyUseCase(userId, {

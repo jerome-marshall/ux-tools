@@ -17,9 +17,10 @@ export const getStudyById = async (id: string) => {
   return data
 }
 
-export const getStudiesByProjectId = async (projectId: string) => {
+export const getStudiesByProjectId = async (userId: string, projectId: string) => {
   const data = await db.query.studies.findMany({
-    where: (fields, { eq }) => eq(fields.projectId, projectId)
+    where: (fields, { eq, and }) =>
+      and(eq(fields.projectId, projectId), eq(fields.ownerId, userId))
   })
   return data
 }

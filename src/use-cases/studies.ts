@@ -21,16 +21,18 @@ export const insertStudyUseCase = async (
   return data
 }
 
-export const getStudyByIdUseCase = async (id: string) => {
+export const getStudyByIdUseCase = async (userId: string, id: string) => {
   const data = await getStudyById(id)
   if (!data) {
     throw new Error('Failed to get study')
   }
+  assertStudyOwner(userId, data)
+
   return data
 }
 
-export const getStudiesByProjectIdUseCase = async (projectId: string) => {
-  const data = await getStudiesByProjectId(projectId)
+export const getStudiesByProjectIdUseCase = async (userId: string, projectId: string) => {
+  const data = await getStudiesByProjectId(userId, projectId)
   if (!data) {
     throw new Error('Failed to get studies')
   }
@@ -43,12 +45,10 @@ export const updateStudyUseCase = async (
   { id: _, ...study }: Partial<Study>,
   trx?: Db
 ) => {
-  const existingStudy = await getStudyByIdUseCase(id)
-  assertStudyOwner(userId, existingStudy)
-
   const data = await updateStudy(id, study, trx)
   if (!data) {
     throw new Error('Failed to update study')
   }
+  assertStudyOwner(userId, data)
   return data
 }

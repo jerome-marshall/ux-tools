@@ -1,6 +1,8 @@
 import { EditStudyForm } from '@/components/study/study-form'
+import { authClient } from '@/lib/auth-client'
 import { trpc } from '@/trpc/server'
 import { getTestResultsByStudyIdUseCase } from '@/use-cases/tests'
+import { AuthenticationError } from '@/utils/error-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -8,6 +10,7 @@ type PageProps = {
   params: Promise<{ studyId: string }>
 }
 export default async function StudyPage({ params }: PageProps) {
+  const { data: session, error } = authClient.useSession()
   const { studyId } = await params
 
   const queryClient = new QueryClient()
@@ -34,7 +37,11 @@ export default async function StudyPage({ params }: PageProps) {
     }))
   }
 
-  const testResults = await getTestResultsByStudyIdUseCase(studyId)
+  if (error || !session?.user.id) {
+    throw new AuthenticationError()
+  }
+
+  const testResults = await getTestResultsByStudyIdUseCase(session.user.id, studyId)
   const hasTestResults = testResults.resultsData.some(
     testResult => testResult.results.length > 0
   )

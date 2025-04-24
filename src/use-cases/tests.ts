@@ -52,8 +52,9 @@ export const getTestsByTestIdsUseCase = async (testIds: string[]) => {
   return result
 }
 
-export const getTestsByStudyIdUseCase = async (studyId: string) => {
-  const result = await getTestsByStudyId(studyId)
+export const getTestsByStudyIdUseCase = async (userId: string, studyId: string) => {
+  const study = await getStudyByIdUseCase(userId, studyId)
+  const result = await getTestsByStudyId(study.id)
   return result
 }
 
@@ -81,9 +82,9 @@ export const createTestResultUseCase = async (testResult: TestResultInsert) => {
   return result
 }
 
-export const getTestResultsByStudyIdUseCase = async (studyId: string) => {
-  const study = await getStudyByIdUseCase(studyId)
-  const tests = await getTestsByStudyIdUseCase(studyId)
+export const getTestResultsByStudyIdUseCase = async (userId: string, studyId: string) => {
+  const study = await getStudyByIdUseCase(userId, studyId)
+  const tests = await getTestsByStudyIdUseCase(userId, studyId)
   const testResults = await Promise.all(
     tests.map(async test => {
       const results = await getTestResultsByTestId(test.id)
