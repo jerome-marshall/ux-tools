@@ -1,6 +1,6 @@
 import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
-import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { type TestType, type TreeTest } from '@/server/db/schema'
 import {
   getStudiesByProjectIdUseCase,
@@ -26,11 +26,11 @@ import { studyWithTestsInsertSchema } from '@/zod-schemas/study.schema'
 import { z } from 'zod'
 
 export const studiesRouter = createTRPCRouter({
-  createStudy: publicProcedure
+  createStudy: protectedProcedure
     .input(studyWithTestsInsertSchema)
-    .mutation(async ({ input: { study, tests } }) => {
+    .mutation(async ({ input: { study, tests }, ctx: { userId } }) => {
       const newStudy = await createTransaction(async trx => {
-        const insertedStudy = await insertStudyUseCase(study, trx)
+        const insertedStudy = await insertStudyUseCase(userId, study, trx)
 
         // Process each test based on its type
         const testRecords = tests.map(testData => {
@@ -227,17 +227,17 @@ export const studiesRouter = createTRPCRouter({
       return studies
     }),
 
-  duplicateStudy: publicProcedure
+  duplicateStudy: protectedProcedure
     .input(
       z.object({ studyId: z.string(), newStudyName: z.string(), projectId: z.string() })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx: { userId } }) => {
       // Fetch original study and tests
       const study = await getStudyByIdUseCase(input.studyId)
       const tests = await getTestsByStudyIdUseCase(input.studyId)
 
       // Create the new study
-      const newStudy = await insertStudyUseCase({
+      const newStudy = await insertStudyUseCase(userId, {
         id: generateId(),
         name: input.newStudyName,
         projectId: input.projectId,

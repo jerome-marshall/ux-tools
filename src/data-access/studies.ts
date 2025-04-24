@@ -2,8 +2,11 @@ import { db } from '@/server/db'
 import { studies, type Study, type StudyInsert } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
-export const insertStudy = async (study: StudyInsert, trx = db) => {
-  const [data] = await trx.insert(studies).values(study).returning()
+export const insertStudy = async (userId: string, study: StudyInsert, trx = db) => {
+  const [data] = await trx
+    .insert(studies)
+    .values({ ...study, ownerId: userId })
+    .returning()
   return data
 }
 
