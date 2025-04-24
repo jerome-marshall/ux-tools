@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import { testTypes, treeTestResultInsertSchema } from '@/server/db/schema'
 import {
   createTestResultUseCase,
@@ -11,7 +11,7 @@ import {
 import { z } from 'zod'
 
 export const testsRouter = createTRPCRouter({
-  createTestResult: publicProcedure
+  createTestResult: protectedProcedure
     .input(
       z
         .object({
@@ -57,7 +57,7 @@ export const testsRouter = createTRPCRouter({
       return tests
     }),
 
-  getTreeTestResults: publicProcedure
+  getTreeTestResults: protectedProcedure
     .input(z.object({ testResultIds: z.array(z.string()) }))
     .query(async ({ input }) => {
       const treeTestResults = await getTreeTestResultsByTestResultIdsUseCase(
