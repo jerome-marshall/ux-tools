@@ -26,7 +26,7 @@ const TreeTestResultTabs = ({
   const tabTriggerClasses = 'gap-2 data-[state=inactive]:text-gray-500'
 
   return (
-    <Tabs defaultValue={TAB_VALUES.PATH_DIAGRAM} className=''>
+    <Tabs defaultValue={TAB_VALUES.TOTALS} className=''>
       <TabsList className='mb-2 gap-1'>
         <TabsTrigger value={TAB_VALUES.TOTALS} className={tabTriggerClasses}>
           <ChartNoAxesColumnIncreasing /> <span>Totals</span>
