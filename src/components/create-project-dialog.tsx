@@ -28,7 +28,11 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-export function CreateProjectDialog() {
+export function CreateProjectDialog({
+  triggerVariant = 'ghost'
+}: {
+  triggerVariant?: 'ghost' | 'default'
+}) {
   const trpc = useTRPC()
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -71,7 +75,7 @@ export function CreateProjectDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='ghost' size='sm'>
+        <Button variant={triggerVariant} size='sm'>
           <Folder className='size-4' />
           <span>Create project</span>
         </Button>
