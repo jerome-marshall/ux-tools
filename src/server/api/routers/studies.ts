@@ -47,7 +47,7 @@ export const studiesRouter = createTRPCRouter({
         const newTests = await createTestsUseCase(testRecords, trx)
         const testsOrder = newTests.map(test => test.id)
 
-        await updateStudyUseCase(insertedStudy.id, { testsOrder }, trx)
+        await updateStudyUseCase(userId, insertedStudy.id, { testsOrder }, trx)
 
         await Promise.all(
           tests.map((testData, index) => {
@@ -73,15 +73,14 @@ export const studiesRouter = createTRPCRouter({
       return newStudy
     }),
 
-  // Improved mutation for updating studies
-  updateStudy: publicProcedure
+  updateStudy: protectedProcedure
     .input(
       z.object({
         studyId: z.string(),
         data: studyWithTestsInsertSchema
       })
     )
-    .mutation(async ({ input: { studyId, data } }) => {
+    .mutation(async ({ input: { studyId, data }, ctx: { userId } }) => {
       const { study, tests } = data
 
       // 1. Get existing tests for this study
@@ -91,6 +90,7 @@ export const studiesRouter = createTRPCRouter({
       const finalUpdatedStudy = await createTransaction(async trx => {
         // 2. Update the main study information
         const updatedStudy = await updateStudyUseCase(
+          userId,
           studyId,
           {
             name: study.name,
@@ -113,7 +113,7 @@ export const studiesRouter = createTRPCRouter({
           await Promise.all(deletePromises)
         }
 
-        const updatePromises = tests.map(async (testData, index) => {
+        const updatePromises = tests.map(async testData => {
           // Use the existing test ID if available, or create a new test
           const existingTest = existingTestMap.get(testData.testId)
 
@@ -185,7 +185,7 @@ export const studiesRouter = createTRPCRouter({
 
         // 4. Update the testsOrder array with the latest order
         const testIds = await Promise.all(updatePromises)
-        await updateStudyUseCase(studyId, { testsOrder: testIds }, trx)
+        await updateStudyUseCase(userId, studyId, { testsOrder: testIds }, trx)
 
         return updatedStudy
       })
@@ -260,7 +260,7 @@ export const studiesRouter = createTRPCRouter({
       const newTestsOrder = study.testsOrder
         .map(oldId => testIdMap.get(oldId) ?? '')
         .filter(id => id !== '')
-      await updateStudyUseCase(newStudy.id, { testsOrder: newTestsOrder })
+      await updateStudyUseCase(userId, newStudy.id, { testsOrder: newTestsOrder })
 
       const newTests = await createTestsUseCase(newTestRecords)
 

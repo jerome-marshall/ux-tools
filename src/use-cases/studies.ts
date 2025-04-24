@@ -6,6 +6,7 @@ import {
 } from '@/data-access/studies'
 import { type Db } from '@/server/db'
 import { type Study, type StudyInsert } from '@/server/db/schema'
+import { assertStudyOwner } from './authorization'
 
 export const insertStudyUseCase = async (
   userId: string,
@@ -37,10 +38,14 @@ export const getStudiesByProjectIdUseCase = async (projectId: string) => {
 }
 
 export const updateStudyUseCase = async (
+  userId: string,
   id: string,
   { id: _, ...study }: Partial<Study>,
   trx?: Db
 ) => {
+  const existingStudy = await getStudyByIdUseCase(id)
+  assertStudyOwner(userId, existingStudy)
+
   const data = await updateStudy(id, study, trx)
   if (!data) {
     throw new Error('Failed to update study')
