@@ -12,7 +12,8 @@ import { authClient } from '@/lib/auth-client'
 
 const Header = ({ isHome = false }: { isHome?: boolean }) => {
   const pathname = usePathname()
-  const { isPending } = authClient.useSession()
+  const { isPending, data: session } = authClient.useSession()
+  const isAuthenticated = !!session?.user
 
   const isNewStudy = pathname === PATH.newStudy
   const noActions = pathname.includes('/auth') || isPending
@@ -26,26 +27,24 @@ const Header = ({ isHome = false }: { isHome?: boolean }) => {
           </Link>
           <Breadcrumbs />
         </div>
-        {!noActions && (
-          <div className='flex items-center gap-5'>
-            {!isNewStudy && !isHome && (
-              <div className='flex items-center gap-3'>
-                <CreateProjectDialog />
-                <Link
-                  href={PATH.newStudy}
-                  className={cn(
-                    buttonVariants({ variant: 'default', size: 'sm' }),
-                    'gap-2'
-                  )}
-                >
-                  <Plus className='size-4' />
-                  <span>Create study</span>
-                </Link>
-              </div>
-            )}
-            <UserButton />
-          </div>
-        )}
+        <div className='flex items-center gap-5'>
+          {!noActions && isAuthenticated && !isNewStudy && !isHome && (
+            <div className='flex items-center gap-3'>
+              <CreateProjectDialog />
+              <Link
+                href={PATH.newStudy}
+                className={cn(
+                  buttonVariants({ variant: 'default', size: 'sm' }),
+                  'gap-2'
+                )}
+              >
+                <Plus className='size-4' />
+                <span>Create study</span>
+              </Link>
+            </div>
+          )}
+          <UserButton />
+        </div>
       </div>
     </header>
   )

@@ -10,13 +10,13 @@ import {
 import { isValidUUID } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 import { BREADCRUMBS_DATA, PATH, projectUrl, studyUrl } from '@/utils/urls'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { HomeIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { Fragment, Suspense } from 'react'
 import { Separator } from './ui/separator'
 import { authClient } from '@/lib/auth-client'
-
+import { Skeleton } from './ui/skeleton'
 const Breadcrumbs = () => {
   const { data: session } = authClient.useSession()
   const pathname = usePathname()
@@ -52,9 +52,11 @@ const Breadcrumbs = () => {
             // Projects Detail Page
             if (breadcrumbs[0] === 'projects' && isValidUUID(breadcrumb)) {
               return (
-                <Suspense key={breadcrumb} fallback={'Loading...'}>
-                  <ProjectBreadcrumb projectId={breadcrumb} isActive={!isLast} />
-                </Suspense>
+                <ProjectBreadcrumb
+                  key={breadcrumb}
+                  projectId={breadcrumb}
+                  isActive={!isLast}
+                />
               )
             }
 
@@ -62,9 +64,11 @@ const Breadcrumbs = () => {
             if (breadcrumbs[0] === 'studies' && isValidUUID(breadcrumb)) {
               dynamicParams.push(breadcrumb)
               return (
-                <Suspense key={breadcrumb} fallback={'Loading...'}>
-                  <StudyBreadcrumb studyId={breadcrumb} isActive={!isLast} />
-                </Suspense>
+                <StudyBreadcrumb
+                  key={breadcrumb}
+                  studyId={breadcrumb}
+                  isActive={!isLast}
+                />
               )
             }
 
@@ -108,16 +112,24 @@ const ProjectBreadcrumb = ({
   isActive: boolean
 }) => {
   const trpc = useTRPC()
-  const { data: project } = useSuspenseQuery(
+  const { data: project, isLoading } = useQuery(
     trpc.projects.getProjectById.queryOptions({ id: projectId })
   )
+  if (isLoading) {
+    return (
+      <>
+        <BreadcrumbSeparator />
+        <Skeleton className='h-4 w-20' />
+      </>
+    )
+  }
+
   return (
     <>
-      <BreadcrumbSeparator />
       <BreadcrumbItem>
         {isActive ? (
           <BreadcrumbLink href={projectUrl(projectId)}>
-            {project.name ?? projectId}
+            {project?.name ?? projectId}
           </BreadcrumbLink>
         ) : (
           (project?.name ?? projectId)
@@ -134,10 +146,24 @@ const StudyBreadcrumb = ({
   studyId: string
   isActive: boolean
 }) => {
+  const { data: session } = authClient.useSession()
   const trpc = useTRPC()
-  const { data: study } = useSuspenseQuery(
-    trpc.studies.getStudyById.queryOptions({ studyId })
+
+  const { data: study, isLoading } = useQuery(
+    trpc.studies.getStudyById.queryOptions(
+      { studyId },
+      { retry: 0, enabled: !!session?.user }
+    )
   )
+
+  if (isLoading) {
+    return (
+      <>
+        <BreadcrumbSeparator />
+        <Skeleton className='h-4 w-20' />
+      </>
+    )
+  }
 
   return (
     <>
@@ -145,10 +171,10 @@ const StudyBreadcrumb = ({
       <BreadcrumbItem>
         {isActive ? (
           <BreadcrumbLink href={studyUrl(studyId)}>
-            {study.study.name ?? studyId}
+            {study?.study?.name ?? studyId}
           </BreadcrumbLink>
         ) : (
-          (study.study.name ?? studyId)
+          (study?.study?.name ?? studyId)
         )}
       </BreadcrumbItem>
     </>
