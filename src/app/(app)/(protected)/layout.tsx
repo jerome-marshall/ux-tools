@@ -8,8 +8,10 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <RedirectToSignIn />
-      <SignedIn>{children}</SignedIn>
+      {/* <RedirectToSignIn /> */}
+      {/* <SignedIn>
+        </SignedIn> */}
+      {children}
     </>
   )
 }
