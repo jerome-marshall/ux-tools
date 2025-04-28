@@ -1,6 +1,6 @@
 import { EditStudyForm } from '@/components/study/study-form'
 import { auth } from '@/lib/auth'
-import { trpc } from '@/trpc/server'
+import { caller, trpc } from '@/trpc/server'
 import { getTestResultsByStudyIdUseCase } from '@/use-cases/tests'
 import { AuthenticationError } from '@/utils/error-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
@@ -16,7 +16,7 @@ export default async function StudyPageEdit({ params }: PageProps) {
 
   const queryClient = new QueryClient()
   const data = await queryClient.fetchQuery(
-    trpc.studies.getStudyById.queryOptions({ studyId })
+    trpc.studies.getStudyById.queryOptions({ studyId }, { enabled: !!sessionData?.user })
   )
 
   const transformedData: StudyWithTestsInsert = {
@@ -42,7 +42,7 @@ export default async function StudyPageEdit({ params }: PageProps) {
     throw new AuthenticationError()
   }
 
-  const testResults = await getTestResultsByStudyIdUseCase(sessionData.user.id, studyId)
+  const testResults = await caller.tests.getTestResults({ studyId })
   const hasTestResults = testResults.resultsData.some(
     testResult => testResult.results.length > 0
   )
