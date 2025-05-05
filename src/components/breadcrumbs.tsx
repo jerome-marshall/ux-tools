@@ -7,15 +7,15 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
+import { authClient } from '@/lib/auth-client'
 import { isValidUUID } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 import { BREADCRUMBS_DATA, PATH, projectUrl, studyUrl } from '@/utils/urls'
 import { useQuery } from '@tanstack/react-query'
 import { HomeIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { Fragment, Suspense } from 'react'
+import { Fragment } from 'react'
 import { Separator } from './ui/separator'
-import { authClient } from '@/lib/auth-client'
 import { Skeleton } from './ui/skeleton'
 const Breadcrumbs = () => {
   const { data: session } = authClient.useSession()

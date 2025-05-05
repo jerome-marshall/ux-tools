@@ -1,7 +1,6 @@
 import { EditStudyForm } from '@/components/study/study-form'
 import { auth } from '@/lib/auth'
 import { caller, trpc } from '@/trpc/server'
-import { getTestResultsByStudyIdUseCase } from '@/use-cases/tests'
 import { AuthenticationError } from '@/utils/error-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { QueryClient } from '@tanstack/react-query'
