@@ -1,7 +1,7 @@
 import RenderViews from '@/components/section-views/render-views'
+import { makeQueryClient } from '@/trpc/query-client'
 import { trpc } from '@/trpc/server'
-import { QueryClient } from '@tanstack/react-query'
-import { Clock, AlertCircle } from 'lucide-react'
+import { AlertCircle, Clock } from 'lucide-react'
 
 type PageProps = {
   params: Promise<{ studyId: string }>
@@ -9,7 +9,7 @@ type PageProps = {
 export default async function PreviewStudyPage({ params }: PageProps) {
   const { studyId } = await params
 
-  const queryClient = new QueryClient()
+  const queryClient = makeQueryClient()
 
   try {
     const data = await queryClient.fetchQuery(

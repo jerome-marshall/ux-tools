@@ -1,9 +1,9 @@
 import { EditStudyForm } from '@/components/study/study-form'
 import { auth } from '@/lib/auth'
+import { makeQueryClient } from '@/trpc/query-client'
 import { caller, trpc } from '@/trpc/server'
 import { AuthenticationError } from '@/utils/error-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
-import { QueryClient } from '@tanstack/react-query'
 import { headers } from 'next/headers'
 
 type PageProps = {
@@ -13,7 +13,7 @@ export default async function StudyPageEdit({ params }: PageProps) {
   const sessionData = await auth.api.getSession({ headers: await headers() })
   const { studyId } = await params
 
-  const queryClient = new QueryClient()
+  const queryClient = makeQueryClient()
   const data = await queryClient.fetchQuery(
     trpc.studies.getStudyById.queryOptions({ studyId }, { enabled: !!sessionData?.user })
   )
