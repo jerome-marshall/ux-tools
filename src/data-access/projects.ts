@@ -1,6 +1,7 @@
 import { db } from '@/server/db'
-import { type ProjectInsert, projects } from '@/server/db/schema'
+import { type Project, type ProjectInsert, projects } from '@/server/db/schema'
 import { type ProjectWithStudiesCount } from '@/types'
+import { eq } from 'drizzle-orm'
 
 export const getProjects = async (userId: string): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
@@ -63,4 +64,13 @@ export const getProjectById = async (projectId: string) => {
     where: (fields, { eq }) => eq(fields.id, projectId)
   })
   return project
+}
+
+export const updateProject = async (projectId: string, project: Partial<Project>) => {
+  const [updatedProject] = await db
+    .update(projects)
+    .set(project)
+    .where(eq(projects.id, projectId))
+    .returning()
+  return updatedProject
 }

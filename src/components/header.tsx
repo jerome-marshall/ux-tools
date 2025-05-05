@@ -7,7 +7,7 @@ import { UserButton } from '@daveyplate/better-auth-ui'
 import { Plus } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Breadcrumbs from './breadcrumbs'
-import { CreateProjectDialog } from './create-project-dialog'
+import { CreateProjectDialog } from './project/create-project-dialog'
 import { authClient } from '@/lib/auth-client'
 
 const Header = ({ isHome = false }: { isHome?: boolean }) => {

@@ -4,7 +4,8 @@ import {
   createProjectUseCase,
   getProjectByIdUseCase,
   getProjectsUseCase,
-  getRecentProjectsUseCase
+  getRecentProjectsUseCase,
+  updateProjectUseCase
 } from '@/use-cases/projects'
 import { z } from 'zod'
 
@@ -31,5 +32,14 @@ export const projectsRouter = createTRPCRouter({
     .query(async ({ input, ctx: { userId } }) => {
       const project = await getProjectByIdUseCase(userId, input.id)
       return project
+    }),
+
+  renameProject: protectedProcedure
+    .input(z.object({ id: z.string(), name: z.string() }))
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const updatedProject = await updateProjectUseCase(userId, input.id, {
+        name: input.name
+      })
+      return updatedProject
     })
 })

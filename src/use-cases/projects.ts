@@ -2,9 +2,10 @@ import {
   createProject,
   getProjectById,
   getProjects,
-  getRecentProjects
+  getRecentProjects,
+  updateProject
 } from '@/data-access/projects'
-import { type ProjectInsert } from '@/server/db/schema'
+import { type Project, type ProjectInsert } from '@/server/db/schema'
 import { assertProjectOwner } from './authorization'
 import { NotFoundError } from '@/utils/error-utils'
 
@@ -32,4 +33,19 @@ export const getProjectByIdUseCase = async (userId: string, projectId: string) =
   assertProjectOwner(userId, project)
 
   return project
+}
+
+export const updateProjectUseCase = async (
+  userId: string,
+  projectId: string,
+  projectData: Partial<Project>
+) => {
+  // handles authorization and returns the project
+  const project = await getProjectByIdUseCase(userId, projectId)
+
+  const updatedProject = await updateProject(projectId, {
+    ...project,
+    ...projectData
+  })
+  return updatedProject
 }

@@ -1,6 +1,6 @@
 import { FolderPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CreateProjectDialog } from './create-project-dialog'
+import { CreateProjectDialog } from './project/create-project-dialog'
 
 interface NoProjectsCardProps {
   className?: string

@@ -6,8 +6,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -18,42 +17,56 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { type ProjectInsert, projectInsertSchema } from '@/server/db/schema'
+import { projectInsertSchema } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
+import { type ProjectWithStudiesCount } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Folder } from 'lucide-react'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { type z } from 'zod'
+import React, { useEffect } from 'react'
 
-export function CreateProjectDialog({
-  triggerVariant = 'ghost'
+const projectRenameSchema = projectInsertSchema.pick({ name: true })
+type ProjectRename = z.infer<typeof projectRenameSchema>
+
+export function RenameProjectDialog({
+  project,
+  isOpen,
+  onOpenChange
 }: {
-  triggerVariant?: 'ghost' | 'default'
+  project: ProjectWithStudiesCount
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
 }) {
   const trpc = useTRPC()
-  const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
 
-  const form = useForm<ProjectInsert>({
-    resolver: zodResolver(projectInsertSchema),
+  const form = useForm<ProjectRename>({
+    resolver: zodResolver(projectRenameSchema),
     defaultValues: {
-      name: '',
-      description: ''
+      name: project.name
     }
   })
 
-  const { mutate: createProject, isPending } = useMutation(
-    trpc.projects.createProject.mutationOptions({
+  // Reset form with current project name when project changes or dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        name: project.name
+      })
+    }
+  }, [project, isOpen, form])
+
+  const nameValue = form.watch('name')
+  const isNameValid = nameValue !== project.name && nameValue?.length > 0
+
+  const { mutate: renameProject, isPending } = useMutation(
+    trpc.projects.renameProject.mutationOptions({
       onSuccess: data => {
-        toast.success('New project created', {
+        toast.success('Project renamed', {
           description: data.name
         })
-
-        setIsOpen(false)
-        form.reset()
 
         void queryClient.invalidateQueries({
           queryKey: trpc.projects.getProjects.queryKey()
@@ -61,28 +74,28 @@ export function CreateProjectDialog({
         void queryClient.invalidateQueries({
           queryKey: trpc.projects.getRecentProjects.queryKey()
         })
+        onOpenChange(false)
       },
       onError: () => {
-        toast.error('Failed to create project')
+        toast.error('Failed to rename project')
       }
     })
   )
 
-  const onSubmit = async (data: ProjectInsert) => {
-    createProject(data)
+  const onSubmit = async (data: ProjectRename) => {
+    renameProject({ id: project.id, name: data.name })
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant={triggerVariant} size='sm'>
-          <Folder className='size-4' />
-          <span>Create project</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog
+      open={isOpen}
+      onOpenChange={open => {
+        onOpenChange(open)
+      }}
+    >
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Create a new project</DialogTitle>
+          <DialogTitle>Rename project</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -99,36 +112,19 @@ export function CreateProjectDialog({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Project description'
-                      {...field}
-                      value={field.value ?? ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <DialogFooter className='mt-6'>
               <Button
                 type='button'
                 variant='ghost'
                 onClick={() => {
-                  setIsOpen(false)
+                  onOpenChange(false)
                   form.reset()
                 }}
               >
                 Cancel
               </Button>
-              <Button type='submit' disabled={isPending}>
-                {isPending ? 'Saving...' : 'Save changes'}
+              <Button type='submit' disabled={isPending || !isNameValid}>
+                {isPending ? 'Saving...' : 'Save'}
               </Button>
             </DialogFooter>
           </form>

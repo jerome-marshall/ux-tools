@@ -5,6 +5,10 @@ import Link from '@/components/link'
 import ProjectCardOptions from './project-card-options'
 
 const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
+  const handleOptionsClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
   return (
     <Link
       href={projectUrl(project.id.toString())}
@@ -15,7 +19,9 @@ const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
           <FolderClosed className='size-4 group-hover:hidden' />
           <FolderOpen className='hidden size-4 group-hover:block' />
         </div>
-        <ProjectCardOptions />
+        <div onClick={handleOptionsClick}>
+          <ProjectCardOptions project={project} />
+        </div>
       </div>
       <div className='flex flex-col gap-1'>
         <p className='text-base font-medium'>{project.name}</p>

@@ -25,9 +25,7 @@ export default async function ProjectsPage() {
         </div>
       </div>
       <div className='mt-4'>
-        <Suspense fallback={<>Loading...</>}>
-          <ProjectsList />
-        </Suspense>
+        <ProjectsList />
       </div>
     </div>
   )
