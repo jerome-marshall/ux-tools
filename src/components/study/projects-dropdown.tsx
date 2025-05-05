@@ -38,7 +38,9 @@ const ProjectsDropdown = ({
   const [popoverContainer, setPopoverContainer] = React.useState<HTMLElement | null>(null)
 
   const trpc = useTRPC()
-  const { data: projects, isPending } = useQuery(trpc.projects.getProjects.queryOptions())
+  const { data: projects, isPending } = useQuery(
+    trpc.projects.getProjects.queryOptions({ active: true })
+  )
 
   const projectOptions = projects?.map(project => ({
     value: project.id.toString(),

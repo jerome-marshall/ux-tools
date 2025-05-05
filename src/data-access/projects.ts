@@ -3,9 +3,13 @@ import { type Project, type ProjectInsert, projects } from '@/server/db/schema'
 import { type ProjectWithStudiesCount } from '@/types'
 import { eq } from 'drizzle-orm'
 
-export const getProjects = async (userId: string): Promise<ProjectWithStudiesCount[]> => {
+export const getProjects = async (
+  userId: string,
+  { active = true }: { active?: boolean }
+): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
-    where: (fields, { eq }) => eq(fields.ownerId, userId),
+    where: (fields, { eq, and }) =>
+      and(eq(fields.ownerId, userId), eq(fields.archived, !active)),
     orderBy: (fields, { desc }) => desc(fields.updatedAt),
     with: {
       studies: {
@@ -30,7 +34,8 @@ export const getRecentProjects = async (
   userId: string
 ): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
-    where: (fields, { eq }) => eq(fields.ownerId, userId),
+    where: (fields, { eq, and }) =>
+      and(eq(fields.ownerId, userId), eq(fields.archived, false)),
     orderBy: (fields, { desc }) => desc(fields.updatedAt),
     limit: 10,
     with: {

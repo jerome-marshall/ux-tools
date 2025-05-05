@@ -6,11 +6,14 @@ import {
   updateProject
 } from '@/data-access/projects'
 import { type Project, type ProjectInsert } from '@/server/db/schema'
-import { assertProjectOwner } from './authorization'
 import { NotFoundError } from '@/utils/error-utils'
+import { assertProjectOwner } from './authorization'
 
-export const getProjectsUseCase = async (userId: string) => {
-  const projects = await getProjects(userId)
+export const getProjectsUseCase = async (
+  userId: string,
+  { active = true }: { active?: boolean }
+) => {
+  const projects = await getProjects(userId, { active })
   return projects
 }
 

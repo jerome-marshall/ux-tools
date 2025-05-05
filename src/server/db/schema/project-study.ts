@@ -9,6 +9,7 @@ export const projects = pgTable('projects', {
   id: uniqueId,
   name: text('name').notNull(),
   description: text('description'),
+  archived: boolean('archived').notNull().default(false),
   ownerId: text('owner_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),

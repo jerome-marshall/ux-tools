@@ -17,10 +17,12 @@ export const projectsRouter = createTRPCRouter({
       return newProject
     }),
 
-  getProjects: protectedProcedure.query(async ({ ctx: { userId } }) => {
-    const projects = await getProjectsUseCase(userId)
-    return projects
-  }),
+  getProjects: protectedProcedure
+    .input(z.object({ active: z.boolean().default(true) }))
+    .query(async ({ input, ctx: { userId } }) => {
+      const projects = await getProjectsUseCase(userId, { active: input.active })
+      return projects
+    }),
 
   getRecentProjects: protectedProcedure.query(async ({ ctx: { userId } }) => {
     const projects = await getRecentProjectsUseCase(userId)
@@ -39,6 +41,15 @@ export const projectsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx: { userId } }) => {
       const updatedProject = await updateProjectUseCase(userId, input.id, {
         name: input.name
+      })
+      return updatedProject
+    }),
+
+  updateArchiveStatus: protectedProcedure
+    .input(z.object({ id: z.string(), archived: z.boolean() }))
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const updatedProject = await updateProjectUseCase(userId, input.id, {
+        archived: input.archived
       })
       return updatedProject
     })

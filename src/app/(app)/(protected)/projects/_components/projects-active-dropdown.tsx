@@ -9,6 +9,7 @@ import {
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import useActiveStatus from '../_hooks/use-active-status'
 
 const options = [
   {
@@ -22,8 +23,10 @@ const options = [
 ]
 
 const ProjectsActiveDropdown = () => {
+  const { active, setActive } = useActiveStatus()
+
   const [isOpen, setIsOpen] = useState(false)
-  const [activeOption, setActiveOption] = useState(options[0])
+  const activeOption = active ? options[0] : options[1]
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -35,7 +38,10 @@ const ProjectsActiveDropdown = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align='start'>
         {options.map(option => (
-          <DropdownMenuItem key={option.value} onClick={() => setActiveOption(option)}>
+          <DropdownMenuItem
+            key={option.value}
+            onClick={() => setActive(option.value === 'active')}
+          >
             {option.label}
           </DropdownMenuItem>
         ))}

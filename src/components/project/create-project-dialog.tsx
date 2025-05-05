@@ -41,7 +41,8 @@ export function CreateProjectDialog({
     resolver: zodResolver(projectInsertSchema),
     defaultValues: {
       name: '',
-      description: ''
+      description: '',
+      archived: false
     }
   })
 
