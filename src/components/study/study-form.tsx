@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   type FieldArrayWithId,
-  FieldErrors,
   useFieldArray,
   useForm,
   type UseFormReturn
@@ -12,14 +11,31 @@ import {
 import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
-import { type TestType } from '@/server/db/schema'
+import { type Project, type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { doStudyUrl, previewUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
 } from '@/zod-schemas/study.schema'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import { restrictToParentElement } from '@dnd-kit/modifiers'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Clock,
   FileQuestion,
@@ -29,35 +45,20 @@ import {
   ListTree,
   type LucideIcon,
   Text,
-  TriangleAlert
+  TriangleAlert,
+  Loader2Icon
 } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import Tooltip from '../custom-tooltip'
 import { Button, buttonVariants } from '../ui/button'
+import { DuplicateStudyDialog } from './duplicate-study-dialog'
 import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
 import TreeTest from './tree-test/tree-test'
-import { DuplicateStudyDialog } from './duplicate-study-dialog'
-import {
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DndContext,
-  type DragEndEvent,
-  closestCenter
-} from '@dnd-kit/core'
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-  sortableKeyboardCoordinates
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { restrictToParentElement } from '@dnd-kit/modifiers'
+import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -66,20 +67,29 @@ export const SECTION_ID = {
   THANK_YOU_SCREEN: 'thank-you-screen'
 }
 
-interface BaseStudyFormProps {
+type BaseStudyFormProps = {
   defaultValues: StudyWithTestsInsert
   onSubmit: (data: StudyWithTestsInsert) => void
   isEditMode?: boolean
-  isEditPage?: boolean
+  isEditPage: boolean
+  project?: Project
+  updateArchiveStatus?: (params: { id: string; archived: boolean }) => void
+  isArchiveStatusPending?: boolean
 }
 
 const BaseStudyForm = ({
   defaultValues,
   onSubmit,
   isEditMode = false,
-  isEditPage = false
+  isEditPage = false,
+  project,
+  updateArchiveStatus,
+  isArchiveStatusPending = false
 }: BaseStudyFormProps) => {
+  console.log('🚀 ~ project:', project)
   const disableFields = isEditPage && !isEditMode
+
+  const isProjectArchived = isEditPage && project?.archived
 
   const { id: studyId } = defaultValues.study
 
@@ -222,47 +232,73 @@ const BaseStudyForm = ({
                     Preview Study
                   </Link>
 
-                  <div className='flex gap-1'>
-                    <Link
-                      href={doStudyUrl(studyId)}
-                      className={cn(
-                        buttonVariants({ variant: 'secondary' }),
-                        'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
-                      )}
-                    >
-                      <Hand className='size-4' />
-                      Start Study
-                    </Link>
-                    <Tooltip
-                      content='Copy study link to clipboard'
-                      trigger={
-                        <Button
-                          variant='secondary'
-                          size='icon'
-                          className='bg-gray-200 hover:bg-gray-300'
-                          onClick={e => {
-                            e.preventDefault()
-                            const fullUrl = `${window.location.origin}${doStudyUrl(studyId)}`
-                            navigator?.clipboard
-                              .writeText(fullUrl)
-                              .then(() => {
-                                toast.success('Study link copied to clipboard')
-                              })
-                              .catch(() => {
-                                toast.error('Failed to copy study link to clipboard')
-                              })
-                          }}
-                        >
-                          <LinkIcon className='size-4' />
-                        </Button>
-                      }
-                    />
-                  </div>
+                  {!isProjectArchived && (
+                    <div className='flex gap-1'>
+                      <Link
+                        href={doStudyUrl(studyId)}
+                        className={cn(
+                          buttonVariants({ variant: 'secondary' }),
+                          'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                        )}
+                      >
+                        <Hand className='size-4' />
+                        Start Study
+                      </Link>
+                      <Tooltip
+                        content='Copy study link to clipboard'
+                        trigger={
+                          <Button
+                            variant='secondary'
+                            size='icon'
+                            className='bg-gray-200 hover:bg-gray-300'
+                            onClick={e => {
+                              e.preventDefault()
+                              const fullUrl = `${window.location.origin}${doStudyUrl(studyId)}`
+                              navigator?.clipboard
+                                .writeText(fullUrl)
+                                .then(() => {
+                                  toast.success('Study link copied to clipboard')
+                                })
+                                .catch(() => {
+                                  toast.error('Failed to copy study link to clipboard')
+                                })
+                            }}
+                          >
+                            <LinkIcon className='size-4' />
+                          </Button>
+                        }
+                      />
+                    </div>
+                  )}
                 </>
               )}
               <Button className='mt-2 gap-2' type='submit' disabled={disableFields}>
                 {isEditPage ? 'Save Changes' : 'Save and Continue'}
               </Button>
+
+              {isProjectArchived && (
+                <div className='relative mt-2 flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3 shadow-sm'>
+                  <p className='text-sm font-medium text-gray-600'>
+                    The project which contains this study is archived.
+                  </p>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='w-full gap-2'
+                    type='button'
+                    onClick={() => {
+                      if (!project) return
+                      updateArchiveStatus?.({ id: project.id, archived: false })
+                    }}
+                    disabled={isArchiveStatusPending}
+                  >
+                    {isArchiveStatusPending ? (
+                      <Loader2Icon className='size-4 animate-spin' />
+                    ) : null}
+                    Unarchive Project
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           <div className=''>
@@ -405,7 +441,9 @@ export const CreateStudyForm = ({
     mutate(data)
   }
 
-  return <BaseStudyForm defaultValues={initialData} onSubmit={onSubmit} />
+  return (
+    <BaseStudyForm defaultValues={initialData} onSubmit={onSubmit} isEditPage={false} />
+  )
 }
 
 export const EditStudyForm = ({
@@ -422,6 +460,15 @@ export const EditStudyForm = ({
 
   const trpc = useTRPC()
   const queryClient = useQueryClient()
+
+  const { data: project, isLoading: isProjectLoading } = useQuery(
+    trpc.projects.getProjectById.queryOptions({ id: initialData.study.projectId })
+  )
+
+  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
+    projectName: project?.name,
+    projectId: project?.id
+  })
 
   const { mutate, isPending } = useMutation(
     trpc.studies.updateStudy.mutationOptions({
@@ -446,6 +493,10 @@ export const EditStudyForm = ({
     })
   }
 
+  if (isProjectLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <>
       <BaseStudyForm
@@ -453,6 +504,9 @@ export const EditStudyForm = ({
         onSubmit={onSubmit}
         isEditMode={isEditMode}
         isEditPage={true}
+        project={project}
+        updateArchiveStatus={updateArchiveStatus}
+        isArchiveStatusPending={isArchiveStatusPending}
       />
       <StudyEditModeDialog
         isEditMode={isEditMode}

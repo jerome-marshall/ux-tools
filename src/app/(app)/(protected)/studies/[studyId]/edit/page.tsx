@@ -1,9 +1,10 @@
 import { EditStudyForm } from '@/components/study/study-form'
 import { auth } from '@/lib/auth'
 import { makeQueryClient } from '@/trpc/query-client'
-import { caller, trpc } from '@/trpc/server'
+import { trpc } from '@/trpc/server'
 import { AuthenticationError } from '@/utils/error-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { headers } from 'next/headers'
 
 type PageProps = {
@@ -16,6 +17,9 @@ export default async function StudyPageEdit({ params }: PageProps) {
   const queryClient = makeQueryClient()
   const data = await queryClient.fetchQuery(
     trpc.studies.getStudyById.queryOptions({ studyId }, { enabled: !!sessionData?.user })
+  )
+  await queryClient.prefetchQuery(
+    trpc.projects.getProjectById.queryOptions({ id: data.study.projectId })
   )
 
   const transformedData: StudyWithTestsInsert = {
@@ -41,18 +45,22 @@ export default async function StudyPageEdit({ params }: PageProps) {
     throw new AuthenticationError()
   }
 
-  const testResults = await caller.tests.getTestResults({ studyId })
+  const testResults = await queryClient.fetchQuery(
+    trpc.tests.getTestResults.queryOptions({ studyId })
+  )
   const hasTestResults = testResults.resultsData.some(
     testResult => testResult.results.length > 0
   )
 
   return (
-    <div className='container'>
-      <EditStudyForm
-        initialData={transformedData}
-        studyId={studyId}
-        hasTestResults={hasTestResults}
-      />
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className='container'>
+        <EditStudyForm
+          initialData={transformedData}
+          studyId={studyId}
+          hasTestResults={hasTestResults}
+        />
+      </div>
+    </HydrationBoundary>
   )
 }

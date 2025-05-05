@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useSort } from '@/hooks/useSort'
+import { useSort } from '@/hooks/use-sort'
 import { cn } from '@/lib/utils'
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
 import { useState } from 'react'

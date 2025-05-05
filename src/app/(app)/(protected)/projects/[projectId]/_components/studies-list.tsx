@@ -1,6 +1,6 @@
 'use client'
 import StudyCard from '@/components/study-card/study-card'
-import { useSort } from '@/hooks/useSort'
+import { useSort } from '@/hooks/use-sort'
 import { useTRPC } from '@/trpc/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import NoStudies from './no-studies'

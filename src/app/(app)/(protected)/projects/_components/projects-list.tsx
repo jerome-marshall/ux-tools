@@ -1,6 +1,6 @@
 'use client'
 import ProjectCard from '@/components/project-card/project-card'
-import { useSort } from '@/hooks/useSort'
+import { useSort } from '@/hooks/use-sort'
 import { useTRPC } from '@/trpc/client'
 import { useQuery } from '@tanstack/react-query'
 import useActiveStatus from '../_hooks/use-active-status'

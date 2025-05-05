@@ -7,15 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 import { cn } from '@/lib/utils'
+import { type ProjectWithStudiesCount } from '@/types'
 import { EllipsisVertical, Loader2Icon } from 'lucide-react'
 import { useState } from 'react'
-import { RenameProjectDialog } from '../project/rename-project-dialog'
-import { type ProjectWithStudiesCount } from '@/types'
 import { ArchiveProjectDialog } from '../project/archive-project-dialog'
-import { useTRPC } from '@/trpc/client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { RenameProjectDialog } from '../project/rename-project-dialog'
 
 const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -24,26 +22,9 @@ const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) =
 
   const isArchived = project.archived
 
-  const trpc = useTRPC()
-  const queryClient = useQueryClient()
-  const { mutate: updateArchiveStatus, isPending } = useMutation(
-    trpc.projects.updateArchiveStatus.mutationOptions({
-      onSuccess: data => {
-        const isArchivedStatus = data.archived
-
-        toast.success(isArchivedStatus ? 'Project archived' : 'Project unarchived', {
-          description: project.name
-        })
-
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getProjects.queryKey()
-        })
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getRecentProjects.queryKey()
-        })
-      }
-    })
-  )
+  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
+    projectName: project.name
+  })
 
   return (
     <>
@@ -56,9 +37,9 @@ const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) =
               'absolute top-3 right-2 size-8',
               isOpen && 'border border-gray-200 bg-gray-100'
             )}
-            disabled={isPending}
+            disabled={isArchiveStatusPending}
           >
-            {isPending ? (
+            {isArchiveStatusPending ? (
               <Loader2Icon className='text-muted-foreground size-4 animate-spin' />
             ) : (
               <EllipsisVertical className='text-muted-foreground size-4' />
@@ -72,7 +53,7 @@ const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) =
           {isArchived ? (
             <DropdownMenuItem
               onClick={() => updateArchiveStatus({ id: project.id, archived: false })}
-              disabled={isPending}
+              disabled={isArchiveStatusPending}
             >
               Unarchive
             </DropdownMenuItem>
