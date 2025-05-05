@@ -126,6 +126,7 @@ const ProjectBreadcrumb = ({
 
   return (
     <>
+      <BreadcrumbSeparator />
       <BreadcrumbItem>
         {isActive ? (
           <BreadcrumbLink href={projectUrl(projectId)}>
