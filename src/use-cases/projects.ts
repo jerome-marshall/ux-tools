@@ -11,9 +11,9 @@ import { assertProjectOwner } from './authorization'
 
 export const getProjectsUseCase = async (
   userId: string,
-  { active = true }: { active?: boolean }
+  { active = true, getAll = false }: { active?: boolean; getAll?: boolean }
 ) => {
-  const projects = await getProjects(userId, { active })
+  const projects = await getProjects(userId, { active, getAll })
   return projects
 }
 

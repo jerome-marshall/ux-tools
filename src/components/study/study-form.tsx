@@ -13,7 +13,7 @@ import { Form, FormField } from '@/components/ui/form'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
 import { type Project, type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { doStudyUrl, previewUrl, studyUrl } from '@/utils/urls'
+import { doStudyUrl, previewUrl, studyResultsUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
@@ -46,7 +46,9 @@ import {
   type LucideIcon,
   Text,
   TriangleAlert,
-  Loader2Icon
+  Loader2Icon,
+  BarChart,
+  ChartColumnIncreasing
 } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
 import { useState } from 'react'
@@ -75,6 +77,7 @@ type BaseStudyFormProps = {
   project?: Project
   updateArchiveStatus?: (params: { id: string; archived: boolean }) => void
   isArchiveStatusPending?: boolean
+  hasTestResults?: boolean
 }
 
 const BaseStudyForm = ({
@@ -84,7 +87,8 @@ const BaseStudyForm = ({
   isEditPage = false,
   project,
   updateArchiveStatus,
-  isArchiveStatusPending = false
+  isArchiveStatusPending = false,
+  hasTestResults = false
 }: BaseStudyFormProps) => {
   console.log('🚀 ~ project:', project)
   const disableFields = isEditPage && !isEditMode
@@ -269,6 +273,19 @@ const BaseStudyForm = ({
                         }
                       />
                     </div>
+                  )}
+
+                  {hasTestResults && (
+                    <Link
+                      href={studyResultsUrl(studyId)}
+                      className={cn(
+                        buttonVariants({ variant: 'secondary' }),
+                        'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                      )}
+                    >
+                      <ChartColumnIncreasing className='size-4' />
+                      View Results
+                    </Link>
                   )}
                 </>
               )}
@@ -507,6 +524,7 @@ export const EditStudyForm = ({
         project={project}
         updateArchiveStatus={updateArchiveStatus}
         isArchiveStatusPending={isArchiveStatusPending}
+        hasTestResults={hasTestResults}
       />
       <StudyEditModeDialog
         isEditMode={isEditMode}

@@ -18,9 +18,17 @@ export const projectsRouter = createTRPCRouter({
     }),
 
   getProjects: protectedProcedure
-    .input(z.object({ active: z.boolean().default(true) }))
+    .input(
+      z.object({
+        active: z.boolean().optional().default(true),
+        getAll: z.boolean().optional().default(false)
+      })
+    )
     .query(async ({ input, ctx: { userId } }) => {
-      const projects = await getProjectsUseCase(userId, { active: input.active })
+      const projects = await getProjectsUseCase(userId, {
+        active: input.active,
+        getAll: input.getAll
+      })
       return projects
     }),
 

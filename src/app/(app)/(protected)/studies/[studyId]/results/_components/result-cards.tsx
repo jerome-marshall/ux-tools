@@ -1,7 +1,9 @@
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { type TestResultsWithTest } from '@/types'
-import { Link, type LucideIcon, MessageSquare, Users2, Zap } from 'lucide-react'
+import { studyEditUrl } from '@/utils/urls'
+import { LinkIcon, type LucideIcon, MessageSquare, Users2, Zap } from 'lucide-react'
+import Link from 'next/link'
 import React from 'react'
 
 const ResultCards = ({ data }: { data: TestResultsWithTest }) => {
@@ -55,9 +57,15 @@ const ResultCards = ({ data }: { data: TestResultsWithTest }) => {
           description='Total responses'
         />
       </div>
-      <div className='flex self-end'>
+      <div className='flex items-end justify-end gap-2'>
+        <Link
+          href={studyEditUrl(data.study.id)}
+          className={cn(buttonVariants({ variant: 'outline' }))}
+        >
+          Edit Study
+        </Link>
         <Button>
-          <Link className='size-4' />
+          <LinkIcon className='size-4' />
           Share results
         </Button>
       </div>

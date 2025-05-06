@@ -5,11 +5,15 @@ import { eq } from 'drizzle-orm'
 
 export const getProjects = async (
   userId: string,
-  { active = true }: { active?: boolean }
+  { active = true, getAll = false }: { active?: boolean; getAll?: boolean }
 ): Promise<ProjectWithStudiesCount[]> => {
   const projects = await db.query.projects.findMany({
-    where: (fields, { eq, and }) =>
-      and(eq(fields.ownerId, userId), eq(fields.archived, !active)),
+    where: (fields, { eq, and }) => {
+      if (getAll) {
+        return and(eq(fields.ownerId, userId))
+      }
+      return and(eq(fields.ownerId, userId), eq(fields.archived, !active))
+    },
     orderBy: (fields, { desc }) => desc(fields.updatedAt),
     with: {
       studies: {

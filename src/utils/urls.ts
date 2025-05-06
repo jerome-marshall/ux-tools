@@ -21,11 +21,15 @@ export const PATH = {
 export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
 export const studyUrl = (studyId: string) => `${PATH.studies}/${studyId}`
 export const studyEditUrl = (studyId: string) => `${PATH.studies}/${studyId}/edit`
+export const studyResultsUrl = (studyId: string) => `${PATH.studies}/${studyId}/results`
 export const previewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
 export const doStudyUrl = (studyId: string) => `${PATH.doStudy}/${studyId}`
 
 export const getStudyEditBreadcrumbHref = (breadcrumb: string, ...args: string[]) => {
   return `${PATH.studies}/${args[0]}/edit`
+}
+export const getStudyResultsBreadcrumbHref = (breadcrumb: string, ...args: string[]) => {
+  return `${PATH.studies}/${args[0]}/results`
 }
 
 export const BREADCRUMBS_DATA: Record<
@@ -42,7 +46,8 @@ export const BREADCRUMBS_DATA: Record<
   newStudy: { name: 'New Study', href: PATH.newStudy },
   preview: { name: 'Preview', href: PATH.preview },
   doStudy: { name: 'Do Study', href: PATH.doStudy },
-  edit: { name: 'Edit Study', href: getStudyEditBreadcrumbHref },
+  edit: { name: 'Edit', href: getStudyEditBreadcrumbHref },
+  results: { name: 'Results', href: getStudyResultsBreadcrumbHref },
   auth: { name: 'Auth', href: PATH.auth },
   callback: { name: 'Callback', href: PATH.authCallback },
   'forgot-password': { name: 'Forgot Password', href: PATH.authForgotPassword },

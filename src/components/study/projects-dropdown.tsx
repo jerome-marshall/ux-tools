@@ -39,12 +39,13 @@ const ProjectsDropdown = ({
 
   const trpc = useTRPC()
   const { data: projects, isPending } = useQuery(
-    trpc.projects.getProjects.queryOptions({ active: true })
+    trpc.projects.getProjects.queryOptions({ getAll: true })
   )
 
   const projectOptions = projects?.map(project => ({
     value: project.id.toString(),
-    label: project.name
+    label: project.name,
+    archived: project.archived
   }))
 
   // Update value when initialValue changes
@@ -115,11 +116,16 @@ const ProjectsDropdown = ({
                         setOpen(false)
                       }}
                       className={cn(
-                        'flex items-center gap-2',
+                        'flex items-center justify-between gap-2',
                         isSelected && 'bg-gray-200'
                       )}
                     >
                       {project.label}
+                      {project.archived && (
+                        <span className='rounded-full bg-gray-200 px-2 py-0.5 text-xs'>
+                          Archived
+                        </span>
+                      )}
                     </CommandItem>
                   )
                 })}
