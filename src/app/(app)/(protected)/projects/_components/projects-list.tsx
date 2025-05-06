@@ -28,9 +28,15 @@ const ProjectsList = () => {
         'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5'
       )}
     >
-      {sortedData?.map(project => (
-        <ProjectCard key={`project-${project.id}`} project={project} />
-      ))}
+      {sortedData?.length === 0 ? (
+        <div className='col-span-full flex items-center justify-center'>
+          <p className='text-center text-sm text-gray-500'>No projects found</p>
+        </div>
+      ) : (
+        sortedData?.map(project => (
+          <ProjectCard key={`project-${project.id}`} project={project} />
+        ))
+      )}
     </div>
   )
 }

@@ -16,7 +16,13 @@ export default async function PreviewStudyPage({ params }: PageProps) {
       trpc.studies.getPublicStudyById.queryOptions({ studyId })
     )
 
-    if (!data.study.isActive) {
+    const project = await queryClient.fetchQuery(
+      trpc.projects.getProjectById.queryOptions({ id: data.study.projectId })
+    )
+
+    const isStudyActive = data.study.isActive && !project.archived
+
+    if (!isStudyActive) {
       return (
         <div className='flex min-h-[80vh] flex-col items-center justify-center p-6 text-center'>
           <div className='max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm'>
