@@ -11,11 +11,13 @@ import { useDeleteProject } from '@/hooks/use-delete-project'
 import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 import { cn } from '@/lib/utils'
 import { type Project } from '@/server/db/schema'
+import { useTRPC } from '@/trpc/client'
+import { useQuery } from '@tanstack/react-query'
 import { EllipsisVertical, Loader2Icon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ArchiveProjectDialog } from '../project/archive-project-dialog'
 import { RenameProjectDialog } from '../project/rename-project-dialog'
-import { useRouter } from 'next/navigation'
 
 const ProjectCardOptions = ({
   project,
@@ -34,22 +36,31 @@ const ProjectCardOptions = ({
   onDeleteSuccess?: (project: Project) => void
   onArchiveSuccess?: (isArchived: boolean) => void
 }) => {
+  const trpc = useTRPC()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false)
 
-  const isArchived = project.archived
+  const { data: projectData, isLoading } = useQuery({
+    ...trpc.projects.getProjectById.queryOptions({
+      id: project.id
+    }),
+    initialData: project
+  })
+
+  const isArchived = projectData?.archived
 
   const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
-    projectName: project.name,
+    projectName: projectData?.name,
+    projectId: projectData?.id,
     onSuccess: isArchived => {
       onArchiveSuccess?.(isArchived)
     }
   })
 
   const { deleteProject, isDeletePending } = useDeleteProject({
-    projectId: project.id,
+    projectId: projectData?.id,
     onSuccess: deletedProject => {
       onDeleteSuccess?.(deletedProject)
 
@@ -59,7 +70,8 @@ const ProjectCardOptions = ({
     }
   })
 
-  const isActionPending = isArchiveStatusPending || isDeletePending
+  const isActionPending =
+    isArchiveStatusPending || isDeletePending || isLoading || !projectData
 
   return (
     <>
@@ -88,7 +100,9 @@ const ProjectCardOptions = ({
           </DropdownMenuItem>
           {isArchived ? (
             <DropdownMenuItem
-              onClick={() => updateArchiveStatus({ id: project.id, archived: false })}
+              onClick={() =>
+                updateArchiveStatus({ id: projectData?.id, archived: false })
+              }
               disabled={isArchiveStatusPending}
             >
               Unarchive
@@ -100,7 +114,7 @@ const ProjectCardOptions = ({
           )}
           <DropdownMenuItem
             variant='destructive'
-            onClick={() => deleteProject({ id: project.id })}
+            onClick={() => deleteProject({ id: projectData?.id })}
             disabled={isDeletePending}
           >
             Delete
