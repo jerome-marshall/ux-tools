@@ -83,3 +83,11 @@ export const updateProject = async (projectId: string, project: Partial<Project>
     .returning()
   return updatedProject
 }
+
+export const deleteProject = async (projectId: string) => {
+  const [deletedProject] = await db
+    .delete(projects)
+    .where(eq(projects.id, projectId))
+    .returning()
+  return deletedProject
+}

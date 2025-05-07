@@ -1,5 +1,6 @@
 import {
   createProject,
+  deleteProject,
   getProjectById,
   getProjects,
   getRecentProjects,
@@ -51,4 +52,12 @@ export const updateProjectUseCase = async (
     ...projectData
   })
   return updatedProject
+}
+
+export const deleteProjectUseCase = async (userId: string, projectId: string) => {
+  // handles authorization and returns the project
+  const project = await getProjectByIdUseCase(userId, projectId)
+
+  const deletedProject = await deleteProject(project.id)
+  return deletedProject
 }

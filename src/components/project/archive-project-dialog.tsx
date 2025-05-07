@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import { type Project } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { type ProjectWithStudiesCount } from '@/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -19,7 +20,7 @@ export function ArchiveProjectDialog({
   isOpen,
   onOpenChange
 }: {
-  project: ProjectWithStudiesCount
+  project: Project
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }) {

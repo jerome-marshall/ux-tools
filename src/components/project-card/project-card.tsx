@@ -20,7 +20,10 @@ const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
           <FolderOpen className='hidden size-4 group-hover:block' />
         </div>
         <div onClick={handleOptionsClick}>
-          <ProjectCardOptions project={project} />
+          <ProjectCardOptions
+            project={project}
+            triggerClassName='absolute top-3 right-2 size-8 text-muted-foreground'
+          />
         </div>
       </div>
       <div className='flex flex-col gap-1'>

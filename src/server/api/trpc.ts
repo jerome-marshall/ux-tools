@@ -12,6 +12,7 @@ import { ZodError } from 'zod'
 
 import { db } from '@/server/db'
 import { auth } from '@/lib/auth'
+import { AUTHENTICATION_ERROR_MESSAGE } from '@/utils/error-utils'
 
 /**
  * 1. CONTEXT
@@ -117,7 +118,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware)
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   const user = ctx.user
   if (!user?.id) {
-    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' })
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: AUTHENTICATION_ERROR_MESSAGE })
   }
 
   return next({ ctx: { userId: user.id } })

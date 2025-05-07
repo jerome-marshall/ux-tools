@@ -17,15 +17,14 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { projectInsertSchema } from '@/server/db/schema'
+import { type Project, projectInsertSchema } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { type ProjectWithStudiesCount } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { type z } from 'zod'
-import React, { useEffect } from 'react'
 
 const projectRenameSchema = projectInsertSchema.pick({ name: true })
 type ProjectRename = z.infer<typeof projectRenameSchema>
@@ -35,7 +34,7 @@ export function RenameProjectDialog({
   isOpen,
   onOpenChange
 }: {
-  project: ProjectWithStudiesCount
+  project: Project
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }) {
@@ -73,6 +72,9 @@ export function RenameProjectDialog({
         })
         void queryClient.invalidateQueries({
           queryKey: trpc.projects.getRecentProjects.queryKey()
+        })
+        void queryClient.invalidateQueries({
+          queryKey: trpc.projects.getProjectById.queryKey({ id: project.id })
         })
         onOpenChange(false)
       },

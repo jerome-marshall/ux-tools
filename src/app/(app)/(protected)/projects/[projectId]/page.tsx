@@ -1,7 +1,10 @@
+import ProjectCardOptions from '@/components/project-card/project-card-options'
 import SortDropdown from '@/components/sort-dropdown'
-import { getQueryClient, HydrateClient, prefetch, trpc } from '@/trpc/server'
-import { FolderClosed } from 'lucide-react'
+import { getQueryClient, trpc } from '@/trpc/server'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import ProjectTitle from './_components/project-title'
 import StudiesList from './_components/studies-list'
+import { PATH } from '@/utils/urls'
 
 type PageProps = {
   params: Promise<{ projectId: string }>
@@ -17,28 +20,34 @@ export default async function ProjectPage({ params }: PageProps) {
     })
   )
 
-  prefetch(
+  await queryClient.prefetchQuery(
     trpc.studies.getStudiesByProjectId.queryOptions({
       projectId
     })
   )
 
   return (
-    <HydrateClient>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className='container'>
         <div className='flex items-center justify-between'>
-          <h1 className='flex items-center gap-3 text-xl font-medium'>
-            <FolderClosed className='icon' />
-            {project.name}
-          </h1>
+          <ProjectTitle projectId={projectId} />
           <div className='flex items-center gap-2'>
-            <SortDropdown />
+            <div className='flex items-center gap-2'>
+              <SortDropdown />
+            </div>
+            <ProjectCardOptions
+              project={project}
+              triggerVariant='muted'
+              triggerClassName='size-8'
+              triggerOpenClassName='bg-gray-300'
+              deleteRedirectUrl={PATH.projects}
+            />
           </div>
         </div>
         <div className='mt-4'>
           <StudiesList projectId={projectId} />
         </div>
       </div>
-    </HydrateClient>
+    </HydrationBoundary>
   )
 }

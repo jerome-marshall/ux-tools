@@ -7,15 +7,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useDeleteProject } from '@/hooks/use-delete-project'
 import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 import { cn } from '@/lib/utils'
-import { type ProjectWithStudiesCount } from '@/types'
+import { type Project } from '@/server/db/schema'
 import { EllipsisVertical, Loader2Icon } from 'lucide-react'
 import { useState } from 'react'
 import { ArchiveProjectDialog } from '../project/archive-project-dialog'
 import { RenameProjectDialog } from '../project/rename-project-dialog'
+import { useRouter } from 'next/navigation'
 
-const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) => {
+const ProjectCardOptions = ({
+  project,
+  triggerClassName,
+  triggerVariant = 'ghost',
+  triggerOpenClassName,
+  onDeleteSuccess,
+  onArchiveSuccess,
+  deleteRedirectUrl
+}: {
+  project: Project
+  triggerClassName?: string
+  triggerOpenClassName?: string
+  triggerVariant?: 'default' | 'ghost' | 'outline' | 'secondary' | 'muted'
+  deleteRedirectUrl?: string
+  onDeleteSuccess?: (project: Project) => void
+  onArchiveSuccess?: (isArchived: boolean) => void
+}) => {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false)
@@ -23,26 +42,43 @@ const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) =
   const isArchived = project.archived
 
   const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
-    projectName: project.name
+    projectName: project.name,
+    onSuccess: isArchived => {
+      onArchiveSuccess?.(isArchived)
+    }
   })
+
+  const { deleteProject, isDeletePending } = useDeleteProject({
+    projectId: project.id,
+    onSuccess: deletedProject => {
+      onDeleteSuccess?.(deletedProject)
+
+      if (deleteRedirectUrl) {
+        router.push(deleteRedirectUrl)
+      }
+    }
+  })
+
+  const isActionPending = isArchiveStatusPending || isDeletePending
 
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
-            variant='ghost'
+            variant={triggerVariant}
             size='icon'
             className={cn(
-              'absolute top-3 right-2 size-8',
-              isOpen && 'border border-gray-200 bg-gray-100'
+              isOpen && 'border border-gray-200 bg-gray-100',
+              triggerClassName,
+              isOpen && triggerOpenClassName
             )}
-            disabled={isArchiveStatusPending}
+            disabled={isActionPending}
           >
-            {isArchiveStatusPending ? (
-              <Loader2Icon className='text-muted-foreground size-4 animate-spin' />
+            {isActionPending ? (
+              <Loader2Icon className='size-4 animate-spin' />
             ) : (
-              <EllipsisVertical className='text-muted-foreground size-4' />
+              <EllipsisVertical className='size-4' />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -62,7 +98,13 @@ const ProjectCardOptions = ({ project }: { project: ProjectWithStudiesCount }) =
               Archive
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem variant='destructive'>Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            variant='destructive'
+            onClick={() => deleteProject({ id: project.id })}
+            disabled={isDeletePending}
+          >
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <RenameProjectDialog

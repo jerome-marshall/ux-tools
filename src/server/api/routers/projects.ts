@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import { projectInsertSchema } from '@/server/db/schema'
 import {
   createProjectUseCase,
+  deleteProjectUseCase,
   getProjectByIdUseCase,
   getProjectsUseCase,
   getRecentProjectsUseCase,
@@ -60,5 +61,12 @@ export const projectsRouter = createTRPCRouter({
         archived: input.archived
       })
       return updatedProject
+    }),
+
+  deleteProject: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const deletedProject = await deleteProjectUseCase(userId, input.id)
+      return deletedProject
     })
 })
