@@ -70,8 +70,7 @@ const ProjectCardOptions = ({
     }
   })
 
-  const isActionPending =
-    isArchiveStatusPending || isDeletePending || isLoading || !projectData
+  const isActionPending = isArchiveStatusPending || isDeletePending || isLoading
 
   return (
     <>

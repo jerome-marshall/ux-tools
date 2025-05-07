@@ -9,11 +9,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 import { type Project } from '@/server/db/schema'
-import { useTRPC } from '@/trpc/client'
-import { type ProjectWithStudiesCount } from '@/types'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 
 export function ArchiveProjectDialog({
   project,
@@ -24,32 +21,16 @@ export function ArchiveProjectDialog({
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const trpc = useTRPC()
-  const queryClient = useQueryClient()
-
-  const { mutate: archiveProject, isPending } = useMutation(
-    trpc.projects.updateArchiveStatus.mutationOptions({
-      onSuccess: () => {
-        toast.success('Project archived', {
-          description: project.name
-        })
-
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getProjects.queryKey()
-        })
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getRecentProjects.queryKey()
-        })
-        onOpenChange(false)
-      },
-      onError: () => {
-        toast.error('Failed to archive project')
-      }
-    })
-  )
+  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
+    projectName: project.name,
+    projectId: project.id,
+    onSuccess: () => {
+      onOpenChange(false)
+    }
+  })
 
   const handleArchive = () => {
-    archiveProject({ id: project.id, archived: true })
+    updateArchiveStatus({ id: project.id, archived: true })
   }
 
   return (
@@ -67,8 +48,8 @@ export function ArchiveProjectDialog({
           <Button type='button' variant='ghost' onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleArchive} disabled={isPending}>
-            {isPending ? 'Archiving...' : 'Archive'}
+          <Button onClick={handleArchive} disabled={isArchiveStatusPending}>
+            {isArchiveStatusPending ? 'Archiving...' : 'Archive'}
           </Button>
         </DialogFooter>
       </DialogContent>
