@@ -1,14 +1,14 @@
 'use client'
 
+import Link from '@/components/link'
+import NoProjectsCard from '@/components/no-projects-card'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { PATH } from '@/utils/urls'
-import { LayoutGrid } from 'lucide-react'
-import RecentProjectsList from './recent-projects-list'
-import Link from '@/components/link'
 import { useTRPC } from '@/trpc/client'
+import { PATH } from '@/utils/urls'
 import { useQuery } from '@tanstack/react-query'
-import NoProjectsCard from '@/components/no-projects-card'
+import { LayoutGrid } from 'lucide-react'
+import RecentProjectsList, { RecentProjectsListSkeleton } from './recent-projects-list'
 
 const RecentProjects = () => {
   const trpc = useTRPC()
@@ -16,16 +16,12 @@ const RecentProjects = () => {
     ...trpc.projects.getRecentProjects.queryOptions()
   })
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
   const hasProjects = projects.length > 0
 
   return (
     <div className=''>
       <div className='flex items-center justify-between'>
-        <h3 className='text-xl font-medium'>Recent projects</h3>
+        <h3 className='h-8 text-xl font-medium'>Recent projects</h3>
         {hasProjects && (
           <div className=''>
             <Link
@@ -42,7 +38,13 @@ const RecentProjects = () => {
         )}
       </div>
       <div className='mt-6'>
-        {hasProjects ? <RecentProjectsList projects={projects} /> : <NoProjectsCard />}
+        {isLoading ? (
+          <RecentProjectsListSkeleton />
+        ) : hasProjects ? (
+          <RecentProjectsList projects={projects} />
+        ) : (
+          <NoProjectsCard />
+        )}
       </div>
     </div>
   )

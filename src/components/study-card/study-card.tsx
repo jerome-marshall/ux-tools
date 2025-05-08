@@ -1,11 +1,11 @@
+import Link from '@/components/link'
 import { type Study } from '@/server/db/schema'
+import { useTRPC } from '@/trpc/client'
+import { studyUrl } from '@/utils/urls'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { FlaskConical } from 'lucide-react'
-import Link from '@/components/link'
-import { studyUrl } from '@/utils/urls'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { useTRPC } from '@/trpc/client'
-import { Suspense } from 'react'
+import { Skeleton } from '../ui/skeleton'
 const StudyCard = ({ study }: { study: Study }) => {
   return (
     <Link
@@ -21,9 +21,7 @@ const StudyCard = ({ study }: { study: Study }) => {
       <div className='flex flex-col gap-1'>
         <p className='text-base font-medium'>{study.name}</p>
         <div className='flex items-center justify-between gap-2 text-xs text-gray-500'>
-          <Suspense fallback={<p className=''>Loading...</p>}>
-            <StudyResponseCount studyId={study.id} />
-          </Suspense>
+          <StudyResponseCount studyId={study.id} />
           <p className=''>{format(study.createdAt, 'MMM d, yyyy')}</p>
         </div>
       </div>
@@ -34,15 +32,20 @@ const StudyCard = ({ study }: { study: Study }) => {
 const StudyResponseCount = ({ studyId }: { studyId: string }) => {
   const trpc = useTRPC()
 
-  const {
-    data: { resultsData: testResults }
-  } = useSuspenseQuery(
+  const { data: testResults, isLoading } = useQuery(
     trpc.tests.getTestResults.queryOptions({
       studyId
     })
   )
 
-  const responseCount = testResults.reduce((acc, curr) => acc + curr.results.length, 0)
+  if (isLoading || !testResults) {
+    return <Skeleton className='h-3 w-20' />
+  }
+
+  const responseCount = testResults.resultsData.reduce(
+    (acc, curr) => acc + curr.results.length,
+    0
+  )
   const responseCountText = responseCount === 1 ? 'response' : 'responses'
 
   return (

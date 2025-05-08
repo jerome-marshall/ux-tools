@@ -1,7 +1,8 @@
+import Link from '@/components/link'
+import { Skeleton } from '@/components/ui/skeleton'
 import { type ProjectWithStudiesCount } from '@/types'
 import { projectUrl } from '@/utils/urls'
 import { FolderClosed, FolderOpen } from 'lucide-react'
-import Link from '@/components/link'
 import ProjectCardOptions from './project-card-options'
 
 const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
@@ -31,6 +32,23 @@ const ProjectCard = ({ project }: { project: ProjectWithStudiesCount }) => {
         <p className='text-xs text-gray-500'>{project.studiesCount} studies</p>
       </div>
     </Link>
+  )
+}
+
+export const ProjectCardSkeleton = () => {
+  return (
+    <div className='flex h-[9.5rem] w-full flex-col justify-between rounded-xl bg-white p-4 shadow-sm'>
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-center rounded-sm bg-gray-100 p-2'>
+          <Skeleton className='size-4' />
+        </div>
+        <Skeleton className='size-8 rounded-full' />
+      </div>
+      <div className='flex flex-col gap-1'>
+        <Skeleton className='h-6 w-3/4' />
+        <Skeleton className='h-4 w-1/3' />
+      </div>
+    </div>
   )
 }
 

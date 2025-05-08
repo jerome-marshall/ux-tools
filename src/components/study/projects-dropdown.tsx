@@ -81,7 +81,7 @@ const ProjectsDropdown = ({
           disabled={isPending || disabled}
         >
           {isPending ? (
-            <span>Loading...</span>
+            <span>Fetching projects...</span>
           ) : value ? (
             projectOptions?.find(project => project.value === value)?.label
           ) : (
