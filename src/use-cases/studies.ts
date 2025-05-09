@@ -54,10 +54,12 @@ export const updateStudyUseCase = async (
   { id: _, ...study }: Partial<Study>,
   trx?: Db
 ) => {
+  const existingStudy = await getStudyByIdUseCase(userId, id)
+  assertStudyOwner(userId, existingStudy)
+
   const data = await updateStudy(id, study, trx)
   if (!data) {
     throw new Error('Failed to update study')
   }
-  assertStudyOwner(userId, data)
   return data
 }
