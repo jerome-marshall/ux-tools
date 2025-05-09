@@ -1,7 +1,9 @@
 import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import { testTypes, treeTestResultInsertSchema } from '@/server/db/schema'
+import { getStudyByIdUseCase, updateStudyUseCase } from '@/use-cases/studies'
 import {
   createTestResultUseCase,
+  getTestByIdUseCase,
   getTestResultsByStudyIdUseCase
 } from '@/use-cases/tests'
 import {
@@ -30,7 +32,7 @@ export const testsRouter = createTRPCRouter({
           ])
         )
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx: { userId } }) => {
       const newTestResult = await createTestResultUseCase({
         testId: input.testId,
         userId: input.userId,
@@ -44,6 +46,12 @@ export const testsRouter = createTRPCRouter({
         testResultId: newTestResult.id,
         treeTestClicks: input.treeTestResult.treeTestClicks
       })
+
+      const test = await getTestByIdUseCase(input.testId)
+      await updateStudyUseCase(userId, test.studyId, {
+        hasTestResults: true
+      })
+
       return {
         testResult: newTestResult,
         treeTestResult: newTreeTestResult

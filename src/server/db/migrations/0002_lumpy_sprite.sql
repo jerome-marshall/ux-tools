@@ -1,0 +1,1 @@
+ALTER TABLE "studies" ADD COLUMN "has_test_results" boolean DEFAULT false NOT NULL;

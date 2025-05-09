@@ -27,6 +27,7 @@ export const studies = pgTable('studies', {
     .notNull()
     .default(sql`ARRAY[]::text[]`),
   isActive: boolean('is_active').notNull().default(true),
+  hasTestResults: boolean('has_test_results').notNull().default(false),
   ownerId: text('owner_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
@@ -47,7 +48,8 @@ export const studyInsertSchema = createInsertSchema(studies)
   .omit({
     createdAt: true,
     updatedAt: true,
-    ownerId: true
+    ownerId: true,
+    hasTestResults: true
   })
   .extend({
     id: z.string().min(1, { message: 'Study ID is required' }),

@@ -1,15 +1,17 @@
 import Link from '@/components/link'
 import { type Study } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { studyUrl } from '@/utils/urls'
+import { studyEditUrl, studyResultsUrl } from '@/utils/urls'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { FlaskConical } from 'lucide-react'
 import { Skeleton } from '../ui/skeleton'
 const StudyCard = ({ study }: { study: Study }) => {
+  const href = study.hasTestResults ? studyResultsUrl(study.id) : studyEditUrl(study.id)
+
   return (
     <Link
-      href={studyUrl(study.id)}
+      href={href}
       className='relative flex h-[9.5rem] w-full flex-col justify-between rounded-xl bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md hover:ring-2 hover:ring-gray-300'
     >
       <div className='flex items-center justify-between'>
