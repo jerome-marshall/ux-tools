@@ -72,6 +72,16 @@ const Breadcrumbs = () => {
               )
             }
 
+            if (breadcrumbs[0] === 'study-result' && isValidUUID(breadcrumb)) {
+              return (
+                <StudyBreadcrumb
+                  key={breadcrumb}
+                  studyId={breadcrumb}
+                  isActive={!isLast}
+                />
+              )
+            }
+
             const breadcrumbData = BREADCRUMBS_DATA[breadcrumb as keyof typeof PATH]
 
             if (!breadcrumbData) {
@@ -87,7 +97,7 @@ const Breadcrumbs = () => {
               <Fragment key={breadcrumb}>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  {isLast ? (
+                  {isLast || breadcrumbData.disabled ? (
                     breadcrumbData.name || breadcrumb
                   ) : (
                     <BreadcrumbLink href={href}>

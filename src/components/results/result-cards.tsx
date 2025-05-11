@@ -21,7 +21,13 @@ import React, { useState } from 'react'
 import { toast } from 'sonner'
 import ManageStudyStatusDialog from './manage-study-status-dialog'
 
-const ResultCards = ({ data }: { data: TestResultsWithTest }) => {
+const ResultCards = ({
+  data,
+  isResultOnly
+}: {
+  data: TestResultsWithTest
+  isResultOnly?: boolean
+}) => {
   const responsesCount = data.resultsData.flatMap(resultData => resultData.results).length
 
   const participantsSet = new Set(
@@ -34,7 +40,10 @@ const ResultCards = ({ data }: { data: TestResultsWithTest }) => {
   return (
     <div className='flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm'>
       <div className='flex gap-4'>
-        <ManageStudyResultCard initialStudyData={data.study} />
+        <ManageStudyResultCard
+          initialStudyData={data.study}
+          isResultOnly={isResultOnly}
+        />
         <ResultCard
           title='Participants'
           Icon={Users2}
@@ -48,23 +57,31 @@ const ResultCards = ({ data }: { data: TestResultsWithTest }) => {
           description='Total responses'
         />
       </div>
-      <div className='flex items-end justify-end gap-2'>
-        <Link
-          href={studyEditUrl(data.study.id)}
-          className={cn(buttonVariants({ variant: 'outline' }))}
-        >
-          Edit Study
-        </Link>
-        <Button>
-          <LinkIcon className='size-4' />
-          Share results
-        </Button>
-      </div>
+      {!isResultOnly && (
+        <div className='flex items-end justify-end gap-2'>
+          <Link
+            href={studyEditUrl(data.study.id)}
+            className={cn(buttonVariants({ variant: 'outline' }))}
+          >
+            Edit Study
+          </Link>
+          <Button>
+            <LinkIcon className='size-4' />
+            Share results
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
 
-const ManageStudyResultCard = ({ initialStudyData }: { initialStudyData: Study }) => {
+const ManageStudyResultCard = ({
+  initialStudyData,
+  isResultOnly
+}: {
+  initialStudyData: Study
+  isResultOnly?: boolean
+}) => {
   const [isManageStudyStatusDialogOpen, setIsManageStudyStatusDialogOpen] =
     useState(false)
 
@@ -112,14 +129,16 @@ const ManageStudyResultCard = ({ initialStudyData }: { initialStudyData: Study }
         title='Status'
         Icon={Zap}
         cta={
-          <Button
-            className='text-sm'
-            variant={'ghost'}
-            size={'sm'}
-            onClick={() => setIsManageStudyStatusDialogOpen(true)}
-          >
-            Manage
-          </Button>
+          !isResultOnly && (
+            <Button
+              className='text-sm'
+              variant={'ghost'}
+              size={'sm'}
+              onClick={() => setIsManageStudyStatusDialogOpen(true)}
+            >
+              Manage
+            </Button>
+          )
         }
         content={
           <div className='flex items-center gap-2 py-0.5'>

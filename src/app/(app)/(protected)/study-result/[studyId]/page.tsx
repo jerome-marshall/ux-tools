@@ -6,5 +6,5 @@ type PageProps = {
 export default async function StudyResultsPage({ params }: PageProps) {
   const { studyId } = await params
 
-  return <ResultsPage studyId={studyId} />
+  return <ResultsPage studyId={studyId} isResultOnly />
 }

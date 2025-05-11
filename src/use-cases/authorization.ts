@@ -8,6 +8,8 @@ export const assertProjectOwner = (userId: string, project: Project) => {
 }
 
 export const assertStudyOwner = (userId: string, study: Study) => {
+  if (study.isShared) return
+
   if (study.ownerId !== userId) {
     throw new AuthenticationError()
   }

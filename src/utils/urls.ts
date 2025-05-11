@@ -7,6 +7,7 @@ export const PATH = {
   newStudy: '/studies/new',
   preview: '/preview',
   doStudy: '/do',
+  studyResultOnly: '/study-result',
   auth: '/auth',
   authCallback: '/auth/callback',
   authForgotPassword: '/auth/forgot-password',
@@ -24,12 +25,20 @@ export const studyEditUrl = (studyId: string) => `${PATH.studies}/${studyId}/edi
 export const studyResultsUrl = (studyId: string) => `${PATH.studies}/${studyId}/results`
 export const previewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
 export const doStudyUrl = (studyId: string) => `${PATH.doStudy}/${studyId}`
+export const studyResultOnlyUrl = (studyId: string) =>
+  `${PATH.studyResultOnly}/${studyId}`
 
 export const getStudyEditBreadcrumbHref = (breadcrumb: string, ...args: string[]) => {
   return `${PATH.studies}/${args[0]}/edit`
 }
 export const getStudyResultsBreadcrumbHref = (breadcrumb: string, ...args: string[]) => {
   return `${PATH.studies}/${args[0]}/results`
+}
+export const getStudyResultOnlyBreadcrumbHref = (
+  breadcrumb: string,
+  ...args: string[]
+) => {
+  return `${PATH.studyResultOnly}/${args[0]}`
 }
 
 export const BREADCRUMBS_DATA: Record<
@@ -38,6 +47,7 @@ export const BREADCRUMBS_DATA: Record<
     name: string
     href: string | ((...args: string[]) => string)
     icon?: LucideIcon
+    disabled?: boolean
   }
 > = {
   dashboard: { name: 'Dashboard', href: PATH.dashboard, icon: HomeIcon },
@@ -48,6 +58,11 @@ export const BREADCRUMBS_DATA: Record<
   doStudy: { name: 'Do Study', href: PATH.doStudy },
   edit: { name: 'Edit', href: getStudyEditBreadcrumbHref },
   results: { name: 'Results', href: getStudyResultsBreadcrumbHref },
+  'study-result': {
+    name: 'Study Result',
+    href: PATH.studyResultOnly,
+    disabled: true
+  },
   auth: { name: 'Auth', href: PATH.auth },
   callback: { name: 'Callback', href: PATH.authCallback },
   'forgot-password': { name: 'Forgot Password', href: PATH.authForgotPassword },
