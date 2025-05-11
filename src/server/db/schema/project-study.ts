@@ -27,6 +27,7 @@ export const studies = pgTable('studies', {
     .notNull()
     .default(sql`ARRAY[]::text[]`),
   isActive: boolean('is_active').notNull().default(true),
+  isShared: boolean('is_shared').notNull().default(false),
   hasTestResults: boolean('has_test_results').notNull().default(false),
   ownerId: text('owner_id')
     .notNull()

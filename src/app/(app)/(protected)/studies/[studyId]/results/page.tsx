@@ -1,6 +1,6 @@
 import { caller, trpc } from '@/trpc/server'
-import ResultCards from './_components/result-cards'
-import TreeTestResultCard from './_components/tt-result-card'
+import ResultCards from '@/components/results/result-cards'
+import TreeTestResultCard from '@/components/results/tree-test/tt-result-card'
 import { Suspense } from 'react'
 import { makeQueryClient } from '@/trpc/query-client'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
