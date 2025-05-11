@@ -14,8 +14,8 @@ export const useUpdateSharedStatus = ({
   const { mutate: updateSharedStatus, isPending } = useMutation(
     trpc.studies.updateSharedStatus.mutationOptions({
       onSuccess: data => {
-        toast.success('Sharing status updated', {
-          description: data.isShared ? 'Results shared' : 'Results not shared'
+        toast.success('Link sharing updated', {
+          description: data.isShared ? 'Enabled' : 'Disabled'
         })
 
         void queryClient.invalidateQueries({
