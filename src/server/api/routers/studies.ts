@@ -326,5 +326,13 @@ export const studiesRouter = createTRPCRouter({
       const { studyId, isActive } = input
       const updatedStudy = await updateStudyUseCase(userId, studyId, { isActive })
       return updatedStudy
+    }),
+
+  updateSharedStatus: protectedProcedure
+    .input(z.object({ studyId: z.string(), isShared: z.boolean() }))
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const { studyId, isShared } = input
+      const updatedStudy = await updateStudyUseCase(userId, studyId, { isShared })
+      return updatedStudy
     })
 })

@@ -3,19 +3,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 /**
- * Hook for updating a study's status
+ * Hook for updating a study's shared status
  */
-export const useUpdateStudyStatus = ({
+export const useUpdateSharedStatus = ({
   onSuccess
-}: { onSuccess?: (isActive: boolean) => void } = {}) => {
+}: { onSuccess?: (isShared: boolean) => void } = {}) => {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 
-  const { mutate: updateStudyStatus, isPending } = useMutation(
-    trpc.studies.updateStudyStatus.mutationOptions({
+  const { mutate: updateSharedStatus, isPending } = useMutation(
+    trpc.studies.updateSharedStatus.mutationOptions({
       onSuccess: data => {
-        toast.success('Study status updated', {
-          description: data.isActive ? 'Active' : 'Inactive'
+        toast.success('Sharing status updated', {
+          description: data.isShared ? 'Results shared' : 'Results not shared'
         })
 
         void queryClient.invalidateQueries({
@@ -28,10 +28,10 @@ export const useUpdateStudyStatus = ({
         })
 
         // Call custom onSuccess if provided
-        onSuccess?.(data.isActive)
+        onSuccess?.(data.isShared)
       },
       onError: error => {
-        toast.error('Failed to update study status', {
+        toast.error('Failed to update sharing status', {
           description: error.message
         })
       }
@@ -39,7 +39,7 @@ export const useUpdateStudyStatus = ({
   )
 
   return {
-    updateStudyStatus,
-    isStudyStatusPending: isPending
+    updateSharedStatus,
+    isSharedStatusPending: isPending
   }
 }

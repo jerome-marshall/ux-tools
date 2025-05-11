@@ -2,16 +2,12 @@ import { useTRPC } from '@/trpc/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-type UseUpdateArchiveStatusOptions = {
-  onSuccess?: (isArchived: boolean) => void
-}
-
 /**
  * Hook for updating a project's archive status
  */
 export const useUpdateArchiveStatus = ({
   onSuccess
-}: UseUpdateArchiveStatusOptions = {}) => {
+}: { onSuccess?: (isArchived: boolean) => void } = {}) => {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 

@@ -1,4 +1,5 @@
 'use client'
+
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,7 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 import ManageStudyStatusDialog from './manage-study-status-dialog'
+import ShareResultsDialog from './share-results-dialog'
 
 const ResultCards = ({
   data,
@@ -28,7 +30,13 @@ const ResultCards = ({
   data: TestResultsWithTest
   isResultOnly?: boolean
 }) => {
+  const [isShareResultsDialogOpen, setIsShareResultsDialogOpen] = useState(false)
   const responsesCount = data.resultsData.flatMap(resultData => resultData.results).length
+
+  const trpc = useTRPC()
+  const { data: studyData, isLoading: isStudyLoading } = useQuery(
+    trpc.studies.getStudyById.queryOptions({ studyId: data.study.id })
+  )
 
   const participantsSet = new Set(
     data.resultsData.flatMap(resultData =>
@@ -37,13 +45,17 @@ const ResultCards = ({
   )
   const participantsCount = participantsSet.size
 
+  if (isStudyLoading) {
+    return <ResultCardsSkeleton />
+  }
+  if (!studyData) {
+    throw new NotFoundError('Study not found')
+  }
+
   return (
     <div className='flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm'>
       <div className='flex gap-4'>
-        <ManageStudyResultCard
-          initialStudyData={data.study}
-          isResultOnly={isResultOnly}
-        />
+        <ManageStudyResultCard study={studyData.study} isResultOnly={isResultOnly} />
         <ResultCard
           title='Participants'
           Icon={Users2}
@@ -57,59 +69,56 @@ const ResultCards = ({
           description='Total responses'
         />
       </div>
-      {!isResultOnly && (
+      {!isResultOnly && studyData && (
         <div className='flex items-end justify-end gap-2'>
           <Link
-            href={studyEditUrl(data.study.id)}
+            href={studyEditUrl(studyData.study.id)}
             className={cn(buttonVariants({ variant: 'outline' }))}
           >
             Edit Study
           </Link>
-          <Button>
+          <Button onClick={() => setIsShareResultsDialogOpen(true)}>
             <LinkIcon className='size-4' />
             Share results
           </Button>
         </div>
       )}
+      <ShareResultsDialog
+        isOpen={isShareResultsDialogOpen}
+        onOpenChange={setIsShareResultsDialogOpen}
+        study={studyData?.study}
+      />
     </div>
   )
 }
 
 const ManageStudyResultCard = ({
-  initialStudyData,
+  study,
   isResultOnly
 }: {
-  initialStudyData: Study
+  study: Study
   isResultOnly?: boolean
 }) => {
   const [isManageStudyStatusDialogOpen, setIsManageStudyStatusDialogOpen] =
     useState(false)
 
   const trpc = useTRPC()
-  const { data: studyData, isLoading: isStudyLoading } = useQuery(
-    trpc.studies.getStudyById.queryOptions({ studyId: initialStudyData.id })
-  )
-
   const { data: prohect, isLoading: isProjectLoading } = useQuery(
     trpc.projects.getProjectById.queryOptions(
-      { id: studyData?.study.projectId! },
-      { enabled: !!studyData }
+      { id: study.projectId },
+      { enabled: !!study }
     )
   )
 
-  if (isStudyLoading || isProjectLoading) {
+  if (isProjectLoading) {
     return <ResultCardSkeleton />
-  }
-
-  if (!studyData) {
-    throw new NotFoundError('Study not found')
   }
 
   if (!prohect) {
     throw new NotFoundError('Project not found')
   }
 
-  const isStudyActive = studyData.study.isActive
+  const isStudyActive = study.isActive
   const isProjectActive = !prohect.archived
 
   let statusText = ''
@@ -161,9 +170,7 @@ const ManageStudyResultCard = ({
                 className='size-3.5 p-0'
                 onClick={() => {
                   void navigator.clipboard
-                    .writeText(
-                      `${window.location.origin}${doStudyUrl(studyData.study.id)}`
-                    )
+                    .writeText(`${window.location.origin}${doStudyUrl(study.id)}`)
                     .then(() => {
                       toast.success('Link copied to clipboard')
                     })
@@ -178,7 +185,7 @@ const ManageStudyResultCard = ({
       <ManageStudyStatusDialog
         isOpen={isManageStudyStatusDialogOpen}
         onOpenChange={setIsManageStudyStatusDialogOpen}
-        study={studyData.study}
+        study={study}
         project={prohect}
       />
     </>
@@ -231,6 +238,22 @@ export const ResultCardSkeleton = () => {
           <Skeleton className='h-9 w-16' />
           <Skeleton className='h-4 w-28' />
         </div>
+      </div>
+    </div>
+  )
+}
+
+export const ResultCardsSkeleton = () => {
+  return (
+    <div className='flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm'>
+      <div className='flex gap-4'>
+        <ResultCardSkeleton />
+        <ResultCardSkeleton />
+        <ResultCardSkeleton />
+      </div>
+      <div className='flex items-end justify-end gap-2'>
+        <Skeleton className='h-9 w-24' />
+        <Skeleton className='h-9 w-32' />
       </div>
     </div>
   )
