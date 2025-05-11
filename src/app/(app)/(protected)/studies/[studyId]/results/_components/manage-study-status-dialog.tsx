@@ -1,4 +1,4 @@
-import React from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,12 +7,9 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { type Project, type Study } from '@/server/db/schema'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useTRPC } from '@/trpc/client'
-import { toast } from 'sonner'
 import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
+import { useUpdateStudyStatus } from '@/hooks/use-update-study-status'
+import { type Project, type Study } from '@/server/db/schema'
 
 const ManageStudyStatusDialog = ({
   isOpen,
@@ -25,42 +22,19 @@ const ManageStudyStatusDialog = ({
   study: Study
   project: Project
 }) => {
-  const queryClient = useQueryClient()
-  const trpc = useTRPC()
-  const { mutate: updateStudyStatus, isPending } = useMutation(
-    trpc.studies.updateStudyStatus.mutationOptions({
-      onSuccess: data => {
-        toast.success('Study status updated', {
-          description: data.isActive ? 'Active' : 'Inactive'
-        })
-        onOpenChange(false)
-
-        void queryClient.invalidateQueries({
-          queryKey: trpc.studies.getStudyById.queryKey({ studyId: study.id })
-        })
-        void queryClient.invalidateQueries({
-          queryKey: trpc.studies.getStudiesByProjectId.queryKey({
-            projectId: study.projectId
-          })
-        })
-      },
-      onError: error => {
-        toast.error('Failed to update study status', {
-          description: error.message
-        })
-      }
-    })
-  )
-
-  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
-    projectId: project.id,
-    projectName: project.name,
+  const { updateStudyStatus, isStudyStatusPending } = useUpdateStudyStatus({
     onSuccess: () => {
       onOpenChange(false)
     }
   })
 
-  const isActionPending = isPending || isArchiveStatusPending
+  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
+    onSuccess: () => {
+      onOpenChange(false)
+    }
+  })
+
+  const isActionPending = isStudyStatusPending || isArchiveStatusPending
 
   const isActive = study.isActive
   const isProjectActive = !project.archived
@@ -69,9 +43,9 @@ const ManageStudyStatusDialog = ({
 
   if (isProjectActive) {
     if (isActive) {
-      buttonText = isPending ? 'Pausing...' : 'Pause'
+      buttonText = isStudyStatusPending ? 'Pausing...' : 'Pause'
     } else {
-      buttonText = isPending ? 'Resuming...' : 'Resume'
+      buttonText = isStudyStatusPending ? 'Resuming...' : 'Resume'
     }
   } else {
     buttonText = isArchiveStatusPending ? 'Unarchiving...' : 'Unarchive Project'

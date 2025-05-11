@@ -52,8 +52,6 @@ const ProjectCardOptions = ({
   const isArchived = projectData?.archived
 
   const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
-    projectName: projectData?.name,
-    projectId: projectData?.id,
     onSuccess: isArchived => {
       onArchiveSuccess?.(isArchived)
     }

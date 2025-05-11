@@ -10,8 +10,10 @@ import {
 
 import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
+import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
+import { useUpdateStudyStatus } from '@/hooks/use-update-study-status'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
-import { type Project, type TestType } from '@/server/db/schema'
+import { type Project, type Study, type TestType } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { doStudyUrl, previewUrl, studyResultsUrl, studyUrl } from '@/utils/urls'
 import {
@@ -37,18 +39,17 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  ChartColumnIncreasing,
   Clock,
   FileQuestion,
   GripVertical,
   Hand,
   LinkIcon,
   ListTree,
+  Loader2Icon,
   type LucideIcon,
   Text,
-  TriangleAlert,
-  Loader2Icon,
-  BarChart,
-  ChartColumnIncreasing
+  TriangleAlert
 } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
 import { useState } from 'react'
@@ -60,7 +61,6 @@ import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
 import TreeTest from './tree-test/tree-test'
-import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 
 export const SECTION_ID = {
   STUDY_DETAILS: 'study-details',
@@ -77,7 +77,10 @@ type BaseStudyFormProps = {
   project?: Project
   updateArchiveStatus?: (params: { id: string; archived: boolean }) => void
   isArchiveStatusPending?: boolean
+  updateStudyStatus?: (params: { studyId: string; isActive: boolean }) => void
+  isStudyStatusPending?: boolean
   hasTestResults?: boolean
+  study?: Study
 }
 
 const BaseStudyForm = ({
@@ -88,12 +91,16 @@ const BaseStudyForm = ({
   project,
   updateArchiveStatus,
   isArchiveStatusPending = false,
-  hasTestResults = false
+  updateStudyStatus,
+  isStudyStatusPending = false,
+  hasTestResults = false,
+  study
 }: BaseStudyFormProps) => {
-  console.log('🚀 ~ project:', project)
   const disableFields = isEditPage && !isEditMode
 
   const isProjectArchived = isEditPage && project?.archived
+  const isStudyActive = isEditPage && study?.isActive
+  console.log('🚀 ~ isStudyActive:', isStudyActive)
 
   const { id: studyId } = defaultValues.study
 
@@ -236,7 +243,7 @@ const BaseStudyForm = ({
                     Preview Study
                   </Link>
 
-                  {!isProjectArchived && (
+                  {!isProjectArchived && isStudyActive && (
                     <div className='flex gap-1'>
                       <Link
                         href={doStudyUrl(studyId)}
@@ -313,6 +320,30 @@ const BaseStudyForm = ({
                       <Loader2Icon className='size-4 animate-spin' />
                     ) : null}
                     Unarchive Project
+                  </Button>
+                </div>
+              )}
+
+              {!isStudyActive && (
+                <div className='relative mt-2 flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3 shadow-sm'>
+                  <p className='text-sm font-medium text-gray-600'>
+                    The study is paused and will not receive any new responses.
+                  </p>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='w-full gap-2'
+                    type='button'
+                    onClick={() => {
+                      if (!study) return
+                      updateStudyStatus?.({ studyId: study.id, isActive: true })
+                    }}
+                    disabled={isStudyStatusPending}
+                  >
+                    {isStudyStatusPending ? (
+                      <Loader2Icon className='size-4 animate-spin' />
+                    ) : null}
+                    Resume Study
                   </Button>
                 </div>
               )}
@@ -465,11 +496,11 @@ export const CreateStudyForm = ({
 
 export const EditStudyForm = ({
   initialData,
-  studyId,
+  initialStudy,
   hasTestResults
 }: {
   initialData: StudyWithTestsInsert
-  studyId: string
+  initialStudy: Study
   hasTestResults: boolean
 }) => {
   const [isEditMode, setIsEditMode] = useState(!hasTestResults)
@@ -482,10 +513,12 @@ export const EditStudyForm = ({
     trpc.projects.getProjectById.queryOptions({ id: initialData.study.projectId })
   )
 
-  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
-    projectName: project?.name,
-    projectId: project?.id
-  })
+  const { data: studyData, isLoading: isStudyLoading } = useQuery(
+    trpc.studies.getStudyById.queryOptions({ studyId: initialStudy.id })
+  )
+
+  const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus()
+  const { updateStudyStatus, isStudyStatusPending } = useUpdateStudyStatus()
 
   const { mutate, isPending } = useMutation(
     trpc.studies.updateStudy.mutationOptions({
@@ -495,23 +528,27 @@ export const EditStudyForm = ({
         })
 
         void queryClient.invalidateQueries({
-          queryKey: trpc.studies.getStudyById.queryKey({ studyId })
+          queryKey: trpc.studies.getStudyById.queryKey({ studyId: initialStudy.id })
         })
       }
     })
   )
 
+  if (isProjectLoading || isStudyLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (!project || !studyData) {
+    return <div>Error</div>
+  }
+
   const onSubmit = (data: StudyWithTestsInsert) => {
     console.log('🚀 ~ EditStudyForm onSubmit ~ data:', data)
 
     mutate({
-      studyId,
+      studyId: studyData.study.id,
       data
     })
-  }
-
-  if (isProjectLoading) {
-    return <div>Loading...</div>
   }
 
   return (
@@ -524,7 +561,10 @@ export const EditStudyForm = ({
         project={project}
         updateArchiveStatus={updateArchiveStatus}
         isArchiveStatusPending={isArchiveStatusPending}
+        updateStudyStatus={updateStudyStatus}
+        isStudyStatusPending={isStudyStatusPending}
         hasTestResults={hasTestResults}
+        study={studyData.study}
       />
       <StudyEditModeDialog
         isEditMode={isEditMode}

@@ -22,8 +22,6 @@ export function ArchiveProjectDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus({
-    projectName: project.name,
-    projectId: project.id,
     onSuccess: () => {
       onOpenChange(false)
     }

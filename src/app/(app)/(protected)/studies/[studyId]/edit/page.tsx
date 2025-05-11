@@ -57,7 +57,7 @@ export default async function StudyPageEdit({ params }: PageProps) {
       <div className='container'>
         <EditStudyForm
           initialData={transformedData}
-          studyId={studyId}
+          initialStudy={data.study}
           hasTestResults={hasTestResults}
         />
       </div>

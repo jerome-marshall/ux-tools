@@ -4,17 +4,13 @@ import { toast } from 'sonner'
 
 type UseUpdateArchiveStatusOptions = {
   onSuccess?: (isArchived: boolean) => void
-  projectName?: string
-  projectId?: string
 }
 
 /**
  * Hook for updating a project's archive status
  */
 export const useUpdateArchiveStatus = ({
-  onSuccess,
-  projectName = 'Project',
-  projectId
+  onSuccess
 }: UseUpdateArchiveStatusOptions = {}) => {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
@@ -25,7 +21,7 @@ export const useUpdateArchiveStatus = ({
         const isArchivedStatus = data.archived
 
         toast.success(isArchivedStatus ? 'Project archived' : 'Project unarchived', {
-          description: projectName
+          description: data.name
         })
 
         // Invalidate projects queries
@@ -37,9 +33,9 @@ export const useUpdateArchiveStatus = ({
           queryKey: trpc.projects.getRecentProjects.queryKey()
         })
 
-        if (projectId) {
+        if (data.id) {
           void queryClient.invalidateQueries({
-            queryKey: trpc.projects.getProjectById.queryKey({ id: projectId })
+            queryKey: trpc.projects.getProjectById.queryKey({ id: data.id })
           })
         }
 
