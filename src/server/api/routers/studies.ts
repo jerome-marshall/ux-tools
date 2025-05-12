@@ -2,12 +2,14 @@ import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { type TestType, type TreeTest } from '@/server/db/schema'
+import { getProjectsUseCase } from '@/use-cases/projects'
 import {
   getStudiesByProjectIdUseCase,
   getStudyByIdUseCase,
   getPublicStudyByIdUseCase,
   insertStudyUseCase,
-  updateStudyUseCase
+  updateStudyUseCase,
+  getAllStudiesUseCase
 } from '@/use-cases/studies'
 import {
   createTestsUseCase,
@@ -334,5 +336,32 @@ export const studiesRouter = createTRPCRouter({
       const { studyId, isShared } = input
       const updatedStudy = await updateStudyUseCase(userId, studyId, { isShared })
       return updatedStudy
+    }),
+
+  getAllStudiesWithProject: protectedProcedure
+    .input(
+      z.object({
+        onlyActiveProjects: z.boolean().optional().default(true),
+        getAllProjects: z.boolean().optional().default(false)
+      })
+    )
+    .query(async ({ input, ctx: { userId } }) => {
+      const projects = await getProjectsUseCase(userId, {
+        active: input.onlyActiveProjects,
+        getAll: input.getAllProjects
+      })
+
+      const projectsMap = new Map(projects.map(project => [project.id, project]))
+      const projectIds = new Set(projects.map(project => project.id))
+
+      const studies = await getAllStudiesUseCase(userId)
+      const studiesWithProject = studies
+        .filter(study => projectIds.has(study.projectId))
+        .map(study => ({
+          ...study,
+          project: projectsMap.get(study.projectId)!
+        }))
+
+      return studiesWithProject
     })
 })

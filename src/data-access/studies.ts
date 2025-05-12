@@ -2,6 +2,13 @@ import { db } from '@/server/db'
 import { studies, type Study, type StudyInsert } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
+export const getAllStudies = async (userId: string) => {
+  const data = await db.query.studies.findMany({
+    where: (fields, { eq }) => eq(fields.ownerId, userId)
+  })
+  return data
+}
+
 export const insertStudy = async (userId: string, study: StudyInsert, trx = db) => {
   const [data] = await trx
     .insert(studies)

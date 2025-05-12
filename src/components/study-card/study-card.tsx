@@ -10,7 +10,15 @@ import { type Project } from '@/server/db/schema'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '../ui/button'
 
-const StudyCard = ({ study, project }: { study: Study; project: Project }) => {
+const StudyCard = ({
+  study,
+  project,
+  hideProjectName
+}: {
+  study: Study
+  project: Project
+  hideProjectName?: boolean
+}) => {
   const href = study.hasTestResults ? studyResultsUrl(study.id) : studyEditUrl(study.id)
   const isActive = study.isActive
 
@@ -25,16 +33,18 @@ const StudyCard = ({ study, project }: { study: Study; project: Project }) => {
             <FlaskConical className='size-2.5' strokeWidth={2} />
             <span className='text-xs'>Test</span>
           </div>
-          <Link
-            href={projectUrl(project.id)}
-            className={cn(
-              buttonVariants({ variant: 'ghost' }),
-              'text-muted-foreground !h-fit !rounded-sm !p-0 !px-1'
-            )}
-          >
-            <FolderClosedIcon className='size-3.5' />
-            <span className='text-sm'>{project.name}</span>
-          </Link>
+          {!hideProjectName && (
+            <Link
+              href={projectUrl(project.id)}
+              className={cn(
+                buttonVariants({ variant: 'ghost' }),
+                'text-muted-foreground !h-fit !rounded-sm !p-0 !px-1'
+              )}
+            >
+              <FolderClosedIcon className='size-3.5' />
+              <span className='text-sm'>{project.name}</span>
+            </Link>
+          )}
         </div>
         <p className='text-base font-medium'>{study.name}</p>
       </div>
@@ -73,7 +83,7 @@ const StudyResponseCount = ({
   )
 
   if (isLoading || !testResults) {
-    return <Skeleton className='h-3 w-20' />
+    return <Skeleton className='h-5 w-24' />
   }
 
   const responseCount = testResults.resultsData.reduce(
@@ -86,6 +96,31 @@ const StudyResponseCount = ({
     <p className={cn(className)}>
       {responseCount} {responseCountText}
     </p>
+  )
+}
+
+export const StudyCardSkeleton = () => {
+  return (
+    <div className='relative flex w-full justify-between rounded-xl bg-white px-8 py-6 shadow-sm'>
+      <div className='flex min-w-64 flex-col justify-between gap-3'>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-5 w-16 rounded-full' />
+          <Skeleton className='h-5 w-28 rounded-sm' />
+        </div>
+        <Skeleton className='h-6 w-48' />
+      </div>
+
+      <div className='flex items-center gap-8'>
+        <div className='flex min-w-32 flex-col justify-center gap-1'>
+          <Skeleton className='h-5 w-24' />
+          <Skeleton className='h-4 w-20' />
+        </div>
+
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-4 w-24' />
+        </div>
+      </div>
+    </div>
   )
 }
 

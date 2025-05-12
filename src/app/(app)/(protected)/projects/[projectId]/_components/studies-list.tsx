@@ -1,11 +1,10 @@
 'use client'
-import StudyCard from '@/components/study-card/study-card'
+import StudyCard, { StudyCardSkeleton } from '@/components/study-card/study-card'
 import { useSort } from '@/hooks/use-sort'
+import { type Project } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { useQuery } from '@tanstack/react-query'
 import NoStudies from './no-studies'
-import { Skeleton } from '@/components/ui/skeleton'
-import { type Project } from '@/server/db/schema'
 
 const StudiesList = ({ project }: { project: Project }) => {
   const trpc = useTRPC()
@@ -20,9 +19,9 @@ const StudiesList = ({ project }: { project: Project }) => {
   if (isLoading || !studies) {
     return (
       <div className='grid grid-cols-1 gap-4'>
-        <Skeleton className='h-[9.5rem] w-full' />
-        <Skeleton className='h-[9.5rem] w-full' />
-        <Skeleton className='h-[9.5rem] w-full' />
+        <StudyCardSkeleton />
+        <StudyCardSkeleton />
+        <StudyCardSkeleton />
       </div>
     )
   }
@@ -34,7 +33,12 @@ const StudiesList = ({ project }: { project: Project }) => {
   return (
     <div className='grid grid-cols-1 gap-4'>
       {sortedData?.map(study => (
-        <StudyCard key={`study-${study.id}`} study={study} project={project} />
+        <StudyCard
+          key={`study-${study.id}`}
+          study={study}
+          project={project}
+          hideProjectName
+        />
       ))}
     </div>
   )

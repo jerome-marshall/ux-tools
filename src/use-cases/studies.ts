@@ -1,4 +1,5 @@
 import {
+  getAllStudies,
   getStudiesByProjectId,
   getStudyById,
   insertStudy,
@@ -7,6 +8,14 @@ import {
 import { type Db } from '@/server/db'
 import { type Study, type StudyInsert } from '@/server/db/schema'
 import { assertStudyOwner } from './authorization'
+
+export const getAllStudiesUseCase = async (userId: string) => {
+  const data = await getAllStudies(userId)
+  if (!data) {
+    throw new Error('Failed to get studies')
+  }
+  return data
+}
 
 export const insertStudyUseCase = async (
   userId: string,

@@ -8,6 +8,7 @@ import {
   getRecentProjectsUseCase,
   updateProjectUseCase
 } from '@/use-cases/projects'
+import { getAllStudiesUseCase } from '@/use-cases/studies'
 import { z } from 'zod'
 
 export const projectsRouter = createTRPCRouter({
@@ -68,5 +69,42 @@ export const projectsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx: { userId } }) => {
       const deletedProject = await deleteProjectUseCase(userId, input.id)
       return deletedProject
+    }),
+
+  getProjectsWithStudies: protectedProcedure
+    .input(
+      z.object({
+        active: z.boolean().optional().default(true),
+        getAll: z.boolean().optional().default(false)
+      })
+    )
+    .query(async ({ input, ctx: { userId } }) => {
+      const projects = await getProjectsUseCase(userId, {
+        active: input.active,
+        getAll: input.getAll
+      })
+
+      const studies = await getAllStudiesUseCase(userId)
+
+      // Group studies by project ID
+      const studiesByProjectId = studies.reduce(
+        (acc, study) => {
+          if (!study.projectId) return acc
+          if (!acc[study.projectId]) {
+            acc[study.projectId] = []
+          }
+          acc[study.projectId].push(study)
+          return acc
+        },
+        {} as Record<string, typeof studies>
+      )
+
+      // Map projects with their studies
+      const projectsWithStudies = projects.map(project => ({
+        ...project,
+        studies: studiesByProjectId[project.id] || []
+      }))
+
+      return projectsWithStudies
     })
 })
