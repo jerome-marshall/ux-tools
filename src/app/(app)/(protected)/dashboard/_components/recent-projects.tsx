@@ -39,7 +39,10 @@ const RecentProjects = () => {
       </div>
       <div className='mt-6'>
         {isLoading ? (
-          <RecentProjectsListSkeleton />
+          <>
+            <RecentProjectsListSkeleton count={4} className='grid xl:hidden' />
+            <RecentProjectsListSkeleton count={5} className='hidden xl:grid' />
+          </>
         ) : hasProjects ? (
           <RecentProjectsList projects={projects} />
         ) : (
