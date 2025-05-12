@@ -45,7 +45,7 @@ export default async function ProjectPage({ params }: PageProps) {
           </div>
         </div>
         <div className='mt-4'>
-          <StudiesList projectId={projectId} />
+          <StudiesList project={project} />
         </div>
       </div>
     </HydrationBoundary>

@@ -19,7 +19,7 @@ const RecentProjects = () => {
   const hasProjects = projects.length > 0
 
   return (
-    <div className=''>
+    <div className='mt-8'>
       <div className='flex items-center justify-between'>
         <h3 className='h-8 text-xl font-medium'>Recent projects</h3>
         {hasProjects && (
