@@ -1,3 +1,5 @@
+'use client'
+
 import Link from '@/components/link'
 import { type Study } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
@@ -9,6 +11,7 @@ import { Skeleton } from '../ui/skeleton'
 import { type Project } from '@/server/db/schema'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '../ui/button'
+import { useRouter } from 'nextjs-toploader/app'
 
 const StudyCard = ({
   study,
@@ -19,13 +22,15 @@ const StudyCard = ({
   project: Project
   hideProjectName?: boolean
 }) => {
+  const router = useRouter()
+
   const href = study.hasTestResults ? studyResultsUrl(study.id) : studyEditUrl(study.id)
   const isActive = study.isActive
 
   return (
-    <Link
-      href={href}
-      className='relative flex w-full justify-between rounded-xl bg-white px-8 py-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:ring-2 hover:ring-gray-300'
+    <div
+      className='relative flex w-full cursor-pointer justify-between rounded-xl bg-white px-8 py-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:ring-2 hover:ring-gray-300'
+      onClick={() => router.push(href)}
     >
       <div className='flex min-w-64 flex-col justify-between gap-3'>
         <div className='flex items-center gap-2'>
@@ -40,6 +45,9 @@ const StudyCard = ({
                 buttonVariants({ variant: 'ghost' }),
                 'text-muted-foreground !h-fit !rounded-sm !p-0 !px-1'
               )}
+              onClick={e => {
+                e.stopPropagation()
+              }}
             >
               <FolderClosedIcon className='size-3.5' />
               <span className='text-sm'>{project.name}</span>
@@ -63,7 +71,7 @@ const StudyCard = ({
           </p>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 
