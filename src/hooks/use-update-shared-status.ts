@@ -26,6 +26,9 @@ export const useUpdateSharedStatus = ({
             projectId: data.projectId
           })
         })
+        void queryClient.invalidateQueries({
+          queryKey: trpc.studies.getAllStudiesWithProject.queryKey()
+        })
 
         // Call custom onSuccess if provided
         onSuccess?.(data.isShared)
