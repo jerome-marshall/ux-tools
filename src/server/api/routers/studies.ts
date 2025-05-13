@@ -25,6 +25,7 @@ import {
   getTreeTestByTestIdUseCase,
   updateTreeTestUseCase
 } from '@/use-cases/tree-tests'
+import { SECTION_TYPE } from '@/utils/study-utils'
 import { combineTestsWithTreeTests } from '@/utils/transformers'
 import { studyWithTestsInsertSchema } from '@/zod-schemas/study.schema'
 import { type TestType } from '@/zod-schemas/test.schema'
@@ -56,7 +57,7 @@ export const studiesRouter = createTRPCRouter({
 
         await Promise.all(
           tests.map((testData, index) => {
-            if (testData.type === 'TREE_TEST') {
+            if (testData.type === SECTION_TYPE.TREE_TEST) {
               return createTreeTestUseCase(
                 {
                   id: testData.sectionId,
@@ -109,7 +110,7 @@ export const studiesRouter = createTRPCRouter({
         const testsToDelete = existingTests.filter(test => !incomingTestIds.has(test.id))
         const deletePromises = testsToDelete.map(async test => {
           // For tree tests, explicitly delete the tree test record first
-          if (test.type === 'TREE_TEST') {
+          if (test.type === SECTION_TYPE.TREE_TEST) {
             await deleteTreeTestByTestIdUseCase(test.id, trx)
           }
           return deleteTestByIdUseCase(test.id, trx)
@@ -132,7 +133,7 @@ export const studiesRouter = createTRPCRouter({
             await updateTestUseCase(existingTest.id, baseTest, trx)
 
             // Update related test type data
-            if (testData.type === 'TREE_TEST') {
+            if (testData.type === SECTION_TYPE.TREE_TEST) {
               const treeTest = await getTreeTestByTestIdUseCase(existingTest.id)
 
               if (treeTest) {
@@ -173,7 +174,7 @@ export const studiesRouter = createTRPCRouter({
               trx
             )
 
-            if (testData.type === 'TREE_TEST') {
+            if (testData.type === SECTION_TYPE.TREE_TEST) {
               await createTreeTestUseCase(
                 {
                   ...testData,
@@ -207,7 +208,7 @@ export const studiesRouter = createTRPCRouter({
       const testsData = (
         await Promise.all(
           tests.map(async test => {
-            if (test.type === 'TREE_TEST') {
+            if (test.type === SECTION_TYPE.TREE_TEST) {
               const treeTest = await getTreeTestByTestIdUseCase(test.id)
               return treeTest
             }
@@ -234,7 +235,7 @@ export const studiesRouter = createTRPCRouter({
       const testsData = (
         await Promise.all(
           tests.map(async (test: { id: string; type: TestType }) => {
-            if (test.type === 'TREE_TEST') {
+            if (test.type === SECTION_TYPE.TREE_TEST) {
               const treeTest = await getTreeTestByTestIdUseCase(test.id)
               return treeTest
             }
@@ -306,7 +307,7 @@ export const studiesRouter = createTRPCRouter({
 
       const treeTestPromises =
         testsByType
-          .get('TREE_TEST')
+          .get(SECTION_TYPE.TREE_TEST)
           ?.map(async ({ ogId, newId }) => {
             const treeTest = await getTreeTestByTestIdUseCase(ogId)
             if (treeTest) {

@@ -11,9 +11,9 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { SECTION_TYPE } from '@/utils/study-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import ProjectsDropdown from './projects-dropdown'
-import { SECTION_ID } from './study-form'
 import StudyFormCard from './study-form-card'
 
 const StudyDetails = ({
@@ -28,16 +28,16 @@ const StudyDetails = ({
       title='Study details'
       icon={<Text className='icon' />}
       content={
-        <div className='grid grid-cols-2 gap-6' id={SECTION_ID.STUDY_DETAILS}>
+        <div className='grid grid-cols-2 gap-6' id={SECTION_TYPE.STUDY_DETAILS}>
           <FormField
             control={form.control}
             name='study.name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Test name</FormLabel>
+                <FormLabel>Study name</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='Enter test name'
+                    placeholder='Enter study name'
                     {...field}
                     disabled={disableFields}
                   />

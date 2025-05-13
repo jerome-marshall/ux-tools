@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { makeQueryClient } from '@/trpc/query-client'
 import { trpc } from '@/trpc/server'
 import { AuthenticationError } from '@/utils/error-utils'
+import { SECTION_TYPE } from '@/utils/study-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { headers } from 'next/headers'
@@ -30,7 +31,7 @@ export default async function StudyPageEdit({ params }: PageProps) {
       testsOrder: data.study.testsOrder
     },
     tests: data.tests.map(test => {
-      if (test.type === 'TREE_TEST') {
+      if (test.type === SECTION_TYPE.TREE_TEST) {
         return {
           name: test.name,
           type: test.type,
@@ -42,7 +43,7 @@ export default async function StudyPageEdit({ params }: PageProps) {
           correctPaths: test.correctPaths
         }
       }
-      if (test.type === 'SURVEY') {
+      if (test.type === SECTION_TYPE.SURVEY) {
         return {
           name: test.name,
           type: test.type,

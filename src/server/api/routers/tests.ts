@@ -10,6 +10,7 @@ import {
   createTreeTestResultUseCase,
   getTreeTestResultsByTestResultIdsUseCase
 } from '@/use-cases/tree-tests'
+import { SECTION_TYPE } from '@/utils/study-utils'
 import { testTypes } from '@/zod-schemas/test.schema'
 import { z } from 'zod'
 
@@ -27,7 +28,7 @@ export const testsRouter = createTRPCRouter({
         .and(
           z.discriminatedUnion('testType', [
             z.object({
-              testType: z.literal('TREE_TEST'),
+              testType: z.literal(SECTION_TYPE.TREE_TEST),
               treeTestResult: treeTestResultInsertSchema.omit({ testResultId: true })
             })
           ])

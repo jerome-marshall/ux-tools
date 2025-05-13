@@ -1,4 +1,4 @@
-import { surveyQuestionTypes } from '@/zod-schemas/survey.schema'
+import { surveyQuestionTypes } from '@/zod-schemas/survey-question.schema'
 import { sql } from 'drizzle-orm'
 import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'

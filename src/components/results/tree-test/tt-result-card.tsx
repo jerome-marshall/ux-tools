@@ -4,15 +4,12 @@ import { Separator } from '@/components/ui/separator'
 import { type Test, type TestResult, type TreeTest } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { type CategorizedTreeResults, type EntireTreeTestResult } from '@/types'
+import { getIcon, SECTION_TYPE } from '@/utils/study-utils'
 import { combineTestResultsWithTreeTestResults } from '@/utils/transformers'
-import {
-  checkBacktrack,
-  getNodeNameById,
-  getNodePathTypeStatus
-} from '@/utils/tree-utils'
+import { getNodeNameById, getNodePathTypeStatus } from '@/utils/tree-utils'
 import { type TreeItem } from '@/zod-schemas/tree.schema'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { ChartColumn, ListTree, Text } from 'lucide-react'
+import { ChartColumn, Text } from 'lucide-react'
 import TreeTestResultOverview from './tt-result-overview'
 import TreeTestResultTabs from './tt-result-tabs'
 
@@ -50,9 +47,11 @@ const TreeTestResultCard = ({
   )
   console.log('🚀 ~ categorizedResults:', categorizedResults)
 
+  const Icon = getIcon(SECTION_TYPE.TREE_TEST)
+
   return (
     <StudyFormCard
-      icon={<ListTree className='icon' />}
+      icon={<Icon className='icon' />}
       title={testData.name}
       content={
         <div>

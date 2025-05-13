@@ -1,5 +1,3 @@
-import { Button } from '@/components/ui/button'
-import { CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
@@ -7,18 +5,15 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { getIcon, SECTION_TYPE } from '@/utils/study-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { type CorrectPath, type TreeItem } from '@/zod-schemas/tree.schema'
-import { ListTree, Pencil, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { SECTION_ID } from '../study-form'
-import StudyFormCard from '../study-form-card'
+import StudyFormSectionCard from '../study-form-section-card'
 import TreeBuilder from './tree-builder'
 
 const TreeTest = ({
@@ -38,9 +33,6 @@ const TreeTest = ({
 }) => {
   const [treeData, setTreeData] = useState<TreeItem[]>(initialTreeData)
   const [correctPaths, setCorrectPaths] = useState<CorrectPath[]>(initialCorrectPaths)
-
-  const [isEditingName, setIsEditingName] = useState<boolean>(false)
-  const [isHoveringTitle, setIsHoveringTitle] = useState<boolean>(false)
 
   // Sync with props if they change after initial render
   useEffect(() => {
@@ -76,8 +68,8 @@ const TreeTest = ({
     }
 
     // Always ensure type is set correctly
-    if (form.getValues(`tests.${index}.type`) !== 'TREE_TEST') {
-      form.setValue(`tests.${index}.type`, 'TREE_TEST', {
+    if (form.getValues(`tests.${index}.type`) !== SECTION_TYPE.TREE_TEST) {
+      form.setValue(`tests.${index}.type`, SECTION_TYPE.TREE_TEST, {
         shouldDirty: true,
         shouldTouch: true
       })
@@ -90,103 +82,17 @@ const TreeTest = ({
     setCorrectPaths(newCorrectPaths)
   }
 
-  const handleNameBlur = () => {
-    setIsEditingName(false)
-  }
-
-  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      setIsEditingName(false)
-    } else if (e.key === 'Escape') {
-      setIsEditingName(false)
-    }
-  }
-
-  // Clear hover state when mouse leaves the component
-  const handleMouseLeave = () => {
-    if (!disableFields) {
-      setIsHoveringTitle(false)
-    }
-  }
-
   const sectionClasses = 'flex flex-col gap-3'
 
   return (
-    <StudyFormCard
-      CustomHeader={
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-4'>
-            <ListTree className='icon' />
-            <FormField
-              control={form.control}
-              name={`tests.${index}.name`}
-              render={({ field: formField }) => (
-                <div
-                  className='relative flex items-center gap-2'
-                  onMouseEnter={() => {
-                    if (!disableFields) {
-                      setIsHoveringTitle(true)
-                    }
-                  }}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  {isEditingName ? (
-                    <Input
-                      {...formField}
-                      onBlur={e => {
-                        formField.onBlur()
-                        handleNameBlur()
-                      }}
-                      onKeyDown={handleNameKeyDown}
-                      autoFocus
-                      className='h-8 py-0 text-lg font-semibold'
-                    />
-                  ) : (
-                    <CardTitle
-                      onClick={() => {
-                        if (!disableFields) {
-                          setIsEditingName(true)
-                        }
-                      }}
-                      className={cn(
-                        'cursor-pointer',
-                        disableFields && 'pointer-events-none cursor-default'
-                      )}
-                    >
-                      {index + 1}. {formField.value}
-                    </CardTitle>
-                  )}
-                  {isHoveringTitle && !isEditingName && !disableFields && (
-                    <Pencil
-                      size={16}
-                      className={cn(
-                        'text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
-                      )}
-                      onClick={() => {
-                        if (!disableFields) {
-                          setIsEditingName(true)
-                        }
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-            />
-          </div>
-          <div className='flex items-center gap-2'>
-            <Button
-              variant='destructive'
-              size='icon'
-              onClick={() => onRemoveSection(index)}
-              disabled={disableFields}
-            >
-              <Trash className='size-4' />
-            </Button>
-          </div>
-        </div>
-      }
+    <StudyFormSectionCard
+      Icon={getIcon(SECTION_TYPE.TREE_TEST)}
+      form={form}
+      index={index}
+      disableFields={disableFields}
+      onRemoveSection={onRemoveSection}
       content={
-        <div id={SECTION_ID.TREE_TEST + `-${index}`}>
+        <div id={SECTION_TYPE.TREE_TEST + `-${index}`}>
           <div className={sectionClasses}>
             <FormField
               control={form.control}

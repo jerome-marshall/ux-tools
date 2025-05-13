@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import {
   studyInsertSchema,
+  surveyQuestionInsertSchema,
   testInsertSchema,
   treeTestInsertSchema
 } from '@/server/db/schema'
 import { testTypes } from './test.schema'
+import { SECTION_TYPE } from '@/utils/study-utils'
 
 // Base schema without IDs for creating new studies
 export const studyWithTestsInsertSchema = z.object({
@@ -21,9 +23,14 @@ export const studyWithTestsInsertSchema = z.object({
           z.discriminatedUnion('type', [
             treeTestInsertSchema
               .extend({
-                type: z.literal('TREE_TEST')
+                type: z.literal(SECTION_TYPE.TREE_TEST)
               })
-              .omit({ id: true })
+              .omit({ id: true }),
+            z.object({
+              type: z.literal('SURVEY'),
+              testId: z.string().min(1, { message: 'Test ID is required' }),
+              questions: surveyQuestionInsertSchema.array()
+            })
           ])
         )
     )

@@ -2,6 +2,7 @@ import ResultCards from '@/components/results/result-cards'
 import TreeTestResultCard from '@/components/results/tree-test/tt-result-card'
 import { makeQueryClient } from '@/trpc/query-client'
 import { trpc } from '@/trpc/server'
+import { SECTION_TYPE } from '@/utils/study-utils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { Suspense } from 'react'
 
@@ -28,7 +29,7 @@ export default async function ResultsPage({
   if (testResultIds.length > 0) {
     const treeTestResultIds: string[] = []
     testResultIds.forEach(result => {
-      if (result.testType === 'TREE_TEST') {
+      if (result.testType === SECTION_TYPE.TREE_TEST) {
         treeTestResultIds.push(result.id)
       }
     })
@@ -43,7 +44,7 @@ export default async function ResultsPage({
       <div className='container flex max-w-5xl flex-col gap-6'>
         <ResultCards data={data} isResultOnly={isResultOnly} />
         {data.resultsData.map(resultData => {
-          if (resultData.test.type === 'TREE_TEST') {
+          if (resultData.test.type === SECTION_TYPE.TREE_TEST) {
             return (
               <Suspense
                 key={resultData.test.id}

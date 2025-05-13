@@ -19,6 +19,7 @@ import { getStudyByIdUseCase, getPublicStudyByIdUseCase } from './studies'
 import { getTreeTestByTestIdUseCase } from './tree-tests'
 import { type Db } from '@/server/db'
 import { NotFoundError } from '@/utils/error-utils'
+import { SECTION_TYPE } from '@/utils/study-utils'
 
 export const createTestUseCase = async (test: TestInsert, trx?: Db) => {
   const result = await createTest(test, trx)
@@ -96,7 +97,7 @@ export const getTestResultsByStudyIdUseCase = async (userId: string, studyId: st
       const results = await getTestResultsByTestId(test.id)
 
       let testData: TreeTest | null = null
-      if (test.type === 'TREE_TEST') {
+      if (test.type === SECTION_TYPE.TREE_TEST) {
         testData = await getTreeTestByTestIdUseCase(test.id)
       } else {
         throw new Error('Test type not supported')

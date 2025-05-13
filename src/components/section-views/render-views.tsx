@@ -11,6 +11,7 @@ import { cn, generateId } from '@/lib/utils'
 import Link from '../link'
 import { buttonVariants } from '../ui/button'
 import { studyEditUrl } from '@/utils/urls'
+import { SECTION_TYPE } from '@/utils/study-utils'
 
 const RenderViews = ({
   data,
@@ -65,7 +66,7 @@ const RenderViews = ({
               )
             }
 
-            if (test.type === 'TREE_TEST') {
+            if (test.type === SECTION_TYPE.TREE_TEST) {
               const parsedTreeStructure = z
                 .array(treeItemSchema)
                 .safeParse(test.treeStructure)

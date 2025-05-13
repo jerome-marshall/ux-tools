@@ -14,13 +14,14 @@ import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
 import { useUpdateStudyStatus } from '@/hooks/use-update-study-status'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
 import { type Project, type Study } from '@/server/db/schema'
-import { type TestType } from '@/zod-schemas/test.schema'
 import { useTRPC } from '@/trpc/client'
+import { getIcon, SECTION_TYPE } from '@/utils/study-utils'
 import { doStudyUrl, previewUrl, studyResultsUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
 } from '@/zod-schemas/study.schema'
+import { type TestType } from '@/zod-schemas/test.schema'
 import {
   closestCenter,
   DndContext,
@@ -42,13 +43,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ChartColumnIncreasing,
   Clock,
-  FileQuestion,
   GripVertical,
   Hand,
   LinkIcon,
-  ListTree,
   Loader2Icon,
-  type LucideIcon,
   Text,
   TriangleAlert
 } from 'lucide-react'
@@ -61,14 +59,8 @@ import { DuplicateStudyDialog } from './duplicate-study-dialog'
 import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
+import { SurveyCard } from './survey/survey-card'
 import TreeTest from './tree-test/tree-test'
-
-export const SECTION_ID = {
-  STUDY_DETAILS: 'study-details',
-  WELCOME_SCREEN: 'welcome-screen',
-  TREE_TEST: 'tree-test',
-  THANK_YOU_SCREEN: 'thank-you-screen'
-}
 
 type BaseStudyFormProps = {
   defaultValues: StudyWithTestsInsert
@@ -111,7 +103,7 @@ const BaseStudyForm = ({
   })
 
   const errors = form.formState.errors
-  // console.log('🚀 ~ StudyForm ~ state:', form.watch())
+  console.log('🚀 ~ StudyForm ~ state:', form.watch())
   // console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
 
   const testsFieldArray = useFieldArray({
@@ -120,15 +112,29 @@ const BaseStudyForm = ({
   })
 
   const onAddSection = (testType: TestType) => {
-    if (testType === 'TREE_TEST') {
+    const testId = generateId()
+    const sectionId = generateId()
+
+    if (testType === SECTION_TYPE.TREE_TEST) {
       testsFieldArray.append({
         type: testType,
         name: 'Tree Test',
         treeStructure: [],
         taskInstructions: '',
         correctPaths: [],
-        testId: generateId(),
-        sectionId: generateId(),
+        testId,
+        sectionId,
+        studyId
+      })
+    }
+
+    if (testType === SECTION_TYPE.SURVEY) {
+      testsFieldArray.append({
+        type: testType,
+        name: 'Survey',
+        questions: [],
+        testId,
+        sectionId,
         studyId
       })
     }
@@ -183,14 +189,14 @@ const BaseStudyForm = ({
           <div className='sticky top-4 flex h-fit flex-col gap-2'>
             <div
               className={btnClasses}
-              onClick={() => scrollToSection(SECTION_ID.STUDY_DETAILS, -120)}
+              onClick={() => scrollToSection(SECTION_TYPE.STUDY_DETAILS, -120)}
             >
               <Text className='icon' />
               <p className=''>Study details</p>
             </div>
             {/* <div
               className={cn(btnClasses, 'mt-3')}
-              onClick={() => scrollToSection(SECTION_ID.WELCOME_SCREEN)}
+              onClick={() => scrollToSection(SECTION_TYPE.WELCOME_SCREEN)}
             >
               <Hand className='icon' />
               <p className=''>Welcome screen</p>
@@ -221,7 +227,7 @@ const BaseStudyForm = ({
             </div>
             {/* <div
               className={cn(btnClasses)}
-              onClick={() => scrollToSection(SECTION_ID.THANK_YOU_SCREEN)}
+              onClick={() => scrollToSection(SECTION_TYPE.THANK_YOU_SCREEN)}
             >
               <ThumbsUp className='icon' />
               <p className=''>Thank you screen</p>
@@ -352,7 +358,7 @@ const BaseStudyForm = ({
             <div className='grid gap-4'>
               <StudyDetails form={form} disableFields={disableFields} />
               {testsFieldArray.fields.map((field, index) => {
-                if (field.type === 'TREE_TEST') {
+                if (field.type === SECTION_TYPE.TREE_TEST) {
                   return (
                     <TreeTest
                       key={field.id}
@@ -361,6 +367,18 @@ const BaseStudyForm = ({
                       onRemoveSection={onRemoveSection}
                       initialTreeData={field.treeStructure}
                       initialCorrectPaths={field.correctPaths}
+                      disableFields={disableFields}
+                    />
+                  )
+                }
+
+                if (field.type === SECTION_TYPE.SURVEY) {
+                  return (
+                    <SurveyCard
+                      key={field.id}
+                      form={form}
+                      index={index}
+                      onRemoveSection={onRemoveSection}
                       disableFields={disableFields}
                     />
                   )
@@ -408,11 +426,7 @@ const SortableItem = ({
     zIndex: isDragging ? 50 : 0
   }
 
-  let Icon: LucideIcon = FileQuestion
-
-  if (field.type === 'TREE_TEST') {
-    Icon = ListTree
-  }
+  const Icon = getIcon(field.type)
 
   const errors = form.formState.errors
 
@@ -429,7 +443,7 @@ const SortableItem = ({
             'flex items-center justify-between',
             isDragging && 'opacity-75'
           )}
-          onClick={() => scrollToSection(SECTION_ID.TREE_TEST + `-${index}`, -120)}
+          onClick={() => scrollToSection(SECTION_TYPE.TREE_TEST + `-${index}`, -120)}
         >
           <div className='flex items-center gap-2'>
             <Icon className='icon' />

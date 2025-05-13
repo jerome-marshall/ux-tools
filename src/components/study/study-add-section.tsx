@@ -1,10 +1,11 @@
-import { ListTree, type LucideIcon } from 'lucide-react'
-import StudyFormCard from './study-form-card'
-import { type UseFormReturn } from 'react-hook-form'
-import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
-import { FormField, FormMessage } from '../ui/form'
 import { cn } from '@/lib/utils'
+import { getIcon, SECTION_TYPE } from '@/utils/study-utils'
+import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { type TestType } from '@/zod-schemas/test.schema'
+import { BadgePlus, type LucideIcon } from 'lucide-react'
+import { type UseFormReturn } from 'react-hook-form'
+import { FormField, FormMessage } from '../ui/form'
+import StudyFormCard from './study-form-card'
 
 const StudyAddSection = ({
   onAddSection,
@@ -23,7 +24,7 @@ const StudyAddSection = ({
       render={({ field }) => (
         <StudyFormCard
           title='Add a section'
-          icon={<ListTree className='icon' />}
+          icon={<BadgePlus className='icon' />}
           content={
             <div className='relative' ref={field.ref}>
               <FormMessage className='absolute -top-13 left-12' />
@@ -56,11 +57,18 @@ const studySections: {
   icon: LucideIcon
 }[] = [
   {
-    id: 'TREE_TEST',
+    id: SECTION_TYPE.TREE_TEST,
     name: 'Tree test',
     description:
       'Validate your information architecture by asking participants to locate specific items in a tree structure',
-    icon: ListTree
+    icon: getIcon(SECTION_TYPE.TREE_TEST)
+  },
+  {
+    id: SECTION_TYPE.SURVEY,
+    name: 'Survey',
+    description:
+      'Ask survey questions, including open text, multiple choice, linear scale, and ranking',
+    icon: getIcon(SECTION_TYPE.SURVEY)
   }
 ]
 

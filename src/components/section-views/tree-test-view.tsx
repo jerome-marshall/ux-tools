@@ -7,6 +7,7 @@ import { Button } from '../ui/button'
 import { useTRPC } from '@/trpc/client'
 import { useMutation } from '@tanstack/react-query'
 import { useLocalStorage } from 'usehooks-ts'
+import { SECTION_TYPE } from '@/utils/study-utils'
 
 const TreeTestView = ({
   treeStructure,
@@ -22,7 +23,7 @@ const TreeTestView = ({
   onNextStep: () => void
 }) => {
   const trpc = useTRPC()
-  
+
   const [storedUserId] = useLocalStorage('user-id', '')
   const userId = isPreview ? '' : storedUserId
 
@@ -41,7 +42,7 @@ const TreeTestView = ({
 
     if (!isPreview) {
       mutate({
-        testType: 'TREE_TEST',
+        testType: SECTION_TYPE.TREE_TEST,
         testId,
         userId,
         totalDurationMs,
