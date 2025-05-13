@@ -11,25 +11,28 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { cn } from '@/lib/utils'
 import { SURVEY_QUESTION_TYPE, surveyQuestionTypeOptions } from '@/utils/study-utils'
 import { GripVertical, Trash, Trash2 } from 'lucide-react'
 
 export const SurveyQuestion = ({ disableFields }: { disableFields: boolean }) => {
+  const titleClassName = 'text-sm text-gray-700'
+
   return (
     <div className='grid gap-6 rounded-md border p-4'>
-      <div className='flex items-center justify-between'>
-        <p className=''>1.1. Single select question</p>
-        <div>
-          <Button variant='destructive' size='icon' disabled={disableFields}>
+      <div className='relative flex items-center justify-between'>
+        <p className={titleClassName}>1.1. Single select question</p>
+        <div className='absolute -right-2'>
+          <Button variant='ghost' size='icon' disabled={disableFields}>
             <Trash className='size-4' />
           </Button>
         </div>
       </div>
 
       <div className='grid'>
-        <p className='mb-2'>Question</p>
+        <p className={cn(titleClassName, 'mb-2')}>Question</p>
         <div className='flex items-center gap-2'>
-          <GripVertical className='size-6' />
+          <GripVertical className='text-muted-foreground size-6' />
           <Input className='flex-1' />
           <Select defaultValue={SURVEY_QUESTION_TYPE.SINGLE_SELECT}>
             <SelectTrigger className='w-[180px]'>
@@ -53,7 +56,9 @@ export const SurveyQuestion = ({ disableFields }: { disableFields: boolean }) =>
       </div>
 
       <div className='grid'>
-        <p className='mb-2'>Choices (Press ⏎ for new line or paste a list)</p>
+        <p className={cn(titleClassName, 'mb-2')}>
+          Choices (Press ⏎ for new line or paste a list)
+        </p>
         <div className='grid gap-4'>
           <Choice />
           <Choice />
@@ -81,7 +86,7 @@ export const SurveyQuestion = ({ disableFields }: { disableFields: boolean }) =>
 const Choice = () => {
   return (
     <div className='flex items-center gap-2'>
-      <GripVertical className='size-6' />
+      <GripVertical className='text-muted-foreground size-6' />
       <Input className='flex-1' />
       <Button variant='ghost' type='button' size='icon'>
         <Trash2 className='size-4' />
