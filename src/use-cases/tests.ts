@@ -99,6 +99,8 @@ export const getTestResultsByStudyIdUseCase = async (userId: string, studyId: st
       let testData: TreeTest | null = null
       if (test.type === SECTION_TYPE.TREE_TEST) {
         testData = await getTreeTestByTestIdUseCase(test.id)
+      } else if (test.type === SECTION_TYPE.SURVEY) {
+        // testData = await getSurveyTestByTestIdUseCase(test.id)
       } else {
         throw new Error('Test type not supported')
       }

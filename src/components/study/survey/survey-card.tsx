@@ -2,6 +2,7 @@ import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { type UseFormReturn } from 'react-hook-form'
 import StudyFormSectionCard from '../study-form-section-card'
 import { CircleHelp } from 'lucide-react'
+import { SurveyQuestion } from './survey-question'
 
 export const SurveyCard = ({
   form,
@@ -21,7 +22,7 @@ export const SurveyCard = ({
       index={index}
       disableFields={disableFields}
       onRemoveSection={onRemoveSection}
-      content={<div>SurveyCard</div>}
+      content={<SurveyQuestion disableFields={disableFields} />}
     />
   )
 }

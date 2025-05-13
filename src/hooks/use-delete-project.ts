@@ -38,6 +38,12 @@ export const useDeleteProject = ({
           void queryClient.invalidateQueries({
             queryKey: trpc.projects.getProjectById.queryKey({ id: projectId })
           })
+          void queryClient.invalidateQueries({
+            queryKey: trpc.studies.getStudyById.queryKey({ studyId: projectId })
+          })
+          void queryClient.invalidateQueries({
+            queryKey: trpc.studies.getAllStudiesWithProject.queryKey()
+          })
         }
 
         // Call custom onSuccess if provided
