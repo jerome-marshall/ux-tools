@@ -17,8 +17,8 @@ export const insertStudy = async (userId: string, study: StudyInsert, trx = db) 
   return data
 }
 
-export const getStudyById = async (id: string) => {
-  const data = await db.query.studies.findFirst({
+export const getStudyById = async (id: string, trx = db) => {
+  const data = await trx.query.studies.findFirst({
     where: (fields, { eq }) => eq(fields.id, id)
   })
   return data

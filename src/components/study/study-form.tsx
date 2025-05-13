@@ -283,25 +283,23 @@ const BaseStudyForm = ({
                     </div>
                   )}
 
-                  {hasTestResults && (
-                    <Link
-                      href={studyResultsUrl(studyId)}
-                      className={cn(
-                        buttonVariants({ variant: 'secondary' }),
-                        'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
-                      )}
-                    >
-                      <ChartColumnIncreasing className='size-4' />
-                      View Results
-                    </Link>
-                  )}
+                  <Link
+                    href={studyResultsUrl(studyId)}
+                    className={cn(
+                      buttonVariants({ variant: 'secondary' }),
+                      'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                    )}
+                  >
+                    <ChartColumnIncreasing className='size-4' />
+                    View Results
+                  </Link>
                 </>
               )}
               <Button className='mt-2 gap-2' type='submit' disabled={disableFields}>
                 {isEditPage ? 'Save Changes' : 'Save and Continue'}
               </Button>
 
-              {isProjectArchived && (
+              {isEditPage && isProjectArchived && (
                 <div className='relative mt-2 flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3 shadow-sm'>
                   <p className='text-sm font-medium text-gray-600'>
                     The project which contains this study is archived.
@@ -325,7 +323,7 @@ const BaseStudyForm = ({
                 </div>
               )}
 
-              {!isStudyActive && (
+              {isEditPage && !isStudyActive && (
                 <div className='relative mt-2 flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3 shadow-sm'>
                   <p className='text-sm font-medium text-gray-600'>
                     The study is paused and will not receive any new responses.
