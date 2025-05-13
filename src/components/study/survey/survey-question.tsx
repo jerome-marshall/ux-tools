@@ -31,12 +31,9 @@ export const SurveyQuestion = ({ disableFields }: { disableFields: boolean }) =>
         <div className='flex items-center gap-2'>
           <GripVertical className='size-6' />
           <Input className='flex-1' />
-          <Select>
+          <Select defaultValue={SURVEY_QUESTION_TYPE.SINGLE_SELECT}>
             <SelectTrigger className='w-[180px]'>
-              <SelectValue
-                placeholder='Select a question type'
-                defaultValue={SURVEY_QUESTION_TYPE.SINGLE_SELECT}
-              />
+              <SelectValue placeholder='Select a question type' />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
