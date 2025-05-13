@@ -132,7 +132,15 @@ const BaseStudyForm = ({
       testsFieldArray.append({
         type: testType,
         name: 'Survey',
-        questions: [],
+        questions: [
+          {
+            type: 'short_text',
+            testId,
+            id: generateId(),
+            text: '',
+            position: 0
+          }
+        ],
         testId,
         sectionId,
         studyId

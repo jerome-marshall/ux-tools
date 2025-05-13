@@ -29,25 +29,34 @@ export const SURVEY_QUESTION_TYPE = {
   RANKING: 'ranking'
 } as const
 
+export const SURVEY_QUESTION_TYPE_NAME = {
+  [SURVEY_QUESTION_TYPE.SHORT_TEXT]: 'Short text',
+  [SURVEY_QUESTION_TYPE.LONG_TEXT]: 'Long text',
+  [SURVEY_QUESTION_TYPE.SINGLE_SELECT]: 'Single select',
+  [SURVEY_QUESTION_TYPE.MULTIPLE_SELECT]: 'Multiple select',
+  [SURVEY_QUESTION_TYPE.LINEAR_SCALE]: 'Linear scale',
+  [SURVEY_QUESTION_TYPE.RANKING]: 'Ranking'
+}
+
 export const surveyQuestionTypeOptions = [
   {
-    label: 'Short Text',
+    label: SURVEY_QUESTION_TYPE_NAME[SURVEY_QUESTION_TYPE.SHORT_TEXT],
     value: SURVEY_QUESTION_TYPE.SHORT_TEXT
   },
   {
-    label: 'Long Text',
+    label: SURVEY_QUESTION_TYPE_NAME[SURVEY_QUESTION_TYPE.LONG_TEXT],
     value: SURVEY_QUESTION_TYPE.LONG_TEXT
   },
   {
-    label: 'Single Select',
+    label: SURVEY_QUESTION_TYPE_NAME[SURVEY_QUESTION_TYPE.SINGLE_SELECT],
     value: SURVEY_QUESTION_TYPE.SINGLE_SELECT
   },
   {
-    label: 'Multiple Select',
+    label: SURVEY_QUESTION_TYPE_NAME[SURVEY_QUESTION_TYPE.MULTIPLE_SELECT],
     value: SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
   },
   {
-    label: 'Ranking',
+    label: SURVEY_QUESTION_TYPE_NAME[SURVEY_QUESTION_TYPE.RANKING],
     value: SURVEY_QUESTION_TYPE.RANKING
   }
 ]
