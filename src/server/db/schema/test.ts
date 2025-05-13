@@ -1,4 +1,4 @@
-import { integer, pgTable, text } from 'drizzle-orm/pg-core'
+import { boolean, integer, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { studies } from './project-study'
@@ -14,6 +14,7 @@ export const tests = pgTable('tests', {
   studyId: text('study_id')
     .notNull()
     .references(() => studies.id, { onDelete: 'cascade' }),
+  randomized: boolean('randomized').notNull().default(false),
   ...timestamps
 })
 
