@@ -1,10 +1,10 @@
 import { ListTree, type LucideIcon } from 'lucide-react'
 import StudyFormCard from './study-form-card'
-import { type TestType } from '@/server/db/schema'
 import { type UseFormReturn } from 'react-hook-form'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { FormField, FormMessage } from '../ui/form'
 import { cn } from '@/lib/utils'
+import { type TestType } from '@/zod-schemas/test.schema'
 
 const StudyAddSection = ({
   onAddSection,

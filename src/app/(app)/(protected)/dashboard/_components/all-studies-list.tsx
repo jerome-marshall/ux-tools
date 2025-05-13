@@ -22,6 +22,10 @@ export const AllStudiesList = () => {
     )
   }
 
+  if (studies.length === 0) {
+    return <div className='mt-6 text-center text-sm text-gray-500'>No studies found</div>
+  }
+
   return (
     <div className='mt-6 grid gap-4'>
       {studies.map(study => (

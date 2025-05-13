@@ -29,16 +29,29 @@ export default async function StudyPageEdit({ params }: PageProps) {
       projectId: data.study.projectId,
       testsOrder: data.study.testsOrder
     },
-    tests: data.tests.map(test => ({
-      studyId: test.sectionData.studyId,
-      testId: test.sectionData.testId,
-      sectionId: test.sectionData.sectionId,
-      name: test.name,
-      type: test.type,
-      treeStructure: test.treeStructure,
-      taskInstructions: test.taskInstructions ?? '',
-      correctPaths: test.correctPaths
-    }))
+    tests: data.tests.map(test => {
+      if (test.type === 'TREE_TEST') {
+        return {
+          name: test.name,
+          type: test.type,
+          studyId: test.sectionData.studyId,
+          sectionId: test.sectionData.sectionId,
+          testId: test.sectionData.testId,
+          treeStructure: test.treeStructure,
+          taskInstructions: test.taskInstructions ?? '',
+          correctPaths: test.correctPaths
+        }
+      }
+      if (test.type === 'SURVEY') {
+        return {
+          name: test.name,
+          type: test.type,
+          studyId: test.sectionData.studyId,
+          sectionId: test.sectionData.sectionId,
+          testId: test.sectionData.testId
+        }
+      }
+    }) as StudyWithTestsInsert['tests']
   }
 
   if (!sessionData?.user) {

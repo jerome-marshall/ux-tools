@@ -6,7 +6,7 @@ import { type z } from 'zod'
 import { tests } from './test'
 import { timestamps, uniqueId } from './utils'
 
-const questionTypesEnum = pgEnum('question_types', surveyQuestionTypes)
+export const questionTypesEnum = pgEnum('question_types', surveyQuestionTypes)
 
 export const surveyQuestions = pgTable('survey_questions', {
   id: uniqueId,

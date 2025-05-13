@@ -1,1 +1,0 @@
-ALTER TABLE "studies" ADD COLUMN "is_shared" boolean DEFAULT false NOT NULL;

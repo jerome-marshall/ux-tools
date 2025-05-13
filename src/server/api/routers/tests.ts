@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
-import { testTypes, treeTestResultInsertSchema } from '@/server/db/schema'
-import { getStudyByIdUseCase, updateStudyUseCase } from '@/use-cases/studies'
+import { treeTestResultInsertSchema } from '@/server/db/schema'
+import { updateStudyUseCase } from '@/use-cases/studies'
 import {
   createTestResultUseCase,
   getTestByIdUseCase,
@@ -10,6 +10,7 @@ import {
   createTreeTestResultUseCase,
   getTreeTestResultsByTestResultIdsUseCase
 } from '@/use-cases/tree-tests'
+import { testTypes } from '@/zod-schemas/test.schema'
 import { z } from 'zod'
 
 export const testsRouter = createTRPCRouter({

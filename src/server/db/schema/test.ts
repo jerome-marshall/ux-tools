@@ -1,16 +1,16 @@
-import { boolean, integer, pgTable, text } from 'drizzle-orm/pg-core'
+import { testTypes } from '@/zod-schemas/test.schema'
+import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { studies } from './project-study'
 import { timestamps, uniqueId } from './utils'
 
-export const testTypes = ['TREE_TEST'] as const
-export type TestType = (typeof testTypes)[number]
+export const testTypesEnum = pgEnum('test_types', testTypes)
 
 export const tests = pgTable('tests', {
   id: uniqueId,
   name: text('name').notNull(),
-  type: text('type').$type<TestType>().notNull(),
+  type: testTypesEnum('type').notNull(),
   studyId: text('study_id')
     .notNull()
     .references(() => studies.id, { onDelete: 'cascade' }),

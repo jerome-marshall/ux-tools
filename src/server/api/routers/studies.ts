@@ -1,7 +1,7 @@
 import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
-import { type TestType, type TreeTest } from '@/server/db/schema'
+import { type TreeTest } from '@/server/db/schema'
 import { getProjectsUseCase } from '@/use-cases/projects'
 import {
   getStudiesByProjectIdUseCase,
@@ -27,6 +27,7 @@ import {
 } from '@/use-cases/tree-tests'
 import { combineTestsWithTreeTests } from '@/utils/transformers'
 import { studyWithTestsInsertSchema } from '@/zod-schemas/study.schema'
+import { type TestType } from '@/zod-schemas/test.schema'
 import { z } from 'zod'
 
 export const studiesRouter = createTRPCRouter({

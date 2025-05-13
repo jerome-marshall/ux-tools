@@ -2,9 +2,9 @@ import { z } from 'zod'
 import {
   studyInsertSchema,
   testInsertSchema,
-  testTypes,
   treeTestInsertSchema
 } from '@/server/db/schema'
+import { testTypes } from './test.schema'
 
 // Base schema without IDs for creating new studies
 export const studyWithTestsInsertSchema = z.object({

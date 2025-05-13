@@ -1,1 +1,0 @@
-ALTER TABLE "tests" ADD COLUMN "randomized" boolean DEFAULT false NOT NULL;
