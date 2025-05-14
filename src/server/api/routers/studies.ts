@@ -216,9 +216,9 @@ export const studiesRouter = createTRPCRouter({
             return null
           })
         )
-      ).filter(Boolean) as TreeTest[]
+      ).filter(Boolean)
 
-      const combinedTests = combineTestsWithTreeTests(tests, testsData)
+      const combinedTests = combineTestsWithTreeTests(tests, testsData).filter(Boolean)
 
       return {
         study,
@@ -243,9 +243,9 @@ export const studiesRouter = createTRPCRouter({
             return null
           })
         )
-      ).filter(Boolean) as TreeTest[]
+      ).filter(Boolean)
 
-      const combinedTests = combineTestsWithTreeTests(tests, testsData)
+      const combinedTests = combineTestsWithTreeTests(tests, testsData).filter(Boolean)
 
       return {
         study,

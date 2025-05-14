@@ -41,7 +41,7 @@ export const combineTestsWithTreeTests = (tests: Test[], treeTests: TreeTest[]) 
     const treeTest = treeTests.find(treeTest => treeTest.testId === test.id)
 
     if (!treeTest) {
-      throw new Error('Tree test not found')
+      return null
     }
 
     return combineTestWithTreeTest(test, treeTest)
