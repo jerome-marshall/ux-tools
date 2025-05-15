@@ -68,6 +68,7 @@ type BaseStudyFormProps = {
   onSubmit: (data: StudyWithTestsInsert) => void
   isEditMode?: boolean
   isEditPage: boolean
+  isSubmitting: boolean
   project?: Project
   updateArchiveStatus?: (params: { id: string; archived: boolean }) => void
   isArchiveStatusPending?: boolean
@@ -82,6 +83,7 @@ const BaseStudyForm = ({
   onSubmit,
   isEditMode = false,
   isEditPage = false,
+  isSubmitting = false,
   project,
   updateArchiveStatus,
   isArchiveStatusPending = false,
@@ -90,7 +92,7 @@ const BaseStudyForm = ({
   hasTestResults = false,
   study
 }: BaseStudyFormProps) => {
-  const disableFields = isEditPage && !isEditMode
+  const disableFields = (isEditPage && !isEditMode) || isSubmitting
 
   const isProjectArchived = isEditPage && project?.archived
   const isStudyActive = isEditPage && study?.isActive
@@ -312,7 +314,11 @@ const BaseStudyForm = ({
                 </>
               )}
               <Button className='mt-2 gap-2' type='submit' disabled={disableFields}>
-                {isEditPage ? 'Save Changes' : 'Save and Continue'}
+                {isSubmitting
+                  ? 'Saving...'
+                  : isEditPage
+                    ? 'Save Changes'
+                    : 'Save and Continue'}
               </Button>
 
               {isEditPage && isProjectArchived && (
@@ -491,7 +497,7 @@ export const CreateStudyForm = ({
   const trpc = useTRPC()
   const router = useRouter()
 
-  const { mutate, isPending } = useMutation(
+  const { mutate, isPending: isCreateStudyPending } = useMutation(
     trpc.studies.createStudy.mutationOptions({
       onSuccess: data => {
         toast.success('Study created successfully', {
@@ -514,7 +520,12 @@ export const CreateStudyForm = ({
   }
 
   return (
-    <BaseStudyForm defaultValues={initialData} onSubmit={onSubmit} isEditPage={false} />
+    <BaseStudyForm
+      defaultValues={initialData}
+      onSubmit={onSubmit}
+      isEditPage={false}
+      isSubmitting={isCreateStudyPending}
+    />
   )
 }
 
@@ -544,7 +555,7 @@ export const EditStudyForm = ({
   const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus()
   const { updateStudyStatus, isStudyStatusPending } = useUpdateStudyStatus()
 
-  const { mutate, isPending } = useMutation(
+  const { mutate, isPending: isUpdateStudyPending } = useMutation(
     trpc.studies.updateStudy.mutationOptions({
       onSuccess: data => {
         toast.success('Study updated successfully', {
@@ -589,6 +600,7 @@ export const EditStudyForm = ({
         isStudyStatusPending={isStudyStatusPending}
         hasTestResults={hasTestResults}
         study={studyData.study}
+        isSubmitting={isUpdateStudyPending}
       />
       <StudyEditModeDialog
         isEditMode={isEditMode}
