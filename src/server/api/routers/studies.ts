@@ -1,32 +1,43 @@
 import { createTransaction } from '@/data-access/utils'
 import { generateId } from '@/lib/utils'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
-import { type TreeTest } from '@/server/db/schema'
 import { getProjectsUseCase } from '@/use-cases/projects'
 import {
+  getAllStudiesUseCase,
+  getPublicStudyByIdUseCase,
   getStudiesByProjectIdUseCase,
   getStudyByIdUseCase,
-  getPublicStudyByIdUseCase,
   insertStudyUseCase,
-  updateStudyUseCase,
-  getAllStudiesUseCase
+  updateStudyUseCase
 } from '@/use-cases/studies'
+import {
+  deleteSurveyQuestionsByIdsUseCase,
+  deleteSurveyQuestionsByTestIdUseCase,
+  getSurveyQuestionsByTestIdUseCase,
+  insertSurveyQuestionsUseCase,
+  insertSurveyQuestionUseCase,
+  updateSurveyQuestionByIdUseCase
+} from '@/use-cases/survey-questions'
 import {
   createTestsUseCase,
   createTestUseCase,
   deleteTestByIdUseCase,
-  getTestsByStudyIdUseCase,
   getPublicTestsByStudyIdUseCase,
+  getTestsByStudyIdUseCase,
   updateTestUseCase
 } from '@/use-cases/tests'
 import {
   createTreeTestUseCase,
   deleteTreeTestByTestIdUseCase,
   getTreeTestByTestIdUseCase,
+  getTreeTestsByTestIdsUseCase,
   updateTreeTestUseCase
 } from '@/use-cases/tree-tests'
 import { SECTION_TYPE } from '@/utils/study-utils'
-import { combineTestsWithTreeTests } from '@/utils/transformers'
+import {
+  combineTestsWithTreeTests,
+  combineTestWithSurveyQuestions
+} from '@/utils/transformers'
 import { studyWithTestsInsertSchema } from '@/zod-schemas/study.schema'
 import { type TestType } from '@/zod-schemas/test.schema'
 import { z } from 'zod'
@@ -44,7 +55,8 @@ export const studiesRouter = createTRPCRouter({
             id: testData.testId,
             type: testData.type,
             studyId: insertedStudy.id,
-            name: testData.name
+            name: testData.name,
+            randomized: testData.randomized
           }
 
           return baseTest
@@ -57,15 +69,26 @@ export const studiesRouter = createTRPCRouter({
 
         await Promise.all(
           tests.map((testData, index) => {
+            const newTestId = newTests[index].id
+
             if (testData.type === SECTION_TYPE.TREE_TEST) {
               return createTreeTestUseCase(
                 {
                   id: testData.sectionId,
-                  testId: newTests[index].id,
+                  testId: newTestId,
                   treeStructure: testData.treeStructure,
                   taskInstructions: testData.taskInstructions,
                   correctPaths: testData.correctPaths
                 },
+                trx
+              )
+            }
+            if (testData.type === SECTION_TYPE.SURVEY) {
+              return insertSurveyQuestionsUseCase(
+                testData.questions.map(question => ({
+                  ...question,
+                  testId: newTestId
+                })),
                 trx
               )
             }
@@ -109,9 +132,11 @@ export const studiesRouter = createTRPCRouter({
         const incomingTestIds = new Set(tests.map(test => test.testId))
         const testsToDelete = existingTests.filter(test => !incomingTestIds.has(test.id))
         const deletePromises = testsToDelete.map(async test => {
-          // For tree tests, explicitly delete the tree test record first
           if (test.type === SECTION_TYPE.TREE_TEST) {
             await deleteTreeTestByTestIdUseCase(test.id, trx)
+          }
+          if (test.type === SECTION_TYPE.SURVEY) {
+            await deleteSurveyQuestionsByTestIdUseCase(test.id, trx)
           }
           return deleteTestByIdUseCase(test.id, trx)
         })
@@ -119,6 +144,7 @@ export const studiesRouter = createTRPCRouter({
           await Promise.all(deletePromises)
         }
 
+        // map through tests and update or create them and return the test ids
         const updatePromises = tests.map(async testData => {
           // Use the existing test ID if available, or create a new test
           const existingTest = existingTestMap.get(testData.testId)
@@ -127,10 +153,11 @@ export const studiesRouter = createTRPCRouter({
             // Update existing test
             const baseTest = {
               type: testData.type,
-              name: testData.name
+              name: testData.name,
+              randomized: testData.randomized
             }
 
-            await updateTestUseCase(existingTest.id, baseTest, trx)
+            const updatedTest = await updateTestUseCase(existingTest.id, baseTest, trx)
 
             // Update related test type data
             if (testData.type === SECTION_TYPE.TREE_TEST) {
@@ -151,13 +178,58 @@ export const studiesRouter = createTRPCRouter({
                 // If tree test doesn't exist but should, create it
                 await createTreeTestUseCase(
                   {
-                    ...testData,
                     testId: existingTest.id,
-                    id: testData.sectionId
+                    id: testData.sectionId,
+                    correctPaths: testData.correctPaths,
+                    taskInstructions: testData.taskInstructions,
+                    treeStructure: testData.treeStructure
                   },
                   trx
                 )
               }
+            }
+
+            if (testData.type === SECTION_TYPE.SURVEY && testData.questions.length > 0) {
+              const surveyQuestions = await getSurveyQuestionsByTestIdUseCase(
+                existingTest.id
+              )
+
+              // delete questions that are no longer in the incoming questions
+              const incomingQuestionIds = new Set(
+                testData.questions.map(question => question.id)
+              )
+              const questionsToDelete = surveyQuestions.filter(
+                question => !incomingQuestionIds.has(question.id)
+              )
+              if (questionsToDelete.length > 0) {
+                await deleteSurveyQuestionsByIdsUseCase(
+                  questionsToDelete.map(question => question.id),
+                  trx
+                )
+              }
+
+              const surveyQuestionsMap = new Map(
+                surveyQuestions.map(question => [question.id, question])
+              )
+
+              const surveyQuestionsToUpdate = testData.questions.map(question => {
+                const existingQuestion = surveyQuestionsMap.get(question.id)
+
+                if (existingQuestion) {
+                  return updateSurveyQuestionByIdUseCase(
+                    question.id,
+                    {
+                      ...existingQuestion,
+                      ...question
+                    },
+                    trx
+                  )
+                }
+
+                return insertSurveyQuestionUseCase(question, trx)
+              })
+
+              await Promise.all(surveyQuestionsToUpdate)
             }
 
             return existingTest.id
@@ -169,7 +241,8 @@ export const studiesRouter = createTRPCRouter({
                 id: testData.testId,
                 type: testData.type,
                 studyId: studyId,
-                name: testData.name
+                name: testData.name,
+                randomized: testData.randomized
               },
               trx
             )
@@ -205,24 +278,26 @@ export const studiesRouter = createTRPCRouter({
       const study = await getStudyByIdUseCase(userId, input.studyId)
       const tests = await getTestsByStudyIdUseCase(userId, input.studyId)
 
-      const testsData = (
-        await Promise.all(
-          tests.map(async test => {
-            if (test.type === SECTION_TYPE.TREE_TEST) {
-              const treeTest = await getTreeTestByTestIdUseCase(test.id)
-              return treeTest
-            }
-            // Handle other test types here when implemented
-            return null
-          })
-        )
-      ).filter(Boolean)
+      const treeTests = tests.filter(test => test.type === SECTION_TYPE.TREE_TEST)
+      const surveyTests = tests.filter(test => test.type === SECTION_TYPE.SURVEY)
 
-      const combinedTests = combineTestsWithTreeTests(tests, testsData).filter(Boolean)
+      const treeTestsData = await getTreeTestsByTestIdsUseCase(
+        treeTests.map(test => test.id)
+      )
+      const combinedTests = combineTestsWithTreeTests(treeTests, treeTestsData).filter(
+        Boolean
+      )
+
+      const combinedSurveyTests = await Promise.all(
+        surveyTests.map(async test => {
+          const surveyQuestions = await getSurveyQuestionsByTestIdUseCase(test.id)
+          return combineTestWithSurveyQuestions(test, surveyQuestions)
+        })
+      )
 
       return {
         study,
-        tests: combinedTests
+        tests: [...combinedTests, ...combinedSurveyTests]
       }
     }),
 
@@ -232,24 +307,26 @@ export const studiesRouter = createTRPCRouter({
       const study = await getPublicStudyByIdUseCase(input.studyId)
       const tests = await getPublicTestsByStudyIdUseCase(input.studyId)
 
-      const testsData = (
-        await Promise.all(
-          tests.map(async (test: { id: string; type: TestType }) => {
-            if (test.type === SECTION_TYPE.TREE_TEST) {
-              const treeTest = await getTreeTestByTestIdUseCase(test.id)
-              return treeTest
-            }
-            // Handle other test types here when implemented
-            return null
-          })
-        )
-      ).filter(Boolean)
+      const treeTests = tests.filter(test => test.type === SECTION_TYPE.TREE_TEST)
+      const surveyTests = tests.filter(test => test.type === SECTION_TYPE.SURVEY)
 
-      const combinedTests = combineTestsWithTreeTests(tests, testsData).filter(Boolean)
+      const treeTestsData = await getTreeTestsByTestIdsUseCase(
+        treeTests.map(test => test.id)
+      )
+      const combinedTests = combineTestsWithTreeTests(treeTests, treeTestsData).filter(
+        Boolean
+      )
+
+      const combinedSurveyTests = await Promise.all(
+        surveyTests.map(async test => {
+          const surveyQuestions = await getSurveyQuestionsByTestIdUseCase(test.id)
+          return combineTestWithSurveyQuestions(test, surveyQuestions)
+        })
+      )
 
       return {
         study,
-        tests: combinedTests
+        tests: [...combinedTests, ...combinedSurveyTests]
       }
     }),
 

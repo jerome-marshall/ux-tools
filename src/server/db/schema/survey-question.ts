@@ -2,7 +2,7 @@ import { surveyQuestionTypes } from '@/zod-schemas/survey-question.schema'
 import { sql } from 'drizzle-orm'
 import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
-import { type z } from 'zod'
+import { z } from 'zod'
 import { tests } from './test'
 import { timestamps, uniqueId } from './utils'
 
@@ -32,10 +32,14 @@ export const surveyQuestions = pgTable('survey_questions', {
   ...timestamps
 })
 
-export const surveyQuestionInsertSchema = createInsertSchema(surveyQuestions).omit({
-  createdAt: true,
-  updatedAt: true
-})
+export const surveyQuestionInsertSchema = createInsertSchema(surveyQuestions)
+  .omit({
+    createdAt: true,
+    updatedAt: true
+  })
+  .extend({
+    id: z.string()
+  })
 
 export type SurveyQuestion = typeof surveyQuestions.$inferSelect
 export type SurveyQuestionInsert = z.infer<typeof surveyQuestionInsertSchema>

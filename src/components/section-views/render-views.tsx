@@ -57,7 +57,7 @@ const RenderViews = ({
         {currentStep !== 'Welcome' &&
           currentStep !== 'Thanks' &&
           (() => {
-            const test = tests.find(test => test.sectionData.testId === currentStep)
+            const test = tests.find(test => test.testId === currentStep)
             if (!test) {
               return (
                 <div className='flex h-full items-center justify-center'>
@@ -87,7 +87,7 @@ const RenderViews = ({
                   taskInstructions={test.taskInstructions}
                   treeStructure={parsedTreeStructure.data}
                   onNextStep={handleNextStep}
-                  testId={test.sectionData.testId}
+                  testId={test.testId}
                   isPreview={!!isPreview}
                 />
               )

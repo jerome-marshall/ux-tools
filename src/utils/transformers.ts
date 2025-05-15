@@ -1,42 +1,80 @@
-import { type TestResult, type TreeTestResult, type TreeTest } from '@/server/db/schema'
+import {
+  type SurveyQuestion,
+  type Test_SurveyType,
+  type Test_TreeTestType,
+  type TestResult,
+  type TreeTest,
+  type TreeTestResult
+} from '@/server/db/schema'
 
-import { type Test } from '@/server/db/schema'
 import { type EntireTreeTestResult } from '@/types'
-import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
+import { type TestType } from '@/zod-schemas/test.schema'
+import {
+  type CorrectPath,
+  correctPathSchema,
+  type TreeItem,
+  treeItemSchema
+} from '@/zod-schemas/tree.schema'
 import { z } from 'zod'
-export const combineTestWithTreeTest = (test: Test, treeTest: TreeTest) => {
+import { type SECTION_TYPE } from './study-utils'
+
+type CombinedTestData = {
+  id: string
+  testId: string
+  studyId: string
+  name: string
+  type: TestType
+  randomized: boolean
+  createdAt: Date
+  updatedAt: Date
+} & (
+  | {
+      type: typeof SECTION_TYPE.TREE_TEST
+      treeStructure: TreeItem[]
+      taskInstructions: string
+      correctPaths: CorrectPath[]
+    }
+  | { type: typeof SECTION_TYPE.SURVEY; questions: SurveyQuestion[] }
+)
+
+export const combineTestWithTreeTest = (
+  test: Test_TreeTestType,
+  treeTest: TreeTest
+): CombinedTestData => {
   const { name, type, ...restTest } = test
   const { treeStructure, taskInstructions, correctPaths, ...restTreeTest } = treeTest
 
   const trees = z.array(treeItemSchema).safeParse(treeStructure)
   if (!trees.success) {
-    console.log('🚀 ~ combineTestWithTreeTest ~ tree:', treeStructure)
+    console.error('🚀 ~ combineTestWithTreeTest ~ tree:', treeStructure)
     throw new Error('Invalid tree structure')
   }
 
   const paths = z.array(correctPathSchema).safeParse(correctPaths)
   if (!paths.success) {
-    console.log('🚀 ~ combineTestWithTreeTest ~ correctPaths:', correctPaths)
+    console.error('🚀 ~ combineTestWithTreeTest ~ correctPaths:', correctPaths)
     throw new Error('Invalid correct paths')
   }
 
   return {
+    id: restTreeTest.id,
+    testId: restTest.id,
+    studyId: restTest.studyId,
     name,
     type,
+    randomized: restTest.randomized,
     treeStructure: trees.data,
     taskInstructions,
     correctPaths: paths.data,
-    sectionData: {
-      sectionId: restTreeTest.id,
-      testId: restTest.id,
-      studyId: restTest.studyId,
-      createdAt: restTest.createdAt,
-      updatedAt: restTest.updatedAt
-    }
+    createdAt: restTest.createdAt,
+    updatedAt: restTest.updatedAt
   }
 }
 
-export const combineTestsWithTreeTests = (tests: Test[], treeTests: TreeTest[]) => {
+export const combineTestsWithTreeTests = (
+  tests: Test_TreeTestType[],
+  treeTests: TreeTest[]
+) => {
   return tests.map(test => {
     const treeTest = treeTests.find(treeTest => treeTest.testId === test.id)
 
@@ -69,4 +107,22 @@ export const combineTestResultsWithTreeTestResults = (
   }
 
   return entireTestResults
+}
+
+export const combineTestWithSurveyQuestions = (
+  test: Test_SurveyType,
+  surveyQuestions: SurveyQuestion[]
+): CombinedTestData => {
+  // id is same as testId as it doesnt have a separate table
+  return {
+    id: test.id,
+    testId: test.id,
+    studyId: test.studyId,
+    name: test.name,
+    type: test.type,
+    randomized: test.randomized,
+    questions: surveyQuestions,
+    createdAt: test.createdAt,
+    updatedAt: test.updatedAt
+  }
 }

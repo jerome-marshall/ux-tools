@@ -35,9 +35,10 @@ export default async function StudyPageEdit({ params }: PageProps) {
         return {
           name: test.name,
           type: test.type,
-          studyId: test.sectionData.studyId,
-          sectionId: test.sectionData.sectionId,
-          testId: test.sectionData.testId,
+          studyId: test.studyId,
+          sectionId: test.id,
+          testId: test.testId,
+          randomized: test.randomized,
           treeStructure: test.treeStructure,
           taskInstructions: test.taskInstructions ?? '',
           correctPaths: test.correctPaths
@@ -47,12 +48,17 @@ export default async function StudyPageEdit({ params }: PageProps) {
         return {
           name: test.name,
           type: test.type,
-          studyId: test.sectionData.studyId,
-          sectionId: test.sectionData.sectionId,
-          testId: test.sectionData.testId
+          studyId: test.studyId,
+          // id will be same as testId as it doesnt have a separate table
+          sectionId: test.id,
+          testId: test.testId,
+          randomized: test.randomized,
+          questions: test.questions
         }
       }
-    }) as StudyWithTestsInsert['tests']
+
+      throw new Error('Invalid test type')
+    }) satisfies StudyWithTestsInsert['tests']
   }
 
   if (!sessionData?.user) {

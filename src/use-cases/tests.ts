@@ -1,10 +1,4 @@
 import {
-  type TestResultInsert,
-  type Test,
-  type TestInsert,
-  type TreeTest
-} from '@/server/db/schema'
-import {
   createTest,
   createTestResult,
   createTests,
@@ -15,11 +9,13 @@ import {
   getTestsByTestIds,
   updateTest
 } from '@/data-access/tests'
-import { getStudyByIdUseCase, getPublicStudyByIdUseCase } from './studies'
-import { getTreeTestByTestIdUseCase } from './tree-tests'
 import { type Db } from '@/server/db'
+import { type Test, type TestInsert, type TestResultInsert } from '@/server/db/schema'
 import { NotFoundError } from '@/utils/error-utils'
 import { SECTION_TYPE } from '@/utils/study-utils'
+import { getPublicStudyByIdUseCase, getStudyByIdUseCase } from './studies'
+import { getSurveyQuestionsByTestIdUseCase } from './survey-questions'
+import { getTreeTestByTestIdUseCase } from './tree-tests'
 
 export const createTestUseCase = async (test: TestInsert, trx?: Db) => {
   const result = await createTest(test, trx)
@@ -96,21 +92,28 @@ export const getTestResultsByStudyIdUseCase = async (userId: string, studyId: st
     tests.map(async test => {
       const results = await getTestResultsByTestId(test.id)
 
-      let testData: TreeTest | null = null
       if (test.type === SECTION_TYPE.TREE_TEST) {
-        testData = await getTreeTestByTestIdUseCase(test.id)
+        const treeTestData = await getTreeTestByTestIdUseCase(test.id)
+        return {
+          test: {
+            ...test,
+            data: treeTestData
+          },
+          results
+        }
       } else if (test.type === SECTION_TYPE.SURVEY) {
-        // testData = await getSurveyTestByTestIdUseCase(test.id)
+        const surveyQuestionsData = await getSurveyQuestionsByTestIdUseCase(test.id)
+        return {
+          test: {
+            ...test,
+            data: {
+              questions: surveyQuestionsData
+            }
+          },
+          results
+        }
       } else {
         throw new Error('Test type not supported')
-      }
-
-      return {
-        test: {
-          ...test,
-          data: testData
-        },
-        results
       }
     })
   )

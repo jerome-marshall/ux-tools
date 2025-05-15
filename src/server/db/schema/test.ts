@@ -4,6 +4,7 @@ import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { studies } from './project-study'
 import { timestamps, uniqueId } from './utils'
+import { type SECTION_TYPE } from '@/utils/study-utils'
 
 export const testTypesEnum = pgEnum('test_types', testTypes)
 
@@ -52,7 +53,19 @@ export const testResultInsertSchema = createInsertSchema(testResults)
     userId: z.string().min(1, { message: 'User is required' })
   })
 
-export type Test = typeof tests.$inferSelect
+type BaseTest = Omit<typeof tests.$inferSelect, 'type'>
+export type Test = BaseTest &
+  (
+    | {
+        type: typeof SECTION_TYPE.TREE_TEST
+      }
+    | {
+        type: typeof SECTION_TYPE.SURVEY
+      }
+  )
+export type Test_TreeTestType = Test & { type: typeof SECTION_TYPE.TREE_TEST }
+export type Test_SurveyType = Test & { type: typeof SECTION_TYPE.SURVEY }
+
 export type TestInsert = z.infer<typeof testInsertSchema>
 export type TestResult = typeof testResults.$inferSelect
 export type TestResultInsert = z.infer<typeof testResultInsertSchema>

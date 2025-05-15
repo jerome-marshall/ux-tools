@@ -1,4 +1,4 @@
-import { Db, db } from '@/server/db'
+import { db } from '@/server/db'
 import {
   testResults,
   tests,
@@ -8,43 +8,47 @@ import {
 } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
 
-export const createTest = async (test: TestInsert, trx = db) => {
+export const createTest = async (test: TestInsert, trx = db): Promise<Test> => {
   const [result] = await trx.insert(tests).values(test).returning()
   return result
 }
 
-export const createTests = async (testsData: TestInsert[], trx = db) => {
+export const createTests = async (testsData: TestInsert[], trx = db): Promise<Test[]> => {
   const result = await trx.insert(tests).values(testsData).returning()
   return result
 }
 
-export const getTestById = async (id: string) => {
+export const getTestById = async (id: string): Promise<Test | undefined> => {
   const result = await db.query.tests.findFirst({
     where: (test, { eq }) => eq(test.id, id)
   })
   return result
 }
 
-export const getTestsByTestIds = async (testIds: string[]) => {
+export const getTestsByTestIds = async (testIds: string[]): Promise<Test[]> => {
   const result = await db.query.tests.findMany({
     where: (test, { inArray }) => inArray(test.id, testIds)
   })
   return result
 }
 
-export const getTestsByStudyId = async (studyId: string) => {
+export const getTestsByStudyId = async (studyId: string): Promise<Test[]> => {
   const result = await db.query.tests.findMany({
     where: (test, { eq }) => eq(test.studyId, studyId)
   })
   return result
 }
 
-export const updateTest = async (id: string, test: Partial<Test>, trx = db) => {
+export const updateTest = async (
+  id: string,
+  test: Partial<Test>,
+  trx = db
+): Promise<Test> => {
   const [result] = await trx.update(tests).set(test).where(eq(tests.id, id)).returning()
   return result
 }
 
-export const deleteTestById = async (id: string, trx = db) => {
+export const deleteTestById = async (id: string, trx = db): Promise<Test> => {
   const [result] = await trx.delete(tests).where(eq(tests.id, id)).returning()
   return result
 }

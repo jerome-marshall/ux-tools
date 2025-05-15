@@ -93,7 +93,6 @@ const BaseStudyForm = ({
 
   const isProjectArchived = isEditPage && project?.archived
   const isStudyActive = isEditPage && study?.isActive
-  console.log('🚀 ~ isStudyActive:', isStudyActive)
 
   const { id: studyId } = defaultValues.study
 
@@ -142,7 +141,8 @@ const BaseStudyForm = ({
           }
         ],
         testId,
-        sectionId,
+        // id is same as testId as it doesnt have a separate table
+        sectionId: testId,
         studyId
       })
     }
@@ -451,7 +451,7 @@ const SortableItem = ({
             'flex items-center justify-between',
             isDragging && 'opacity-75'
           )}
-          onClick={() => scrollToSection(SECTION_TYPE.TREE_TEST + `-${index}`, -120)}
+          onClick={() => scrollToSection(field.type + `-${index}`, -120)}
         >
           <div className='flex items-center gap-2'>
             <Icon className='icon' />

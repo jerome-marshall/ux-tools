@@ -45,7 +45,6 @@ const TreeTestResultCard = ({
     treeTestData.treeStructure,
     correctNodeIds
   )
-  console.log('🚀 ~ categorizedResults:', categorizedResults)
 
   const Icon = getIcon(SECTION_TYPE.TREE_TEST)
 
