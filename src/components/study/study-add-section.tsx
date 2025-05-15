@@ -16,7 +16,6 @@ const StudyAddSection = ({
   form: UseFormReturn<StudyWithTestsInsert>
   disableFields: boolean
 }) => {
-  const errors = form.formState.errors
   return (
     <FormField
       control={form.control}
