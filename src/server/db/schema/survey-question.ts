@@ -38,7 +38,8 @@ export const surveyQuestionInsertSchema = createInsertSchema(surveyQuestions)
     updatedAt: true
   })
   .extend({
-    id: z.string()
+    id: z.string(),
+    multipleChoiceOptions: z.array(z.string()).default([])
   })
 
 export type SurveyQuestion = typeof surveyQuestions.$inferSelect

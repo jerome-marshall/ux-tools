@@ -39,6 +39,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { DevTool } from '@hookform/devtools'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ChartColumnIncreasing,
@@ -103,7 +104,7 @@ const BaseStudyForm = ({
 
   const errors = form.formState.errors
   console.log('🚀 ~ StudyForm ~ state:', form.watch())
-  // console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
+  console.log('🚀 ~ StudyForm ~ errors:', form.formState.errors)
 
   const testsFieldArray = useFieldArray({
     control: form.control,
@@ -137,7 +138,8 @@ const BaseStudyForm = ({
             testId,
             id: generateId(),
             text: '',
-            position: 0
+            position: 0,
+            multipleChoiceOptions: []
           }
         ],
         testId,
@@ -403,6 +405,7 @@ const BaseStudyForm = ({
           </div>
         </div>
       </form>
+      <DevTool control={form.control} placement='top-left' />
     </Form>
   )
 }

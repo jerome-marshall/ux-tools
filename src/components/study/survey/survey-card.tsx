@@ -36,7 +36,8 @@ export const SurveyCard = ({
       testId: test.testId,
       id: generateId(),
       text: '',
-      position: questionsFieldArray.fields.length
+      position: questionsFieldArray.fields.length,
+      multipleChoiceOptions: []
     })
   }
 
