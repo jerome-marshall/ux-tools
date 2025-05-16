@@ -180,7 +180,13 @@ export const SurveyCard = ({
             </SortableContext>
           </DndContext>
           <div className='flex'>
-            <Button size='sm' type='button' className='w-fit' onClick={onAddQuestion}>
+            <Button
+              size='sm'
+              type='button'
+              className='w-fit'
+              onClick={onAddQuestion}
+              disabled={isSortmode || disableFields}
+            >
               Add another question
             </Button>
             <FormField
@@ -193,6 +199,7 @@ export const SurveyCard = ({
                   label='Randomize the order of questions'
                   checked={!!field.value}
                   onChange={field.onChange}
+                  disabled={isSortmode || disableFields}
                 />
               )}
             />
