@@ -15,7 +15,8 @@ const StudyFormSectionCard = ({
   index,
   disableFields,
   onRemoveSection,
-  content
+  content,
+  actionElements
 }: {
   Icon: LucideIcon
   form: UseFormReturn<StudyWithTestsInsert>
@@ -23,6 +24,7 @@ const StudyFormSectionCard = ({
   disableFields: boolean
   onRemoveSection: (index: number) => void
   content: React.ReactNode
+  actionElements?: React.ReactNode
 }) => {
   const [isEditingName, setIsEditingName] = useState<boolean>(false)
   const [isHoveringTitle, setIsHoveringTitle] = useState<boolean>(false)
@@ -109,6 +111,7 @@ const StudyFormSectionCard = ({
             />
           </div>
           <div className='flex items-center gap-2'>
+            {actionElements}
             <Button
               variant='destructive'
               size='icon'

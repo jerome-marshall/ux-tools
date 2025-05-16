@@ -7,17 +7,24 @@ export const CheckboxWithLabel = ({
   checked,
   className,
   onChange,
-  name
+  name,
+  disabled
 }: {
   label: string
   checked: boolean
   onChange: (checked: boolean) => void
   className?: string
   name: string
+  disabled?: boolean
 }) => {
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Checkbox id={name} checked={checked} onCheckedChange={onChange} />
+      <Checkbox
+        id={name}
+        checked={checked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+      />
       <Label htmlFor={name}>{label}</Label>
     </div>
   )

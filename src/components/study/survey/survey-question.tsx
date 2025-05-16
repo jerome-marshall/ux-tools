@@ -47,13 +47,19 @@ export const SurveyQuestion = ({
   index,
   onRemoveQuestion,
   form,
-  sectionIndex
+  sectionIndex,
+  isSortMode,
+  id,
+  isOverlay
 }: {
   form: UseFormReturn<StudyWithTestsInsert>
   disableFields: boolean
   index: number
   sectionIndex: number
   onRemoveQuestion: (index: number) => void
+  isSortMode: boolean
+  id: string
+  isOverlay?: boolean
 }) => {
   const titleClassName = 'text-sm text-gray-700'
 
@@ -69,13 +75,32 @@ export const SurveyQuestion = ({
     name: questionName
   })
 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id
+    })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
+
   const hasChoices =
     question.type === SURVEY_QUESTION_TYPE.SINGLE_SELECT ||
     question.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT ||
     question.type === SURVEY_QUESTION_TYPE.RANKING
 
   return (
-    <div className='grid gap-6 rounded-md border p-4'>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'grid gap-6 rounded-md border bg-white p-4',
+        isDragging && 'opacity-0',
+        isSortMode && 'shadow-md',
+        isOverlay && 'shadow-lg'
+      )}
+    >
       <div className='relative flex items-center justify-between'>
         <p className={titleClassName}>
           {sectionIndex + 1}.{question.position + 1}.{' '}
@@ -85,7 +110,7 @@ export const SurveyQuestion = ({
           <Button
             variant='ghost'
             size='icon'
-            disabled={disableFields || questions.length === 1}
+            disabled={isSortMode || disableFields || questions.length === 1}
             onClick={() => onRemoveQuestion(index)}
           >
             <Trash className='size-4' />
@@ -96,12 +121,23 @@ export const SurveyQuestion = ({
       <div className='grid'>
         <p className={cn(titleClassName, 'mb-2')}>Question</p>
         <div className='flex items-center gap-2'>
-          <GripVertical className='text-muted-foreground size-6' />
+          {isSortMode && (
+            <GripVertical
+              className='text-muted-foreground size-6 cursor-grab active:cursor-grabbing'
+              {...listeners}
+              {...attributes}
+            />
+          )}
           <FormField
             control={form.control}
             name={`${questionName}.text`}
             render={({ field }) => (
-              <Input className='flex-1' {...field} required={true} />
+              <Input
+                className='flex-1'
+                {...field}
+                required={true}
+                disabled={isSortMode || disableFields || isOverlay}
+              />
             )}
           />
           <FormField
@@ -132,6 +168,7 @@ export const SurveyQuestion = ({
                   }
                 }}
                 value={field.value}
+                disabled={isSortMode || disableFields || isOverlay}
               >
                 <SelectTrigger className='w-[160px]'>
                   <SelectValue placeholder='Select a question type' />
@@ -159,6 +196,7 @@ export const SurveyQuestion = ({
                   checked={!!field.value}
                   onChange={value => field.onChange(value)}
                   className='ml-2'
+                  disabled={isSortMode || disableFields || isOverlay}
                 />
               )}
             />
@@ -166,7 +204,7 @@ export const SurveyQuestion = ({
         </div>
       </div>
 
-      {hasChoices && (
+      {hasChoices && !isSortMode && (
         <>
           <div className='grid'>
             <p className={cn(titleClassName, '')}>
@@ -265,7 +303,7 @@ const ChoicesList = ({
     setActiveId(null)
     const { active, over } = event
 
-    if (active.id !== over?.id && over) {
+    if (over && active.id !== over.id) {
       const oldIndex = multipleChoiceOptions.findIndex(choice => choice === active.id)
       const newIndex = multipleChoiceOptions.findIndex(choice => choice === over.id)
 
