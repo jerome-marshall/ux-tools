@@ -18,7 +18,28 @@ import {
 } from '@/utils/study-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { type SurveyQuestionType } from '@/zod-schemas/survey-question.schema'
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { type UseFormReturn, useWatch } from 'react-hook-form'
 
 export const SurveyQuestion = ({
@@ -148,7 +169,7 @@ export const SurveyQuestion = ({
       {hasChoices && (
         <>
           <div className='grid'>
-            <p className={cn(titleClassName, 'mb-2')}>
+            <p className={cn(titleClassName, '')}>
               Choices (Press ⏎ for new line or paste a list)
             </p>
             <FormField
@@ -225,37 +246,91 @@ const ChoicesList = ({
   name: `tests.${number}.questions.${number}.multipleChoiceOptions`
   disableFields: boolean
 }) => {
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  )
+
   if (!multipleChoiceOptions) return null
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string)
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null)
+    const { active, over } = event
+
+    if (active.id !== over?.id && over) {
+      const oldIndex = multipleChoiceOptions.findIndex(choice => choice === active.id)
+      const newIndex = multipleChoiceOptions.findIndex(choice => choice === over.id)
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newChoices = arrayMove(multipleChoiceOptions, oldIndex, newIndex)
+        onChange(newChoices)
+      }
+    }
+  }
+
   return (
-    <div className='grid gap-4'>
-      {multipleChoiceOptions.map((choice, index) => {
-        const choiceName = `${name}.${index}` as const
+    <div className='grid'>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToParentElement, restrictToVerticalAxis]}
+        autoScroll={false}
+      >
+        <SortableContext
+          items={multipleChoiceOptions}
+          strategy={verticalListSortingStrategy}
+        >
+          {multipleChoiceOptions.map((choice, index) => {
+            const choiceName = `${name}.${index}` as const
 
-        const onChoiceChange = (value: string) => {
-          const newChoices = [...multipleChoiceOptions]
-          newChoices[index] = value
-          onChange(newChoices)
-        }
+            const onChoiceChange = (value: string) => {
+              const newChoices = [...multipleChoiceOptions]
+              newChoices[index] = value
+              onChange(newChoices)
+            }
 
-        const onRemove = () => {
-          const newChoices = [...multipleChoiceOptions]
-          newChoices.splice(index, 1)
-          onChange(newChoices)
-        }
+            const onRemove = () => {
+              const newChoices = [...multipleChoiceOptions]
+              newChoices.splice(index, 1)
+              onChange(newChoices)
+            }
 
-        return (
-          <Choice
-            key={index}
-            value={choice}
-            onChange={onChoiceChange}
-            name={choiceName}
-            removeDisabled={multipleChoiceOptions.length < 3}
-            disableFields={disableFields}
-            onRemove={onRemove}
-          />
-        )
-      })}
+            return (
+              <Choice
+                key={choice + 'key'}
+                value={choice}
+                onChange={onChoiceChange}
+                name={choiceName}
+                removeDisabled={multipleChoiceOptions.length < 3}
+                disableFields={disableFields}
+                onRemove={onRemove}
+              />
+            )
+          })}
+          <DragOverlay>
+            {activeId ? (
+              <Choice
+                key={activeId}
+                name={activeId}
+                value={activeId}
+                removeDisabled={multipleChoiceOptions.length < 3}
+                disableFields={disableFields}
+                isOverlay={true}
+              />
+            ) : null}
+          </DragOverlay>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }
@@ -267,25 +342,49 @@ const Choice = ({
   value,
   removeDisabled,
   disableFields,
-  onRemove
+  onRemove,
+  isOverlay
 }: {
   name: string
-  onChange: (value: string) => void
+  onChange?: (value: string) => void
   ref?: (element: HTMLInputElement) => void
   value: string
   removeDisabled: boolean
   disableFields: boolean
-  onRemove: () => void
+  onRemove?: () => void
+  isOverlay?: boolean
 }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id: value
+    })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
+
   return (
-    <div className='flex items-center gap-2'>
-      <GripVertical className='text-muted-foreground size-6' />
+    <div
+      className={cn(
+        'flex items-center gap-2 bg-white py-2',
+        isOverlay && 'border py-2',
+        isDragging && 'opacity-0'
+      )}
+      ref={setNodeRef}
+      style={style}
+    >
+      <GripVertical
+        className='text-muted-foreground size-6 cursor-grab active:cursor-grabbing'
+        {...listeners}
+        {...attributes}
+      />
       <Input
         name={name}
         ref={ref}
         className='flex-1'
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => onChange?.(e.target.value)}
         disabled={disableFields}
         required={true}
       />
