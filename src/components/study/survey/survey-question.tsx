@@ -134,7 +134,7 @@ export const SurveyQuestion = ({
               render={({ field }) => (
                 <CheckboxWithLabel
                   label='Required'
-                  id='required'
+                  name={field.name}
                   checked={!!field.value}
                   onChange={value => field.onChange(value)}
                   className='ml-2'
@@ -184,7 +184,7 @@ export const SurveyQuestion = ({
                 render={({ field }) => (
                   <CheckboxWithLabel
                     label='Show "Other" option'
-                    id='hasOtherOption'
+                    name={field.name}
                     checked={!!field.value}
                     onChange={value => field.onChange(value)}
                     className=''
@@ -198,10 +198,10 @@ export const SurveyQuestion = ({
               render={({ field }) => (
                 <CheckboxWithLabel
                   label='Randomize the order of choices'
-                  id='randomize'
                   checked={!!field.value}
                   onChange={value => field.onChange(value)}
                   className=''
+                  name={field.name}
                 />
               )}
             />

@@ -1,5 +1,13 @@
-import { type Project, type TreeTestResult, type TestResult } from './server/db/schema'
+import {
+  type Project,
+  type SurveyQuestion,
+  type TestResult,
+  type TreeTestResult
+} from './server/db/schema'
 import { type RouterOutputs } from './trpc/client'
+import { type SECTION_TYPE } from './utils/study-utils'
+import { type TestType } from './zod-schemas/test.schema'
+import { type CorrectPath, type TreeItem } from './zod-schemas/tree.schema'
 
 export type PathTypeStatus = `${'direct' | 'indirect'}-${'success' | 'failure' | 'pass'}`
 export type CategorizedTreeResults = Record<PathTypeStatus, EntireTreeTestResult[]>
@@ -15,3 +23,22 @@ export type TestResultsWithTest = RouterOutputs['tests']['getTestResults']
 export type EntireTreeTestResult = TreeTestResult & {
   testData: TestResult
 }
+
+export type CombinedTestData = {
+  id: string
+  testId: string
+  studyId: string
+  name: string
+  type: TestType
+  randomized: boolean
+  createdAt: Date
+  updatedAt: Date
+} & (
+  | {
+      type: typeof SECTION_TYPE.TREE_TEST
+      treeStructure: TreeItem[]
+      taskInstructions: string
+      correctPaths: CorrectPath[]
+    }
+  | { type: typeof SECTION_TYPE.SURVEY; questions: SurveyQuestion[] }
+)

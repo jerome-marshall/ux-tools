@@ -270,6 +270,7 @@ const BaseStudyForm = ({
                           buttonVariants({ variant: 'secondary' }),
                           'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
                         )}
+                        target='_blank'
                       >
                         <Hand className='size-4' />
                         Start Study

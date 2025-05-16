@@ -4,21 +4,21 @@ import { Label } from './ui/label'
 
 export const CheckboxWithLabel = ({
   label,
-  id,
   checked,
   className,
-  onChange
+  onChange,
+  name
 }: {
   label: string
-  id: string
   checked: boolean
   onChange: (checked: boolean) => void
   className?: string
+  name: string
 }) => {
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Checkbox id={id} checked={checked} onCheckedChange={onChange} />
-      <Label htmlFor={id}>{label}</Label>
+      <Checkbox id={name} checked={checked} onCheckedChange={onChange} />
+      <Label htmlFor={name}>{label}</Label>
     </div>
   )
 }

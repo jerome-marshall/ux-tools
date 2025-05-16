@@ -8,6 +8,7 @@ import { useTRPC } from '@/trpc/client'
 import { useMutation } from '@tanstack/react-query'
 import { useLocalStorage } from 'usehooks-ts'
 import { SECTION_TYPE } from '@/utils/study-utils'
+import { TestViewLayout } from './test-view-layout'
 
 const TreeTestView = ({
   treeStructure,
@@ -55,22 +56,18 @@ const TreeTestView = ({
   }
 
   return (
-    <div className='relative flex h-full flex-col items-center p-10'>
-      <div className=''>
-        <h3 className='text-center text-xl font-medium'>{taskInstructions}</h3>
-        <p className='mt-2 text-center text-gray-500'>
-          Select an option from the menu below
-        </p>
-      </div>
-      <div className='mt-10'>
-        <TreeView
-          treeStructure={treeStructure}
-          onNextStep={handleNext}
-          firstInteractionTime={firstInteractionTime}
-          setFirstInteractionTime={setFirstInteractionTime}
-        />
-      </div>
-    </div>
+    <TestViewLayout
+      title={taskInstructions}
+      description={'Select an option from the menu below'}
+      wrapperClassName='max-w-xl'
+    >
+      <TreeView
+        treeStructure={treeStructure}
+        onNextStep={handleNext}
+        firstInteractionTime={firstInteractionTime}
+        setFirstInteractionTime={setFirstInteractionTime}
+      />
+    </TestViewLayout>
   )
 }
 
@@ -273,7 +270,7 @@ const TreeView = ({
 
   return (
     <>
-      <div className='w-[580px]'>
+      <div className='w-full'>
         {/* Navigation History */}
         {/* {navigationPath.length > 0 && (
         <motion.div
@@ -330,12 +327,14 @@ const TreeView = ({
         ))}
       </div>
       {/* Pass button */}
-      <button
+      <Button
         onClick={() => onNextStep(true, navigationPath)}
-        className='absolute right-6 bottom-6 rounded-md bg-gray-200 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-300'
+        variant='muted'
+        size='lg'
+        className='absolute right-6 bottom-6'
       >
         I'm not sure, pass
-      </button>
+      </Button>
     </>
   )
 }
@@ -394,13 +393,14 @@ const TreeItem = ({
 
         {isSelected && (
           <motion.div
-            className='absolute -top-[0px] -right-[128px]'
+            className='absolute -top-[0px] -right-[162px]'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
           >
             <Button
-              className='h-10 w-[120px] cursor-pointer rounded-md bg-teal-600 px-3 py-2 whitespace-nowrap text-white hover:bg-teal-700'
+              variant='teal'
+              size='lg'
               onClick={e => {
                 e.stopPropagation()
                 onNextStep([])

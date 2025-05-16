@@ -82,7 +82,7 @@ export const SurveyCard = ({
               render={({ field }) => (
                 <CheckboxWithLabel
                   className='ml-4'
-                  id='randomize_questions'
+                  name={field.name}
                   label='Randomize the order of questions'
                   checked={!!field.value}
                   onChange={field.onChange}

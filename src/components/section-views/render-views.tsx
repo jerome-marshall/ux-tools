@@ -12,6 +12,7 @@ import Link from '../link'
 import { buttonVariants } from '../ui/button'
 import { studyEditUrl } from '@/utils/urls'
 import { SECTION_TYPE } from '@/utils/study-utils'
+import { SurveyView } from './survey-view'
 
 const RenderViews = ({
   data,
@@ -57,7 +58,9 @@ const RenderViews = ({
         {currentStep !== 'Welcome' &&
           currentStep !== 'Thanks' &&
           (() => {
-            const test = tests.find(test => test.testId === currentStep)
+            const test = tests.find(test => {
+              return test.testId === currentStep
+            })
             if (!test) {
               return (
                 <div className='flex h-full items-center justify-center'>
@@ -86,6 +89,17 @@ const RenderViews = ({
                 <TreeTestView
                   taskInstructions={test.taskInstructions}
                   treeStructure={parsedTreeStructure.data}
+                  onNextStep={handleNextStep}
+                  testId={test.testId}
+                  isPreview={!!isPreview}
+                />
+              )
+            }
+
+            if (test.type === SECTION_TYPE.SURVEY) {
+              return (
+                <SurveyView
+                  testData={test}
                   onNextStep={handleNextStep}
                   testId={test.testId}
                   isPreview={!!isPreview}

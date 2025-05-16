@@ -7,35 +7,9 @@ import {
   type TreeTestResult
 } from '@/server/db/schema'
 
-import { type EntireTreeTestResult } from '@/types'
-import { type TestType } from '@/zod-schemas/test.schema'
-import {
-  type CorrectPath,
-  correctPathSchema,
-  type TreeItem,
-  treeItemSchema
-} from '@/zod-schemas/tree.schema'
+import { type CombinedTestData, type EntireTreeTestResult } from '@/types'
+import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
 import { z } from 'zod'
-import { type SECTION_TYPE } from './study-utils'
-
-type CombinedTestData = {
-  id: string
-  testId: string
-  studyId: string
-  name: string
-  type: TestType
-  randomized: boolean
-  createdAt: Date
-  updatedAt: Date
-} & (
-  | {
-      type: typeof SECTION_TYPE.TREE_TEST
-      treeStructure: TreeItem[]
-      taskInstructions: string
-      correctPaths: CorrectPath[]
-    }
-  | { type: typeof SECTION_TYPE.SURVEY; questions: SurveyQuestion[] }
-)
 
 export const combineTestWithTreeTest = (
   test: Test_TreeTestType,

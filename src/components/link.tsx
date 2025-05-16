@@ -8,7 +8,11 @@ export interface LinkProps extends NextLinkProps {
 /**
  * Custom Link component wrapper with prefetching always enabled
  */
-const Link = ({ children, prefetch = true, ...rest }: LinkProps) => {
+const Link = ({
+  children,
+  prefetch = true,
+  ...rest
+}: LinkProps & { target?: '_blank' | '_self' }) => {
   return (
     <NextLink prefetch={prefetch} {...rest}>
       {children}
