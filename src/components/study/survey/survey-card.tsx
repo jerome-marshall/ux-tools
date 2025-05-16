@@ -103,15 +103,14 @@ export const SurveyCard = ({
       if (oldIndex !== -1 && newIndex !== -1) {
         questionsFieldArray.move(oldIndex, newIndex)
 
-        // Update positions for remaining questions
         const updatedFields = form.getValues(`tests.${index}.questions`) || []
         updatedFields.forEach((_, idx) => {
           form.setValue(`tests.${index}.questions.${idx}.position`, idx)
         })
 
-        form.setValue(`tests.${index}.questions`, updatedFields, {
-          shouldDirty: true
-        })
+        // form.setValue(`tests.${index}.questions`, updatedFields, {
+        //   shouldDirty: true
+        // })
       }
     }
   }
@@ -151,7 +150,7 @@ export const SurveyCard = ({
               {questionsFieldArray.fields.map((field, questionIndex) => (
                 <SurveyQuestion
                   key={field.id}
-                  id={field.id}
+                  question={field}
                   form={form}
                   disableFields={disableFields}
                   sectionIndex={index}
@@ -164,7 +163,9 @@ export const SurveyCard = ({
                 {activeId && (
                   <SurveyQuestion
                     key={activeId}
-                    id={activeId}
+                    question={
+                      questionsFieldArray.fields.find(field => field.id === activeId)!
+                    }
                     form={form}
                     disableFields={disableFields}
                     sectionIndex={index}

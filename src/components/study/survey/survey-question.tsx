@@ -40,7 +40,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { type UseFormReturn, useWatch } from 'react-hook-form'
+import { type FieldArrayWithId, type UseFormReturn, useWatch } from 'react-hook-form'
 
 export const SurveyQuestion = ({
   disableFields,
@@ -49,8 +49,8 @@ export const SurveyQuestion = ({
   form,
   sectionIndex,
   isSortMode,
-  id,
-  isOverlay
+  isOverlay,
+  question
 }: {
   form: UseFormReturn<StudyWithTestsInsert>
   disableFields: boolean
@@ -58,7 +58,7 @@ export const SurveyQuestion = ({
   sectionIndex: number
   onRemoveQuestion: (index: number) => void
   isSortMode: boolean
-  id: string
+  question: FieldArrayWithId<StudyWithTestsInsert, `tests.${number}.questions`>
   isOverlay?: boolean
 }) => {
   const titleClassName = 'text-sm text-gray-700'
@@ -70,14 +70,10 @@ export const SurveyQuestion = ({
   })
 
   const questionName = `${questionsName}.${index}` as const
-  const question = useWatch({
-    control: form.control,
-    name: questionName
-  })
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({
-      id
+      id: question.id
     })
 
   const style = {
