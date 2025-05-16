@@ -83,8 +83,7 @@ export const SurveyCard = ({
     })
 
     form.setValue(`tests.${index}.questions`, updatedFields, {
-      shouldDirty: true,
-      shouldTouch: true
+      shouldDirty: true
     })
   }
 
@@ -108,6 +107,10 @@ export const SurveyCard = ({
         const updatedFields = form.getValues(`tests.${index}.questions`) || []
         updatedFields.forEach((_, idx) => {
           form.setValue(`tests.${index}.questions.${idx}.position`, idx)
+        })
+
+        form.setValue(`tests.${index}.questions`, updatedFields, {
+          shouldDirty: true
         })
       }
     }
