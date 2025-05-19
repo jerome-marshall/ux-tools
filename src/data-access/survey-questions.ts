@@ -1,5 +1,10 @@
 import { db } from '@/server/db'
-import { surveyQuestions, type SurveyQuestionInsert } from '@/server/db/schema'
+import {
+  type SurveyQuestionResultInsert,
+  surveyQuestionResults,
+  surveyQuestions,
+  type SurveyQuestionInsert
+} from '@/server/db/schema'
 import { eq, inArray } from 'drizzle-orm'
 
 export const insertSurveyQuestion = async (
@@ -54,6 +59,47 @@ export const deleteSurveyQuestionsByTestId = async (testId: string, trx = db) =>
   const results = await trx
     .delete(surveyQuestions)
     .where(eq(surveyQuestions.testId, testId))
+    .returning()
+  return results
+}
+
+export const getSurveyQuestionResultsByTestId = async (testId: string, trx = db) => {
+  const results = await trx
+    .select()
+    .from(surveyQuestionResults)
+    .where(eq(surveyQuestionResults.testId, testId))
+  return results
+}
+
+export const getSurveyQuestionResultsByTestResultId = async (
+  testResultId: string,
+  trx = db
+) => {
+  const results = await trx
+    .select()
+    .from(surveyQuestionResults)
+    .where(eq(surveyQuestionResults.testResultId, testResultId))
+  return results
+}
+
+export const insertSurveyQuestionResult = async (
+  surveyQuestionResult: SurveyQuestionResultInsert,
+  trx = db
+) => {
+  const [result] = await trx
+    .insert(surveyQuestionResults)
+    .values(surveyQuestionResult)
+    .returning()
+  return result
+}
+
+export const insertSurveyQuestionResults = async (
+  surveyQuestionResultsData: SurveyQuestionResultInsert[],
+  trx = db
+) => {
+  const results = await trx
+    .insert(surveyQuestionResults)
+    .values(surveyQuestionResultsData)
     .returning()
   return results
 }

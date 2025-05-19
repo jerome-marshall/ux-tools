@@ -58,9 +58,22 @@ export const surveyQuestionInsertSchema = createInsertSchema(surveyQuestions)
     updatedAt: true
   })
   .extend({
-    id: z.string(),
+    id: z.string().uuid(),
     multipleChoiceOptions: z.array(z.string()).default([])
   })
 
 export type SurveyQuestion = typeof surveyQuestions.$inferSelect
 export type SurveyQuestionInsert = z.infer<typeof surveyQuestionInsertSchema>
+
+export const surveyQuestionResultInsertSchema = createInsertSchema(surveyQuestionResults)
+  .omit({
+    createdAt: true,
+    updatedAt: true
+  })
+  .extend({
+    id: z.string().uuid(),
+    answers: z.array(z.string()).default([])
+  })
+
+export type SurveyQuestionResult = typeof surveyQuestionResults.$inferSelect
+export type SurveyQuestionResultInsert = z.infer<typeof surveyQuestionResultInsertSchema>
