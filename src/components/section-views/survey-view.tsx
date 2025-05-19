@@ -17,6 +17,27 @@ import { useSurveyUser } from '@/hooks/use-survey-user'
 import { type SurveyQuestionResultInsert } from '@/server/db/schema'
 import { cn, generateId } from '@/lib/utils'
 import { toast } from 'sonner'
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  type DragMoveEvent,
+  DragOverlay,
+  type DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 export const SurveyView = ({
   testData,
@@ -48,6 +69,9 @@ export const SurveyView = ({
   const trpc = useTRPC()
   const { mutate } = useMutation(
     trpc.tests.createTestResult.mutationOptions({
+      onSuccess() {
+        setAnswers([])
+      },
       onError(error, variables) {
         console.error('🚀 ~ onError ~ error:', error, variables)
       }
@@ -67,30 +91,29 @@ export const SurveyView = ({
     const now = Date.now()
     const durationMs = now - startTime
 
-    setAnswers(prev => {
-      const skipped = !currentAnswerData.answer && !currentAnswerData.answers.length
+    const skipped = !currentAnswerData.answer && !currentAnswerData.answers.length
+    const newAnswers = [
+      ...answers,
+      {
+        answers: currentAnswerData.answers,
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        answer: currentAnswerData.answer || null,
+        questionId: currentQuestion.id,
+        testId,
+        testResultId: resultId.current,
+        durationMs,
+        skipped
+      }
+    ]
 
-      return [
-        ...prev,
-        {
-          answers: currentAnswerData.answers,
-          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-          answer: currentAnswerData.answer || null,
-          questionId: currentQuestion.id,
-          testId,
-          testResultId: resultId.current,
-          durationMs,
-          skipped
-        }
-      ]
-    })
+    setAnswers(newAnswers)
 
     if (hasNextQuestion) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
       onNextStep()
 
-      const totalDurationMs = answers.reduce((acc, curr) => acc + curr.durationMs, 0)
+      const totalDurationMs = newAnswers.reduce((acc, curr) => acc + curr.durationMs, 0)
 
       if (!isPreview) {
         mutate({
@@ -99,7 +122,7 @@ export const SurveyView = ({
           taskDurationMs: totalDurationMs,
           totalDurationMs,
           testType: SECTION_TYPE.SURVEY,
-          surveyQuestionsResults: answers
+          surveyQuestionsResults: newAnswers
         })
       }
     }
@@ -164,7 +187,19 @@ export const SurveyView = ({
           options={currentQuestion.multipleChoiceOptions}
         />
       )}
-      {currentQuestion.type === SURVEY_QUESTION_TYPE.RANKING && <RankingGroup />}
+      {currentQuestion.type === SURVEY_QUESTION_TYPE.RANKING && (
+        <RankingDnDGroup
+          values={
+            currentAnswerData.answers.length
+              ? currentAnswerData.answers
+              : currentQuestion.multipleChoiceOptions
+          }
+          onChange={value => {
+            setCurrentAnswerData({ ...currentAnswerData, answers: value })
+            setHasAnswered(true)
+          }}
+        />
+      )}
       {/* <Button
         variant={'teal'}
         size={'lg'}
@@ -283,20 +318,107 @@ const CheckboxItem = ({
   )
 }
 
-const RankingGroup = () => {
+const RankingDnDGroup = ({
+  values,
+  onChange
+}: {
+  values: string[]
+  onChange: (values: string[]) => void
+}) => {
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  )
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string)
+  }
+
+  function handleDragMove(event: DragMoveEvent) {
+    const { active, over } = event
+    if (over && active.id !== over.id) {
+      const oldIndex = values.findIndex(choice => choice === active.id)
+      const newIndex = values.findIndex(choice => choice === over.id)
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newChoices = arrayMove(values, oldIndex, newIndex)
+        onChange(newChoices)
+      }
+    }
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null)
+  }
+
   return (
     <div className='grid gap-3'>
-      <RankingItem id='default' label='Default' />
-      <RankingItem id='comfortable' label='Comfortable' />
-      <RankingItem id='compact' label='Compact' />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragMove}
+        modifiers={[restrictToParentElement, restrictToVerticalAxis]}
+        autoScroll={false}
+      >
+        <SortableContext items={values} strategy={verticalListSortingStrategy}>
+          {values.map((choice, idx) => (
+            <RankingDnDItem key={choice} id={choice} label={choice} index={idx} />
+          ))}
+          <DragOverlay>
+            {activeId ? (
+              <RankingDnDItem
+                id={activeId}
+                label={activeId}
+                isOverlay
+                index={values.findIndex(v => v === activeId)}
+              />
+            ) : null}
+          </DragOverlay>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }
 
-const RankingItem = ({ id, label }: { id: string; label: string }) => {
+const RankingDnDItem = ({
+  id,
+  label,
+  index,
+  isOverlay
+}: {
+  id: string
+  label: string
+  index: number
+  isOverlay?: boolean
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id
+    })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
   return (
-    <div className='flex w-full cursor-pointer items-center gap-3 rounded-md border bg-white p-3 transition-all duration-100 peer-data-[state=checked]:border-teal-600 peer-data-[state=checked]:bg-teal-500/10 peer-data-[state=checked]:text-teal-800'>
-      <GripVertical className='text-muted-foreground size-5' />
+    <div
+      className={cn(
+        'flex w-full cursor-grab items-center gap-3 rounded-md border bg-white p-3',
+        isOverlay && 'cursor-grabbing shadow-md',
+        isDragging && 'opacity-0'
+      )}
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+    >
+      <span className='flex h-7 w-7 items-center justify-center rounded-full bg-teal-100 font-semibold text-teal-700'>
+        {index + 1}
+      </span>
       <p className='text-base font-medium'>{label}</p>
     </div>
   )
