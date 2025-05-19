@@ -1,34 +1,25 @@
 'use client'
+import { cn } from '@/lib/utils'
 import { type StudyWithTests } from '@/types'
+import { SECTION_TYPE } from '@/utils/study-utils'
+import { studyEditUrl } from '@/utils/urls'
 import { treeItemSchema } from '@/zod-schemas/tree.schema'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { z } from 'zod'
+import Link from '../link'
+import { buttonVariants } from '../ui/button'
+import { SurveyView } from './survey-view'
 import ThanksView from './thanks-view'
 import TreeTestView from './tree-test-view'
 import WelcomeView from './welcome-view'
-import { useLocalStorage } from 'usehooks-ts'
-import { cn, generateId } from '@/lib/utils'
-import Link from '../link'
-import { buttonVariants } from '../ui/button'
-import { studyEditUrl } from '@/utils/urls'
-import { SECTION_TYPE } from '@/utils/study-utils'
-import { SurveyView } from './survey-view'
 
 const RenderViews = ({
   data,
-  isPreview
+  isPreview = false
 }: {
   data: StudyWithTests
-  isPreview?: boolean
+  isPreview: boolean
 }) => {
-  const [userId, setUserId] = useLocalStorage('user-id', '')
-
-  useEffect(() => {
-    if (!isPreview && !userId) {
-      setUserId(generateId())
-    }
-  }, [isPreview, userId, setUserId])
-
   const tests = data.tests
   const testOrder = data.study.testsOrder
 
