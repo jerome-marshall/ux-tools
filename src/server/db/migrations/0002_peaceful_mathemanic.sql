@@ -1,0 +1,1 @@
+ALTER TABLE "survey_question_results" ALTER COLUMN "answers" SET NOT NULL;

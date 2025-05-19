@@ -47,7 +47,9 @@ export const surveyQuestionResults = pgTable('survey_question_results', {
   answer: text('answer'),
   answers: text('answers')
     .array()
+    .notNull()
     .default(sql`'{}'::text[]`),
+  skipped: boolean('skipped').notNull().default(false),
   pasteDetected: boolean('paste_detected').notNull().default(false),
   ...timestamps
 })
@@ -71,7 +73,6 @@ export const surveyQuestionResultInsertSchema = createInsertSchema(surveyQuestio
     updatedAt: true
   })
   .extend({
-    id: z.string().uuid(),
     answers: z.array(z.string()).default([])
   })
 

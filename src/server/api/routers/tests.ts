@@ -1,6 +1,15 @@
 import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
-import { treeTestResultInsertSchema } from '@/server/db/schema'
+import {
+  type SurveyQuestionResult,
+  surveyQuestionResultInsertSchema,
+  type TreeTestResult,
+  treeTestResultInsertSchema
+} from '@/server/db/schema'
 import { updateStudyUseCase } from '@/use-cases/studies'
+import {
+  insertSurveyQuestionResultsUseCase,
+  insertSurveyQuestionResultUseCase
+} from '@/use-cases/survey-questions'
 import {
   createTestResultUseCase,
   getTestByIdUseCase,
@@ -30,6 +39,14 @@ export const testsRouter = createTRPCRouter({
             z.object({
               testType: z.literal(SECTION_TYPE.TREE_TEST),
               treeTestResult: treeTestResultInsertSchema.omit({ testResultId: true })
+            }),
+            z.object({
+              testType: z.literal(SECTION_TYPE.SURVEY),
+              surveyQuestionsResults: surveyQuestionResultInsertSchema
+                .omit({
+                  testResultId: true
+                })
+                .array()
             })
           ])
         )
@@ -42,21 +59,37 @@ export const testsRouter = createTRPCRouter({
         taskDurationMs: input.taskDurationMs
       })
 
-      const newTreeTestResult = await createTreeTestResultUseCase({
-        passed: input.treeTestResult.passed,
-        testId: input.treeTestResult.testId,
-        testResultId: newTestResult.id,
-        treeTestClicks: input.treeTestResult.treeTestClicks
-      })
-
       const test = await getTestByIdUseCase(input.testId)
       await updateStudyUseCase(userId, test.studyId, {
         hasTestResults: true
       })
 
-      return {
-        testResult: newTestResult,
-        treeTestResult: newTreeTestResult
+      if (input.testType === SECTION_TYPE.TREE_TEST) {
+        const newTreeTestResult = await createTreeTestResultUseCase({
+          passed: input.treeTestResult.passed,
+          testId: input.treeTestResult.testId,
+          testResultId: newTestResult.id,
+          treeTestClicks: input.treeTestResult.treeTestClicks
+        })
+
+        return {
+          testType: input.testType,
+          testResult: newTestResult,
+          treeTestResult: newTreeTestResult
+        }
+      } else if (input.testType === SECTION_TYPE.SURVEY) {
+        const newSurveyQuestionsResults = await insertSurveyQuestionResultsUseCase(
+          input.surveyQuestionsResults.map(result => ({
+            ...result,
+            testResultId: newTestResult.id
+          }))
+        )
+
+        return {
+          testType: input.testType,
+          testResult: newTestResult,
+          surveyQuestionsResults: newSurveyQuestionsResults
+        }
       }
     }),
 

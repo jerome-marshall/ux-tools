@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useLocalStorage } from 'usehooks-ts'
 import { SECTION_TYPE } from '@/utils/study-utils'
 import { TestViewLayout } from './test-view-layout'
+import { useSurveyUser } from '@/hooks/use-survey-user'
 
 const TreeTestView = ({
   treeStructure,
@@ -25,8 +26,7 @@ const TreeTestView = ({
 }) => {
   const trpc = useTRPC()
 
-  const [storedUserId] = useLocalStorage('user-id', '')
-  const userId = isPreview ? '' : storedUserId
+  const { userId } = useSurveyUser({ isPreview })
 
   const [startTime, setStartTime] = useState<number>(Date.now())
   const [firstInteractionTime, setFirstInteractionTime] = useState<number | null>(null)

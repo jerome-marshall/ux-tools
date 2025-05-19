@@ -5,7 +5,7 @@ import {
   surveyQuestions,
   type SurveyQuestionInsert
 } from '@/server/db/schema'
-import { eq, inArray } from 'drizzle-orm'
+import { asc, eq, inArray } from 'drizzle-orm'
 
 export const insertSurveyQuestion = async (
   surveyQuestion: SurveyQuestionInsert,
@@ -31,6 +31,7 @@ export const getSurveyQuestionsByTestId = async (testId: string, trx = db) => {
     .select()
     .from(surveyQuestions)
     .where(eq(surveyQuestions.testId, testId))
+    .orderBy(asc(surveyQuestions.position))
   return results
 }
 
