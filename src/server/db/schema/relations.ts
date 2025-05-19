@@ -1,8 +1,9 @@
 import { relations } from 'drizzle-orm'
+import { user } from './auth'
 import { projects, studies } from './project-study'
+import { surveyQuestionResults, surveyQuestions } from './survey-question'
 import { testResults, tests } from './test'
 import { treeTestResults, treeTests } from './tree-test'
-import { user } from './auth'
 
 export const projectRelations = relations(projects, ({ many, one }) => ({
   studies: many(studies),
@@ -33,7 +34,9 @@ export const testRelations = relations(tests, ({ one, many }) => ({
     fields: [tests.id],
     references: [treeTests.testId]
   }),
-  treeTestResults: many(treeTestResults)
+  treeTestResults: many(treeTestResults),
+  surveyQuestions: many(surveyQuestions),
+  surveyQuestionResults: many(surveyQuestionResults)
 }))
 
 export const treeTestRelations = relations(treeTests, ({ one }) => ({
@@ -48,7 +51,8 @@ export const testResultRelations = relations(testResults, ({ one, many }) => ({
     fields: [testResults.testId],
     references: [tests.id]
   }),
-  treeTestResults: many(treeTestResults)
+  treeTestResults: many(treeTestResults),
+  surveyQuestionResults: many(surveyQuestionResults)
 }))
 
 export const treeTestResultRelations = relations(treeTestResults, ({ one }) => ({
@@ -57,3 +61,25 @@ export const treeTestResultRelations = relations(treeTestResults, ({ one }) => (
     references: [testResults.id]
   })
 }))
+
+export const surveyQuestionRelations = relations(surveyQuestions, ({ one, many }) => ({
+  test: one(tests, {
+    fields: [surveyQuestions.testId],
+    references: [tests.id]
+  }),
+  results: many(surveyQuestionResults)
+}))
+
+export const surveyQuestionResultRelations = relations(
+  surveyQuestionResults,
+  ({ one }) => ({
+    question: one(surveyQuestions, {
+      fields: [surveyQuestionResults.questionId],
+      references: [surveyQuestions.id]
+    }),
+    testResult: one(testResults, {
+      fields: [surveyQuestionResults.testResultId],
+      references: [testResults.id]
+    })
+  })
+)
