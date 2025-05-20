@@ -4,30 +4,28 @@ import { FormField } from '@/components/ui/form'
 import { generateId } from '@/lib/utils'
 import { SECTION_TYPE } from '@/utils/study-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
-import { ArrowUpDown, CircleHelp, SortAsc, SortDesc } from 'lucide-react'
-import { useFieldArray, useWatch, type UseFormReturn } from 'react-hook-form'
-import StudyFormSectionCard from '../study-form-section-card'
-import { SurveyQuestion } from './survey-question'
 import {
-  closestCenter,
   closestCorners,
   DndContext,
   type DragEndEvent,
   DragOverlay,
   type DragStartEvent,
-  KeyboardSensor
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
 } from '@dnd-kit/core'
-import { PointerSensor } from '@dnd-kit/core'
-import { useSensors } from '@dnd-kit/core'
-import { useState } from 'react'
-import { useSensor } from '@dnd-kit/core'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { restrictToParentElement } from '@dnd-kit/modifiers'
+import { ArrowUpDown, CircleHelp } from 'lucide-react'
+import { useState } from 'react'
+import { useFieldArray, type UseFormReturn, useWatch } from 'react-hook-form'
+import StudyFormSectionCard from '../study-form-section-card'
+import { SurveyQuestion } from './survey-question'
 
 export const SurveyCard = ({
   form,
@@ -129,6 +127,7 @@ export const SurveyCard = ({
           variant={isSortmode ? 'default' : 'secondary'}
           className=''
           onClick={() => setIsSortmode(!isSortmode)}
+          disabled={disableFields}
         >
           <ArrowUpDown className='h-4 w-4' />
         </Button>

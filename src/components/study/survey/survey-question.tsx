@@ -117,7 +117,7 @@ export const SurveyQuestion = ({
       <div className='grid'>
         <p className={cn(titleClassName, 'mb-2')}>Question</p>
         <div className='flex items-center gap-2'>
-          {isSortMode && (
+          {isSortMode && !disableFields && (
             <GripVertical
               className='text-muted-foreground size-6 cursor-grab active:cursor-grabbing'
               {...listeners}
@@ -223,6 +223,7 @@ export const SurveyQuestion = ({
                     type='button'
                     className='mt-4 ml-8 w-fit'
                     onClick={() => field.onChange([...field.value, ''])}
+                    disabled={disableFields}
                   >
                     Add another choice
                   </Button>
@@ -243,6 +244,7 @@ export const SurveyQuestion = ({
                     checked={!!field.value}
                     onChange={value => field.onChange(value)}
                     className=''
+                    disabled={disableFields}
                   />
                 )}
               />
@@ -257,6 +259,7 @@ export const SurveyQuestion = ({
                   onChange={value => field.onChange(value)}
                   className=''
                   name={field.name}
+                  disabled={disableFields}
                 />
               )}
             />
@@ -409,7 +412,10 @@ const Choice = ({
       style={style}
     >
       <GripVertical
-        className='text-muted-foreground size-6 cursor-grab active:cursor-grabbing'
+        className={cn(
+          'text-muted-foreground size-6 cursor-grab active:cursor-grabbing',
+          disableFields && 'pointer-events-none cursor-default opacity-50'
+        )}
         {...listeners}
         {...attributes}
       />
