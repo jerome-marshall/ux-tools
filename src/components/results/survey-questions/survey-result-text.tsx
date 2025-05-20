@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { WordCloud } from '@/components/word-cloud'
 import { type SurveyQuestionWithAnswers } from '@/types'
 import { Cloud, ListIcon } from 'lucide-react'
 import { SurveyResultSection } from './survey-result-section'
@@ -42,6 +43,11 @@ export const SurveyResultText = ({
                 </p>
               ))}
             </div>
+          </TabsContent>
+          <TabsContent value={TAB_VALUES.WORD_CLOUD}>
+            <WordCloud
+              text={resultData.answers.map(answer => answer?.answer ?? '').join(' ')}
+            />
           </TabsContent>
         </Tabs>
       }
