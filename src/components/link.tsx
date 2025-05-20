@@ -12,7 +12,7 @@ const Link = ({
   children,
   prefetch = true,
   ...rest
-}: LinkProps & { target?: '_blank' | '_self' }) => {
+}: LinkProps & { target?: string & {} }) => {
   return (
     <NextLink prefetch={prefetch} {...rest}>
       {children}
