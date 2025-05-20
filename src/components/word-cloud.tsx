@@ -74,9 +74,9 @@ export const WordCloud = forwardRef<HTMLDivElement, Props>((props, ref) => {
   )
 
   return (
-    <div ref={ref} className='h-full w-full'>
+    <div ref={ref} className='h-full w-full rounded-md border'>
       <WordCloudD3
-        height={800}
+        height={720}
         width={1200}
         font={'Poppins'}
         fontWeight={word => calculateFontWeight(word.value)}
