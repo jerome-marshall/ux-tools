@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { SECTION_TYPE } from '@/utils/study-utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import ProjectsDropdown from './projects-dropdown'
-import StudyFormCard from './study-form-card'
+import StudySectionCard from './study-form-card'
 
 const StudyDetails = ({
   form,
@@ -24,7 +24,7 @@ const StudyDetails = ({
   disableFields: boolean
 }) => {
   return (
-    <StudyFormCard
+    <StudySectionCard
       title='Study details'
       icon={<Text className='icon' />}
       content={

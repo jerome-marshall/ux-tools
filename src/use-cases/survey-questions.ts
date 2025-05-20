@@ -3,6 +3,7 @@ import {
   deleteSurveyQuestionsByTestId,
   getSurveyQuestionResultsByTestId,
   getSurveyQuestionResultsByTestResultId,
+  getSurveyQuestionResultsByTestResultIds,
   getSurveyQuestionsByTestId,
   insertSurveyQuestion,
   insertSurveyQuestionResult,
@@ -13,8 +14,8 @@ import {
 import { type Db } from '@/server/db'
 
 import {
-  type SurveyQuestionResultInsert,
-  type SurveyQuestionInsert
+  type SurveyQuestionInsert,
+  type SurveyQuestionResultInsert
 } from '@/server/db/schema'
 
 export const insertSurveyQuestionUseCase = async (
@@ -70,6 +71,14 @@ export const getSurveyQuestionResultsByTestResultIdUseCase = async (
   trx?: Db
 ) => {
   const result = await getSurveyQuestionResultsByTestResultId(testResultId, trx)
+  return result
+}
+
+export const getSurveyQuestionResultsByTestResultIdsUseCase = async (
+  testResultIds: string[],
+  trx?: Db
+) => {
+  const result = await getSurveyQuestionResultsByTestResultIds(testResultIds, trx)
   return result
 }
 

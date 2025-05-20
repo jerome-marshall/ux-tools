@@ -1,5 +1,5 @@
 'use client'
-import StudyFormCard from '@/components/study/study-form-card'
+import StudySectionCard from '@/components/study/study-form-card'
 import { Separator } from '@/components/ui/separator'
 import { type Test, type TestResult, type TreeTest } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
@@ -10,17 +10,20 @@ import { getNodeNameById, getNodePathTypeStatus } from '@/utils/tree-utils'
 import { type TreeItem } from '@/zod-schemas/tree.schema'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChartColumn, Text } from 'lucide-react'
+import { SubHeading } from '../sub-heading'
 import TreeTestResultOverview from './tt-result-overview'
 import TreeTestResultTabs from './tt-result-tabs'
 
 const TreeTestResultCard = ({
   treeTestData,
   testResults,
-  testData
+  testData,
+  sectionIndex
 }: {
   treeTestData: TreeTest
   testResults: TestResult[]
   testData: Test
+  sectionIndex: number
 }) => {
   const trpc = useTRPC()
 
@@ -49,26 +52,20 @@ const TreeTestResultCard = ({
   const Icon = getIcon(SECTION_TYPE.TREE_TEST)
 
   return (
-    <StudyFormCard
+    <StudySectionCard
       icon={<Icon className='icon' />}
       title={testData.name}
       content={
         <div>
           <div className='flex flex-col gap-5'>
-            <div className='flex items-center gap-2'>
-              <Text className='size-4 stroke-3 text-gray-400' />
-              <span className='font-medium'>Instructions</span>
-            </div>
+            <SubHeading heading='Instructions' Icon={Text} />
             <p className=''>{treeTestData.taskInstructions}</p>
           </div>
 
           <Separator className='my-6' />
 
           <div className='flex flex-col gap-5'>
-            <div className='flex items-center gap-2'>
-              <ChartColumn className='size-4 stroke-3 text-gray-400' />
-              <span className='font-medium'>Results</span>
-            </div>
+            <SubHeading heading='Results' Icon={ChartColumn} />
             <TreeTestResultOverview
               correctNodeNames={correctNodeNames.join(', ')}
               totalResponses={treeTestResults.length}

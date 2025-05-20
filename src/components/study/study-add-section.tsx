@@ -5,7 +5,7 @@ import { type TestType } from '@/zod-schemas/test.schema'
 import { BadgePlus, type LucideIcon } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
 import { FormField, FormMessage } from '../ui/form'
-import StudyFormCard from './study-form-card'
+import StudySectionCard from './study-form-card'
 
 const StudyAddSection = ({
   onAddSection,
@@ -21,7 +21,7 @@ const StudyAddSection = ({
       control={form.control}
       name='tests'
       render={({ field }) => (
-        <StudyFormCard
+        <StudySectionCard
           title='Add a section'
           icon={<BadgePlus className='icon' />}
           content={

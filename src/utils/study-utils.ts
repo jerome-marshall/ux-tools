@@ -1,5 +1,17 @@
+import { type SurveyQuestionType } from '@/zod-schemas/survey-question.schema'
 import { type TestType } from '@/zod-schemas/test.schema'
-import { ListTree, CircleHelp, FileQuestion, type LucideIcon } from 'lucide-react'
+import {
+  ALargeSmall,
+  CircleDot,
+  CircleHelp,
+  FileQuestion,
+  LetterText,
+  ListOrdered,
+  ListTree,
+  MoveHorizontal,
+  SquareCheck,
+  type LucideIcon
+} from 'lucide-react'
 
 export const SECTION_TYPE = {
   STUDY_DETAILS: 'STUDY_DETAILS',
@@ -60,3 +72,22 @@ export const surveyQuestionTypeOptions = [
     value: SURVEY_QUESTION_TYPE.RANKING
   }
 ]
+
+export const getSurveyQuestionIcon = (type: SurveyQuestionType) => {
+  switch (type) {
+    case SURVEY_QUESTION_TYPE.SHORT_TEXT:
+      return ALargeSmall
+    case SURVEY_QUESTION_TYPE.LONG_TEXT:
+      return LetterText
+    case SURVEY_QUESTION_TYPE.SINGLE_SELECT:
+      return CircleDot
+    case SURVEY_QUESTION_TYPE.MULTIPLE_SELECT:
+      return SquareCheck
+    case SURVEY_QUESTION_TYPE.LINEAR_SCALE:
+      return MoveHorizontal
+    case SURVEY_QUESTION_TYPE.RANKING:
+      return ListOrdered
+    default:
+      return FileQuestion
+  }
+}

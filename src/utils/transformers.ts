@@ -1,4 +1,5 @@
 import {
+  type SurveyQuestionResult,
   type SurveyQuestion,
   type Test_SurveyType,
   type Test_TreeTestType,
@@ -7,7 +8,11 @@ import {
   type TreeTestResult
 } from '@/server/db/schema'
 
-import { type CombinedTestData, type EntireTreeTestResult } from '@/types'
+import {
+  type SurveyQuestionWithAnswers,
+  type CombinedTestData,
+  type EntireTreeTestResult
+} from '@/types'
 import { correctPathSchema, treeItemSchema } from '@/zod-schemas/tree.schema'
 import { z } from 'zod'
 
@@ -99,4 +104,24 @@ export const combineTestWithSurveyQuestions = (
     createdAt: test.createdAt,
     updatedAt: test.updatedAt
   }
+}
+
+export const combineSurveryQuestionsWithAnswers = (
+  surveyResults: SurveyQuestionResult[],
+  surveyQuestions: SurveyQuestion[]
+): SurveyQuestionWithAnswers[] => {
+  const entireTestResults = []
+
+  for (const question of surveyQuestions) {
+    const answers = surveyResults.filter(answer => answer.questionId === question.id)
+
+    const result = {
+      ...question,
+      answers
+    }
+
+    entireTestResults.push(result)
+  }
+
+  return entireTestResults
 }

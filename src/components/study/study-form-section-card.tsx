@@ -2,12 +2,12 @@ import { CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { type StudyWithTestsInsert } from '@/zod-schemas/study.schema'
 import { Pencil, Trash, type LucideIcon } from 'lucide-react'
-import { type UseFormReturn } from 'react-hook-form'
-import { FormField } from '../ui/form'
-import StudyFormCard from './study-form-card'
 import { useState } from 'react'
-import { Input } from '../ui/input'
+import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '../ui/button'
+import { FormField } from '../ui/form'
+import { Input } from '../ui/input'
+import StudySectionCard from './study-form-card'
 
 const StudyFormSectionCard = ({
   Icon,
@@ -49,7 +49,7 @@ const StudyFormSectionCard = ({
   }
 
   return (
-    <StudyFormCard
+    <StudySectionCard
       CustomHeader={
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-4'>

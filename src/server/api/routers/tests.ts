@@ -1,14 +1,12 @@
 import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import {
-  type SurveyQuestionResult,
   surveyQuestionResultInsertSchema,
-  type TreeTestResult,
   treeTestResultInsertSchema
 } from '@/server/db/schema'
 import { updateStudyUseCase } from '@/use-cases/studies'
 import {
-  insertSurveyQuestionResultsUseCase,
-  insertSurveyQuestionResultUseCase
+  getSurveyQuestionResultsByTestResultIdsUseCase,
+  insertSurveyQuestionResultsUseCase
 } from '@/use-cases/survey-questions'
 import {
   createTestResultUseCase,
@@ -107,5 +105,14 @@ export const testsRouter = createTRPCRouter({
         input.testResultIds
       )
       return treeTestResults
+    }),
+
+  getSurveyResults: protectedProcedure
+    .input(z.object({ testResultIds: z.array(z.string()) }))
+    .query(async ({ input }) => {
+      const surveyResults = await getSurveyQuestionResultsByTestResultIdsUseCase(
+        input.testResultIds
+      )
+      return surveyResults
     })
 })

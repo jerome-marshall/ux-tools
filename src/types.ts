@@ -1,6 +1,7 @@
 import {
   type Project,
   type SurveyQuestion,
+  type SurveyQuestionResult,
   type TestResult,
   type TreeTestResult
 } from './server/db/schema'
@@ -22,6 +23,10 @@ export type TestResultsWithTest = RouterOutputs['tests']['getTestResults']
 
 export type EntireTreeTestResult = TreeTestResult & {
   testData: TestResult
+}
+
+export type SurveyQuestionWithAnswers = SurveyQuestion & {
+  answers: SurveyQuestionResult[]
 }
 
 export type CombinedTestData = {

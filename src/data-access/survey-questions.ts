@@ -83,6 +83,17 @@ export const getSurveyQuestionResultsByTestResultId = async (
   return results
 }
 
+export const getSurveyQuestionResultsByTestResultIds = async (
+  testResultIds: string[],
+  trx = db
+) => {
+  const results = await trx
+    .select()
+    .from(surveyQuestionResults)
+    .where(inArray(surveyQuestionResults.testResultId, testResultIds))
+  return results
+}
+
 export const insertSurveyQuestionResult = async (
   surveyQuestionResult: SurveyQuestionResultInsert,
   trx = db

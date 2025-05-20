@@ -1,8 +1,8 @@
-import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import React from 'react'
 
-const StudyFormCard = ({
+const StudySectionCard = ({
   content,
   contentClassName,
   title,
@@ -32,4 +32,4 @@ const StudyFormCard = ({
   )
 }
 
-export default StudyFormCard
+export default StudySectionCard
