@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+import { cn, generateId } from '@/lib/utils'
 import {
   SURVEY_QUESTION_TYPE,
   SURVEY_QUESTION_TYPE_NAME,
@@ -40,7 +40,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { type FieldArrayWithId, type UseFormReturn, useWatch } from 'react-hook-form'
+import { type UseFormReturn, useWatch } from 'react-hook-form'
 
 export const SurveyQuestion = ({
   disableFields,
@@ -50,7 +50,7 @@ export const SurveyQuestion = ({
   sectionIndex,
   isSortMode,
   isOverlay,
-  question
+  questionFieldId
 }: {
   form: UseFormReturn<StudyWithTestsInsert>
   disableFields: boolean
@@ -58,7 +58,7 @@ export const SurveyQuestion = ({
   sectionIndex: number
   onRemoveQuestion: (index: number) => void
   isSortMode: boolean
-  question: FieldArrayWithId<StudyWithTestsInsert, `tests.${number}.questions`>
+  questionFieldId: string
   isOverlay?: boolean
 }) => {
   const titleClassName = 'text-sm text-gray-700'
@@ -70,10 +70,14 @@ export const SurveyQuestion = ({
   })
 
   const questionName = `${questionsName}.${index}` as const
+  const question = useWatch({
+    control: form.control,
+    name: questionName
+  })
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({
-      id: question.id
+      id: questionFieldId
     })
 
   const style = {
@@ -152,7 +156,16 @@ export const SurveyQuestion = ({
                     value === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT ||
                     value === SURVEY_QUESTION_TYPE.RANKING
                   ) {
-                    form.setValue(choiceOptionsName, ['', ''])
+                    form.setValue(choiceOptionsName, [
+                      {
+                        id: generateId(),
+                        value: ''
+                      },
+                      {
+                        id: generateId(),
+                        value: ''
+                      }
+                    ])
 
                     // Set randomized to true if the question type is ranking
                     form.setValue(
@@ -214,7 +227,9 @@ export const SurveyQuestion = ({
                   <ChoicesList
                     form={form}
                     multipleChoiceOptions={field.value}
-                    onChange={value => field.onChange(value)}
+                    onChange={value => {
+                      field.onChange(value)
+                    }}
                     name={`${questionName}.multipleChoiceOptions`}
                     disableFields={disableFields}
                   />
@@ -222,7 +237,9 @@ export const SurveyQuestion = ({
                     size='sm'
                     type='button'
                     className='mt-4 ml-8 w-fit'
-                    onClick={() => field.onChange([...field.value, ''])}
+                    onClick={() =>
+                      field.onChange([...field.value, { id: generateId(), value: '' }])
+                    }
                     disabled={disableFields}
                   >
                     Add another choice
@@ -278,8 +295,8 @@ const ChoicesList = ({
   disableFields
 }: {
   form: UseFormReturn<StudyWithTestsInsert>
-  onChange: (value: string[]) => void
-  multipleChoiceOptions: string[]
+  onChange: (value: { id: string; value: string }[]) => void
+  multipleChoiceOptions: { id: string; value: string }[]
   name: `tests.${number}.questions.${number}.multipleChoiceOptions`
   disableFields: boolean
 }) => {
@@ -303,8 +320,8 @@ const ChoicesList = ({
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      const oldIndex = multipleChoiceOptions.findIndex(choice => choice === active.id)
-      const newIndex = multipleChoiceOptions.findIndex(choice => choice === over.id)
+      const oldIndex = multipleChoiceOptions.findIndex(choice => choice.id === active.id)
+      const newIndex = multipleChoiceOptions.findIndex(choice => choice.id === over.id)
 
       if (oldIndex !== -1 && newIndex !== -1) {
         const newChoices = arrayMove(multipleChoiceOptions, oldIndex, newIndex)
@@ -330,7 +347,7 @@ const ChoicesList = ({
           {multipleChoiceOptions.map((choice, index) => {
             const choiceName = `${name}.${index}` as const
 
-            const onChoiceChange = (value: string) => {
+            const onChoiceChange = (value: { id: string; value: string }) => {
               const newChoices = [...multipleChoiceOptions]
               newChoices[index] = value
               onChange(newChoices)
@@ -344,8 +361,8 @@ const ChoicesList = ({
 
             return (
               <Choice
-                key={choice + 'key'}
-                value={choice}
+                key={choice.id}
+                choice={choice}
                 onChange={onChoiceChange}
                 name={choiceName}
                 removeDisabled={multipleChoiceOptions.length < 3}
@@ -359,7 +376,12 @@ const ChoicesList = ({
               <Choice
                 key={activeId}
                 name={activeId}
-                value={activeId}
+                choice={
+                  multipleChoiceOptions.find(choice => choice.id === activeId) as {
+                    id: string
+                    value: string
+                  }
+                }
                 removeDisabled={multipleChoiceOptions.length < 3}
                 disableFields={disableFields}
                 isOverlay={true}
@@ -376,16 +398,16 @@ const Choice = ({
   name,
   onChange,
   ref,
-  value,
+  choice,
   removeDisabled,
   disableFields,
   onRemove,
   isOverlay
 }: {
   name: string
-  onChange?: (value: string) => void
+  onChange?: (value: { id: string; value: string }) => void
   ref?: (element: HTMLInputElement) => void
-  value: string
+  choice: { id: string; value: string }
   removeDisabled: boolean
   disableFields: boolean
   onRemove?: () => void
@@ -393,7 +415,7 @@ const Choice = ({
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({
-      id: value
+      id: choice.id
     })
 
   const style = {
@@ -423,8 +445,13 @@ const Choice = ({
         name={name}
         ref={ref}
         className='flex-1'
-        value={value}
-        onChange={e => onChange?.(e.target.value)}
+        value={choice.value}
+        onChange={e =>
+          onChange?.({
+            id: choice.id,
+            value: e.target.value
+          })
+        }
         disabled={disableFields}
         required={true}
       />

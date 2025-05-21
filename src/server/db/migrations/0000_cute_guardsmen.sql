@@ -1,3 +1,16 @@
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'test_types') THEN
+    DROP TYPE "public"."test_types";
+  END IF;
+END$$;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'question_types') THEN
+    DROP TYPE "public"."question_types";
+  END IF;
+END$$;
+
 CREATE TYPE "public"."test_types" AS ENUM('TREE_TEST', 'SURVEY');--> statement-breakpoint
 CREATE TYPE "public"."question_types" AS ENUM('short_text', 'long_text', 'single_select', 'multiple_select', 'linear_scale', 'ranking');--> statement-breakpoint
 CREATE TABLE "projects" (
@@ -62,12 +75,26 @@ CREATE TABLE "tree_tests" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "survey_question_results" (
+	"id" text PRIMARY KEY NOT NULL,
+	"question_id" text NOT NULL,
+	"test_id" text NOT NULL,
+	"test_result_id" text NOT NULL,
+	"duration_ms" integer NOT NULL,
+	"answer" text,
+	"answers" text[] DEFAULT '{}'::text[] NOT NULL,
+	"skipped" boolean DEFAULT false NOT NULL,
+	"paste_detected" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "survey_questions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"test_id" text NOT NULL,
 	"text" text NOT NULL,
 	"type" "question_types" NOT NULL,
-	"multiple_choice_options" text[] DEFAULT '{}'::text[] NOT NULL,
+	"multiple_choice_options" json DEFAULT '[]'::json NOT NULL,
 	"min_label" text,
 	"min_value" integer,
 	"max_label" text,
@@ -137,6 +164,9 @@ ALTER TABLE "test_results" ADD CONSTRAINT "test_results_test_id_tests_id_fk" FOR
 ALTER TABLE "tests" ADD CONSTRAINT "tests_study_id_studies_id_fk" FOREIGN KEY ("study_id") REFERENCES "public"."studies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tree_test_results" ADD CONSTRAINT "tree_test_results_test_result_id_test_results_id_fk" FOREIGN KEY ("test_result_id") REFERENCES "public"."test_results"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tree_tests" ADD CONSTRAINT "tree_tests_test_id_tests_id_fk" FOREIGN KEY ("test_id") REFERENCES "public"."tests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "survey_question_results" ADD CONSTRAINT "survey_question_results_question_id_survey_questions_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."survey_questions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "survey_question_results" ADD CONSTRAINT "survey_question_results_test_id_tests_id_fk" FOREIGN KEY ("test_id") REFERENCES "public"."tests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "survey_question_results" ADD CONSTRAINT "survey_question_results_test_result_id_test_results_id_fk" FOREIGN KEY ("test_result_id") REFERENCES "public"."test_results"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "survey_questions" ADD CONSTRAINT "survey_questions_test_id_tests_id_fk" FOREIGN KEY ("test_id") REFERENCES "public"."tests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;

@@ -149,7 +149,7 @@ export const SurveyCard = ({
               {questionsFieldArray.fields.map((field, questionIndex) => (
                 <SurveyQuestion
                   key={field.id}
-                  question={field}
+                  questionFieldId={field.id}
                   form={form}
                   disableFields={disableFields}
                   sectionIndex={index}
@@ -162,9 +162,7 @@ export const SurveyCard = ({
                 {activeId && (
                   <SurveyQuestion
                     key={activeId}
-                    question={
-                      questionsFieldArray.fields.find(field => field.id === activeId)!
-                    }
+                    questionFieldId={activeId}
                     form={form}
                     disableFields={disableFields}
                     sectionIndex={index}

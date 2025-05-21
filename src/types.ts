@@ -29,6 +29,11 @@ export type SurveyQuestionWithAnswers = SurveyQuestion & {
   answers: SurveyQuestionResult[]
 }
 
+export type ChoiceOption = {
+  id: string
+  value: string
+}
+
 export type CombinedTestData = {
   id: string
   testId: string

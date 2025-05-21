@@ -1,10 +1,11 @@
 import { surveyQuestionTypes } from '@/zod-schemas/survey-question.schema'
 import { sql } from 'drizzle-orm'
-import { boolean, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
+import { boolean, integer, json, pgEnum, pgTable, text } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import { testResults, tests } from './test'
 import { timestamps, uniqueId } from './utils'
+import { type ChoiceOption } from '@/types'
 
 export const questionTypesEnum = pgEnum('question_types', surveyQuestionTypes)
 
@@ -15,10 +16,10 @@ export const surveyQuestions = pgTable('survey_questions', {
     .references(() => tests.id, { onDelete: 'cascade' }),
   text: text('text').notNull(),
   type: questionTypesEnum('type').notNull(),
-  multipleChoiceOptions: text('multiple_choice_options')
-    .array()
+  multipleChoiceOptions: json('multiple_choice_options')
     .notNull()
-    .default(sql`'{}'::text[]`),
+    .default(sql`'[]'::json`)
+    .$type<ChoiceOption[]>(),
   minLabel: text('min_label'),
   minValue: integer('min_value'),
   maxLabel: text('max_label'),
@@ -61,7 +62,9 @@ export const surveyQuestionInsertSchema = createInsertSchema(surveyQuestions)
   })
   .extend({
     id: z.string().uuid(),
-    multipleChoiceOptions: z.array(z.string()).default([])
+    multipleChoiceOptions: z
+      .array(z.object({ id: z.string(), value: z.string() }))
+      .default([])
   })
 
 export type SurveyQuestion = typeof surveyQuestions.$inferSelect

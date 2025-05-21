@@ -1,1 +1,0 @@
-ALTER TABLE "survey_question_results" ADD COLUMN "skipped" boolean DEFAULT false NOT NULL;

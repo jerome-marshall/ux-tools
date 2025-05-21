@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1747116595800,
-      "tag": "0000_living_hannibal_king",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1747633267649,
-      "tag": "0001_wet_iron_monger",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1747659985486,
-      "tag": "0002_peaceful_mathemanic",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1747679146773,
-      "tag": "0003_famous_omega_flight",
+      "when": 1747805858496,
+      "tag": "0000_cute_guardsmen",
       "breakpoints": true
     }
   ]

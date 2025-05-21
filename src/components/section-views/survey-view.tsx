@@ -1,22 +1,11 @@
 'use client'
 
-import { type CombinedTestData } from '@/types'
-import { SURVEY_QUESTION_TYPE, SECTION_TYPE } from '@/utils/study-utils'
-import { useRef, useState } from 'react'
-import { TestViewLayout } from './test-view-layout'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { Textarea } from '../ui/textarea'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
-import { Label } from '../ui/label'
-import { Checkbox } from '../ui/checkbox'
-import { GripVertical } from 'lucide-react'
-import { useTRPC } from '@/trpc/client'
-import { useMutation } from '@tanstack/react-query'
 import { useSurveyUser } from '@/hooks/use-survey-user'
-import { type SurveyQuestionResultInsert } from '@/server/db/schema'
 import { cn, generateId } from '@/lib/utils'
-import { toast } from 'sonner'
+import { type SurveyQuestionResultInsert } from '@/server/db/schema'
+import { useTRPC } from '@/trpc/client'
+import { type ChoiceOption, type CombinedTestData } from '@/types'
+import { SECTION_TYPE, SURVEY_QUESTION_TYPE } from '@/utils/study-utils'
 import {
   closestCenter,
   DndContext,
@@ -38,6 +27,16 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useMutation } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { Button } from '../ui/button'
+import { Checkbox } from '../ui/checkbox'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Textarea } from '../ui/textarea'
+import { TestViewLayout } from './test-view-layout'
 
 export const SurveyView = ({
   testData,
@@ -179,7 +178,7 @@ export const SurveyView = ({
       )}
       {currentQuestion.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT && (
         <MultiSelectCheckboxGroup
-          value={currentAnswerData.answers}
+          values={currentAnswerData.answers}
           onChange={value => {
             setCurrentAnswerData({ ...currentAnswerData, answers: value })
             setHasAnswered(value.length > 0)
@@ -192,7 +191,7 @@ export const SurveyView = ({
           values={
             currentAnswerData.answers.length
               ? currentAnswerData.answers
-              : currentQuestion.multipleChoiceOptions
+              : currentQuestion.multipleChoiceOptions.map(option => option.value)
           }
           onChange={value => {
             setCurrentAnswerData({ ...currentAnswerData, answers: value })
@@ -227,45 +226,45 @@ const SingleSelectRadioGroup = ({
 }: {
   value: string | null
   onChange: (value: string) => void
-  options: string[]
+  options: ChoiceOption[]
 }) => {
   return (
     <RadioGroup onValueChange={onChange} value={value ?? ''}>
       {options.map(option => (
-        <RadioItem key={option} value={option} label={option} />
+        <RadioItem key={option.id} option={option} />
       ))}
     </RadioGroup>
   )
 }
 
-const RadioItem = ({ value, label }: { value: string; label: string }) => {
+const RadioItem = ({ option }: { option: ChoiceOption }) => {
   return (
     <div className='relative flex items-center space-x-2'>
       <RadioGroupItem
-        value={value}
-        id={value}
+        value={option.value}
+        id={option.id}
         className='peer absolute ml-3 data-[state=checked]:bg-teal-600 data-[state=checked]:text-teal-600 [&_svg]:fill-white [&_svg]:transition-all [&_svg]:duration-100'
       />
       <Label
-        htmlFor={value}
+        htmlFor={option.id}
         className='w-full cursor-pointer rounded-md border bg-white p-3 transition-all duration-100 peer-data-[state=checked]:border-teal-600 peer-data-[state=checked]:bg-teal-500/10 peer-data-[state=checked]:text-teal-800'
       >
-        <p className='pl-8 text-base font-medium'>{label}</p>
+        <p className='pl-8 text-base font-medium'>{option.value}</p>
       </Label>
     </div>
   )
 }
 
 const MultiSelectCheckboxGroup = ({
-  value,
+  values,
   onChange,
   options
 }: {
-  value: string[]
+  values: string[]
   onChange: (value: string[]) => void
-  options: string[]
+  options: ChoiceOption[]
 }) => {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(value)
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(values)
 
   const handleSelect = (option: string) => {
     const hasOption = selectedOptions.includes(option)
@@ -281,10 +280,10 @@ const MultiSelectCheckboxGroup = ({
     <div className='grid gap-3'>
       {options.map(option => (
         <CheckboxItem
-          key={option}
+          key={option.id}
           option={option}
           onSelect={handleSelect}
-          isSelected={selectedOptions.includes(option)}
+          isSelected={selectedOptions.includes(option.value)}
         />
       ))}
     </div>
@@ -296,7 +295,7 @@ const CheckboxItem = ({
   onSelect,
   isSelected
 }: {
-  option: string
+  option: ChoiceOption
   onSelect: (value: string) => void
   isSelected: boolean
 }) => {
@@ -304,15 +303,15 @@ const CheckboxItem = ({
     <div className='relative flex items-center space-x-2'>
       <Checkbox
         checked={isSelected}
-        onCheckedChange={() => onSelect(option)}
-        id={option}
+        onCheckedChange={() => onSelect(option.value)}
+        id={option.id}
         className='peer absolute ml-3 data-[state=checked]:border-teal-600 data-[state=checked]:bg-teal-600 [&_svg]:transition-all [&_svg]:duration-100'
       />
       <Label
-        htmlFor={option}
+        htmlFor={option.id}
         className='w-full cursor-pointer rounded-md border bg-white p-3 transition-all duration-100 peer-data-[state=checked]:border-teal-600 peer-data-[state=checked]:bg-teal-500/10 peer-data-[state=checked]:text-teal-800'
       >
-        <p className='pl-8 text-base font-medium'>{option}</p>
+        <p className='pl-8 text-base font-medium'>{option.value}</p>
       </Label>
     </div>
   )
