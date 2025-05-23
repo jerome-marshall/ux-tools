@@ -8,6 +8,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChartColumn } from 'lucide-react'
 import { SubHeading } from '../sub-heading'
 import { SurveyResultText } from './survey-result-text'
+import { SurveyResultSelect } from './survey-result-select'
 
 const SurveyResultsCard = ({
   testData,
@@ -52,6 +53,26 @@ const SurveyResultsCard = ({
                   resultData={questionData}
                   sectionIndex={sectionIndex}
                   questionIndex={questionIndex}
+                />
+              )
+            }
+
+            if (
+              questionData.type === SURVEY_QUESTION_TYPE.SINGLE_SELECT ||
+              questionData.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
+            ) {
+              return (
+                <SurveyResultSelect
+                  key={questionData.id}
+                  resultData={questionData}
+                  sectionIndex={sectionIndex}
+                  questionIndex={questionIndex}
+                  answersData={surveyResults
+                    .filter(result => result.questionId === questionData.id)
+                    .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())}
+                  isMultipleSelect={
+                    questionData.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
+                  }
                 />
               )
             }
