@@ -1,7 +1,8 @@
 import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { type ChoiceOption } from '@/types'
+import { OTHER_PREFIX } from '@/utils/study-utils'
 import { useRef, useState } from 'react'
 
 interface MultiSelectProps {
@@ -31,9 +32,9 @@ export const MultiSelectCheckboxGroup = ({
 
   const handleOtherChange = (newOtherValue: string) => {
     // Remove any existing other: value and add the new one
-    const filteredOptions = selectedOptions.filter(v => !v.startsWith('other:'))
+    const filteredOptions = selectedOptions.filter(v => !v.startsWith(OTHER_PREFIX))
     const newSelectedOptions = newOtherValue
-      ? [...filteredOptions, `other:${newOtherValue}`]
+      ? [...filteredOptions, `${OTHER_PREFIX}${newOtherValue}`]
       : filteredOptions
 
     setSelectedOptions(newSelectedOptions)
@@ -41,15 +42,15 @@ export const MultiSelectCheckboxGroup = ({
   }
 
   const handleOtherToggle = () => {
-    const hasOtherOption = selectedOptions.some(v => v.startsWith('other:'))
+    const hasOtherOption = selectedOptions.some(v => v.startsWith(OTHER_PREFIX))
     if (hasOtherOption) {
       // Remove other option
-      const filteredOptions = selectedOptions.filter(v => !v.startsWith('other:'))
+      const filteredOptions = selectedOptions.filter(v => !v.startsWith(OTHER_PREFIX))
       setSelectedOptions(filteredOptions)
       onChange(filteredOptions)
     } else {
       // Add empty other option
-      const newSelectedOptions = [...selectedOptions, 'other:']
+      const newSelectedOptions = [...selectedOptions, OTHER_PREFIX]
       setSelectedOptions(newSelectedOptions)
       onChange(newSelectedOptions)
     }
@@ -114,10 +115,10 @@ const OtherOption = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const otherValue = values.find(v => v.startsWith('other:'))
+  const otherValue = values.find(v => v.startsWith(OTHER_PREFIX))
   const isOtherSelected = !!otherValue
   const currentOtherText = isOtherSelected
-    ? (otherValue?.replace('other:', '') ?? '')
+    ? (otherValue?.replace(OTHER_PREFIX, '') ?? '')
     : ''
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -7,8 +7,8 @@ import { combineSurveryQuestionsWithAnswers } from '@/utils/transformers'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChartColumn } from 'lucide-react'
 import { SubHeading } from '../sub-heading'
-import { SurveyResultText } from './survey-result-text'
 import { SurveyResultSelect } from './survey-result-select'
+import { SurveyResultText } from './survey-result-text'
 
 const SurveyResultsCard = ({
   testData,

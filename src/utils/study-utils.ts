@@ -13,6 +13,8 @@ import {
   type LucideIcon
 } from 'lucide-react'
 
+export const OTHER_PREFIX = 'other: '
+
 export const SECTION_TYPE = {
   STUDY_DETAILS: 'STUDY_DETAILS',
   WELCOME: 'WELCOME',

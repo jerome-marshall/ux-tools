@@ -1,10 +1,12 @@
+import { NodeTotals } from '@/components/results/node-totals'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import { type SurveyQuestionResult } from '@/server/db/schema'
 import { type SurveyQuestionWithAnswers } from '@/types'
+import { OTHER_PREFIX } from '@/utils/study-utils'
 import { BarChart, ListIcon } from 'lucide-react'
 import { useState } from 'react'
-import { NodeTotals } from '@/components/results/node-totals'
 import { SurveyResultSection } from './survey-result-section'
 
 const TAB_VALUES = {
@@ -12,6 +14,7 @@ const TAB_VALUES = {
   ANSWERS: 'answers'
 }
 const SKIPPED = 'Skipped'
+const OTHER = 'Other'
 
 export const SurveyResultSelect = ({
   resultData,
@@ -41,7 +44,8 @@ export const SurveyResultSelect = ({
         totalAnswers++
       } else {
         data.answers.forEach(answer => {
-          answersCountMap[answer] = (answersCountMap[answer] ?? 0) + 1
+          const key = answer.startsWith(OTHER_PREFIX) ? OTHER : answer
+          answersCountMap[key] = (answersCountMap[key] ?? 0) + 1
           totalAnswers++
         })
       }
@@ -49,9 +53,10 @@ export const SurveyResultSelect = ({
       if (data.skipped) {
         answersCountMap[SKIPPED] = (answersCountMap[SKIPPED] ?? 0) + 1
       } else if (data.answer) {
-        answersCountMap[data.answer] = (answersCountMap[data.answer] ?? 0) + 1
+        const key = data.answer.startsWith(OTHER_PREFIX) ? OTHER : data.answer
+        answersCountMap[key] = (answersCountMap[key] ?? 0) + 1
+        totalAnswers++
       }
-      totalAnswers++
     }
   })
 
@@ -116,23 +121,52 @@ const Answers = ({
   isMultipleSelect: boolean
 }) => {
   const answers = answersData
-    .map(answer => {
-      if (isMultipleSelect) {
-        return answer.answers.join(', ')
-      }
-      return answer.answer
-    })
+    .map(answer => (isMultipleSelect ? answer.answers : answer.answer))
     .filter(Boolean)
 
   return (
     <ScrollArea className='h-[320px] rounded-md border p-4'>
       <div className='grid gap-3'>
-        {answers.map((answer, index) => (
-          <div key={`${index}-${answer}`} className='rounded-md border px-3 py-2'>
-            <p>{answer}</p>
-          </div>
-        ))}
+        {answers.map((answerData, index) => {
+          if (typeof answerData === 'string') {
+            const isOther = answerData.startsWith(OTHER_PREFIX)
+            return (
+              <AnsewerItem key={`${index}-${answerData}`}>
+                {isOther ? (
+                  <p className='font-normal'>{answerData}</p>
+                ) : (
+                  <p>{answerData}</p>
+                )}
+              </AnsewerItem>
+            )
+          } else {
+            return (
+              <AnsewerItem key={`${index}-${answerData.join(', ')}`}>
+                {answerData.map((answer, index) => {
+                  const isOther = answer.startsWith(OTHER_PREFIX)
+                  return (
+                    <p key={`${index}-${answer}`}>
+                      {isOther ? (
+                        <span className='font-normal'>{answer}</span>
+                      ) : (
+                        <span>{answer}</span>
+                      )}
+                    </p>
+                  )
+                })}
+              </AnsewerItem>
+            )
+          }
+        })}
       </div>
     </ScrollArea>
+  )
+}
+
+const AnsewerItem = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className={cn('flex gap-3 rounded-md border px-3 py-2 font-medium')}>
+      {children}
+    </div>
   )
 }

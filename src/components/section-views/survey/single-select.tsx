@@ -1,8 +1,9 @@
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Input } from '@/components/ui/input'
-import { useRef, useState } from 'react'
 import { type ChoiceOption } from '@/types'
+import { OTHER_PREFIX } from '@/utils/study-utils'
+import { useRef, useState } from 'react'
 
 interface SingleSelectProps {
   value: string | null
@@ -55,25 +56,25 @@ const OtherOption = ({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [otherText, setOtherText] = useState('')
-  const isOtherSelected = value?.startsWith('other:') ?? false
-  const otherValue = isOtherSelected ? (value?.replace('other:', '') ?? '') : ''
+  const isOtherSelected = value?.startsWith(OTHER_PREFIX) ?? false
+  const otherValue = isOtherSelected ? (value?.replace(OTHER_PREFIX, '') ?? '') : ''
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value
     setOtherText(newText)
-    onChange(`other:${newText}`)
+    onChange(`${OTHER_PREFIX}${newText}`)
   }
 
   const handleInputFocus = () => {
     if (!isOtherSelected) {
-      onChange(`other:${otherText}`)
+      onChange(`${OTHER_PREFIX}${otherText}`)
     }
   }
 
   return (
     <div className='relative flex items-center space-x-2'>
       <RadioGroupItem
-        value={`other:${otherText}`}
+        value={`${OTHER_PREFIX}${otherText}`}
         id='other-option'
         className='peer absolute ml-3 data-[state=checked]:bg-teal-600 data-[state=checked]:text-teal-600 [&_svg]:fill-white [&_svg]:transition-all [&_svg]:duration-100'
         onClick={() => inputRef.current?.focus()}

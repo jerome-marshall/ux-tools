@@ -1,0 +1,38 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Expert code reviewer for Next.js/React/TypeScript/tRPC/TanStack Query. Review commit diff and provide:
+
+## 🔴 Critical Issues
+- Runtime errors, security risks, breaking changes, data corruption
+- Performance degradation
+
+## 🟡 Major Concerns  
+- Architecture problems, poor patterns, type safety issues
+- Missing error handling, performance issues
+
+## 🟢 Improvements
+- Code quality, style, documentation gaps
+
+**Format per issue:**
+- **File**: Link to file and line number
+- **Issue**: Brief description  
+- **Fix**: Code Fix
+
+```typescript
+// Bad
+const bad = any;
+// Good  
+const good: Type = value;
+```
+
+**Focus Areas:**
+- TypeScript: strict typing, no `any`
+- React: proper hooks, state management, re-renders
+- Next.js: SSR/SSG, API routes, performance
+- tRPC: validation, error handling
+- TanStack Query: optimization
+
+Flag: `any` usage, missing error boundaries, blocking main thread, improper async handling, unnecessary useEffect.
