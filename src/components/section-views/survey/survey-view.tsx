@@ -39,6 +39,7 @@ export const SurveyView = ({
     answer: null,
     answers: []
   })
+  console.log('🚀 ~ currentAnswerData:', currentAnswerData)
   const [answers, setAnswers] = useState<SurveyQuestionResultInsert[]>([])
 
   const [hasAnswered, setHasAnswered] = useState(false)
@@ -57,6 +58,7 @@ export const SurveyView = ({
 
   const currentQuestion = testData.questions[currentQuestionIndex]
   const hasNextQuestion = currentQuestionIndex < testData.questions.length - 1
+
   const isDisabled = currentQuestion.required && !hasAnswered
 
   const handleNextQuestion = () => {
@@ -139,6 +141,7 @@ export const SurveyView = ({
             setHasAnswered(true)
           }}
           options={currentQuestion.multipleChoiceOptions}
+          hasOtherOption={currentQuestion.hasOtherOption}
         />
       )}
       {currentQuestion.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT && (
@@ -149,6 +152,7 @@ export const SurveyView = ({
             setHasAnswered(value.length > 0)
           }}
           options={currentQuestion.multipleChoiceOptions}
+          hasOtherOption={currentQuestion.hasOtherOption}
         />
       )}
       {currentQuestion.type === SURVEY_QUESTION_TYPE.RANKING && (
