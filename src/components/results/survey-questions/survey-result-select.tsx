@@ -52,6 +52,7 @@ export const SurveyResultSelect = ({
     } else {
       if (data.skipped) {
         answersCountMap[SKIPPED] = (answersCountMap[SKIPPED] ?? 0) + 1
+        totalAnswers++
       } else if (data.answer) {
         const key = data.answer.startsWith(OTHER_PREFIX) ? OTHER : data.answer
         answersCountMap[key] = (answersCountMap[key] ?? 0) + 1
@@ -78,7 +79,11 @@ export const SurveyResultSelect = ({
             <TabsTrigger value={TAB_VALUES.TOTALS} className={tabTriggerClasses}>
               <BarChart /> <span>Totals</span>
             </TabsTrigger>
-            <TabsTrigger value={TAB_VALUES.ANSWERS} className={tabTriggerClasses}>
+            <TabsTrigger
+              value={TAB_VALUES.ANSWERS}
+              className={tabTriggerClasses}
+              disabled={answersCount === 0}
+            >
               <ListIcon /> <span>Answers ({answersCount})</span>
             </TabsTrigger>
           </TabsList>

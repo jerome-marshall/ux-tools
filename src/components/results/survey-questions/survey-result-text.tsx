@@ -1,12 +1,12 @@
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WordCloud } from '@/components/word-cloud'
 import { type SurveyQuestionWithAnswers } from '@/types'
+import { Highlight, useFuzzySearchList } from '@nozbe/microfuzz/react'
 import { Cloud, ListIcon, Search, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { SurveyResultSection } from './survey-result-section'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Input } from '@/components/ui/input'
-import { useState } from 'react'
-import { useFuzzySearchList, Highlight } from '@nozbe/microfuzz/react'
 
 const TAB_VALUES = {
   ANSWERS: 'answers',
@@ -23,12 +23,18 @@ export const SurveyResultText = ({
   questionIndex: number
 }) => {
   const tabTriggerClasses = 'gap-2 data-[state=inactive]:text-gray-500'
+  const filteredResultData = useMemo(() => {
+    return {
+      ...resultData,
+      answers: resultData.answers.filter(answer => !answer.skipped)
+    }
+  }, [resultData])
 
   const [currentTab, setCurrentTab] = useState(TAB_VALUES.ANSWERS)
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredAnswers = useFuzzySearchList({
-    list: resultData.answers,
+    list: filteredResultData.answers,
     queryText: searchQuery,
     getText: item => [item.answer ?? ''],
     mapResultItem: ({ item, matches }) => ({
@@ -41,7 +47,7 @@ export const SurveyResultText = ({
     <SurveyResultSection
       sectionIndex={sectionIndex}
       questionIndex={questionIndex}
-      question={resultData}
+      question={filteredResultData}
       content={
         <Tabs
           defaultValue={TAB_VALUES.ANSWERS}
@@ -51,7 +57,7 @@ export const SurveyResultText = ({
           <div className='flex items-center justify-between'>
             <TabsList className='mb-2 gap-1'>
               <TabsTrigger value={TAB_VALUES.ANSWERS} className={tabTriggerClasses}>
-                <ListIcon /> <span>Answers ({resultData.answers.length})</span>
+                <ListIcon /> <span>Answers ({filteredResultData.answers.length})</span>
               </TabsTrigger>
               <TabsTrigger value={TAB_VALUES.WORD_CLOUD} className={tabTriggerClasses}>
                 <Cloud /> <span>Word Cloud</span>
@@ -105,7 +111,9 @@ export const SurveyResultText = ({
           </TabsContent>
           <TabsContent value={TAB_VALUES.WORD_CLOUD}>
             <WordCloud
-              text={resultData.answers.map(answer => answer?.answer ?? '').join(' ')}
+              text={filteredResultData.answers
+                .map(answer => answer?.answer ?? '')
+                .join(' ')}
             />
           </TabsContent>
         </Tabs>
