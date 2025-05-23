@@ -53,7 +53,7 @@ export const RankingDnDGroup = ({ values, onChange }: RankingProps) => {
     }
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  function handleDragEnd(_event: DragEndEvent) {
     setActiveId(null)
   }
 
