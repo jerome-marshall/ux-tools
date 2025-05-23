@@ -61,6 +61,15 @@ export const SurveyView = ({
     [testData.questions, testData.randomized]
   )
   const currentQuestion = questions[currentQuestionIndex]
+
+  const multipleChoiceOptions = useMemo(
+    () =>
+      currentQuestion.randomized
+        ? shuffle(currentQuestion.multipleChoiceOptions)
+        : currentQuestion.multipleChoiceOptions,
+    [currentQuestion.multipleChoiceOptions, currentQuestion.randomized]
+  )
+
   const hasNextQuestion = currentQuestionIndex < questions.length - 1
 
   const isDisabled = currentQuestion.required && !hasAnswered
@@ -144,7 +153,7 @@ export const SurveyView = ({
             setCurrentAnswerData({ ...currentAnswerData, answer: value })
             setHasAnswered(true)
           }}
-          options={currentQuestion.multipleChoiceOptions}
+          options={multipleChoiceOptions}
           hasOtherOption={currentQuestion.hasOtherOption}
         />
       )}
@@ -155,7 +164,7 @@ export const SurveyView = ({
             setCurrentAnswerData({ ...currentAnswerData, answers: value })
             setHasAnswered(value.length > 0)
           }}
-          options={currentQuestion.multipleChoiceOptions}
+          options={multipleChoiceOptions}
           hasOtherOption={currentQuestion.hasOtherOption}
         />
       )}
@@ -164,7 +173,7 @@ export const SurveyView = ({
           values={
             currentAnswerData.answers.length
               ? currentAnswerData.answers
-              : currentQuestion.multipleChoiceOptions.map(option => option.value)
+              : multipleChoiceOptions.map(option => option.value)
           }
           onChange={value => {
             setCurrentAnswerData({ ...currentAnswerData, answers: value })
