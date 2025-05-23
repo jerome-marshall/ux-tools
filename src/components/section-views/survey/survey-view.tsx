@@ -7,7 +7,7 @@ import { useTRPC } from '@/trpc/client'
 import { type CombinedTestData } from '@/types'
 import { SECTION_TYPE, SURVEY_QUESTION_TYPE } from '@/utils/study-utils'
 import { useMutation } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '../../ui/button'
 import { TestViewLayout } from '../test-view-layout'
@@ -15,6 +15,7 @@ import { MultiSelectCheckboxGroup } from './multi-select'
 import { RankingDnDGroup } from './ranking'
 import { SingleSelectRadioGroup } from './single-select'
 import { TextInput } from './text-input'
+import { shuffle } from 'remeda'
 
 export const SurveyView = ({
   testData,
@@ -39,7 +40,6 @@ export const SurveyView = ({
     answer: null,
     answers: []
   })
-  console.log('🚀 ~ currentAnswerData:', currentAnswerData)
   const [answers, setAnswers] = useState<SurveyQuestionResultInsert[]>([])
 
   const [hasAnswered, setHasAnswered] = useState(false)
@@ -56,8 +56,12 @@ export const SurveyView = ({
     })
   )
 
-  const currentQuestion = testData.questions[currentQuestionIndex]
-  const hasNextQuestion = currentQuestionIndex < testData.questions.length - 1
+  const questions = useMemo(
+    () => (testData.randomized ? shuffle(testData.questions) : testData.questions),
+    [testData.questions, testData.randomized]
+  )
+  const currentQuestion = questions[currentQuestionIndex]
+  const hasNextQuestion = currentQuestionIndex < questions.length - 1
 
   const isDisabled = currentQuestion.required && !hasAnswered
 
