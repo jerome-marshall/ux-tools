@@ -6,7 +6,7 @@ import {
   type TestInsert,
   type TestResultInsert
 } from '@/server/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 export const createTest = async (test: TestInsert, trx = db): Promise<Test> => {
   const [result] = await trx.insert(tests).values(test).returning()
@@ -62,5 +62,13 @@ export const getTestResultsByTestId = async (testId: string) => {
   const result = await db.query.testResults.findMany({
     where: (testResult, { eq }) => eq(testResult.testId, testId)
   })
+  return result
+}
+
+export const deleteTestResultsByIds = async (ids: string[], trx = db) => {
+  const result = await trx
+    .delete(testResults)
+    .where(inArray(testResults.id, ids))
+    .returning()
   return result
 }

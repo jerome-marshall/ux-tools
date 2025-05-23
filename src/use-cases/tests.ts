@@ -3,6 +3,7 @@ import {
   createTestResult,
   createTests,
   deleteTestById,
+  deleteTestResultsByIds,
   getTestById,
   getTestResultsByTestId,
   getTestsByStudyId,
@@ -118,4 +119,12 @@ export const getTestResultsByStudyIdUseCase = async (userId: string, studyId: st
     })
   )
   return { study, resultsData: testResults }
+}
+
+export const deleteTestResultsByIdsUseCase = async (ids: string[], trx?: Db) => {
+  const result = await deleteTestResultsByIds(ids, trx)
+  if (result.length === 0) {
+    throw new Error('No test results were deleted - IDs may not exist')
+  }
+  return result
 }

@@ -1,4 +1,5 @@
 import {
+  deleteSurveyQuestionResultsByIds,
   deleteSurveyQuestionsByIds,
   deleteSurveyQuestionsByTestId,
   getSurveyQuestionResultsByTestId,
@@ -95,5 +96,13 @@ export const insertSurveyQuestionResultsUseCase = async (
   trx?: Db
 ) => {
   const result = await insertSurveyQuestionResults(surveyQuestionResultsData, trx)
+  return result
+}
+
+export const deleteSurveyQuestionResultsByIdsUseCase = async (
+  ids: string[],
+  trx?: Db
+) => {
+  const result = await deleteSurveyQuestionResultsByIds(ids, trx)
   return result
 }

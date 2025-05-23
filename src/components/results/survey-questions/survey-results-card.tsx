@@ -40,44 +40,55 @@ const SurveyResultsCard = ({
       icon={<Icon className='icon' />}
       title={testData.name}
       content={
-        <div className='grid gap-5'>
-          <SubHeading heading='Results' Icon={ChartColumn} />
-          {questionsWithAnswers.map((questionData, questionIndex) => {
-            if (
-              questionData.type === SURVEY_QUESTION_TYPE.SHORT_TEXT ||
-              questionData.type === SURVEY_QUESTION_TYPE.LONG_TEXT
-            ) {
-              return (
-                <SurveyResultText
-                  key={questionData.id}
-                  resultData={questionData}
-                  sectionIndex={sectionIndex}
-                  questionIndex={questionIndex}
-                />
-              )
-            }
+        questionsWithAnswers.length > 0 ? (
+          <div className='grid gap-5'>
+            <SubHeading heading='Results' Icon={ChartColumn} />
+            {questionsWithAnswers.map((questionData, questionIndex) => {
+              if (
+                questionData.type === SURVEY_QUESTION_TYPE.SHORT_TEXT ||
+                questionData.type === SURVEY_QUESTION_TYPE.LONG_TEXT
+              ) {
+                return (
+                  <SurveyResultText
+                    key={questionData.id}
+                    resultData={questionData}
+                    sectionIndex={sectionIndex}
+                    questionIndex={questionIndex}
+                  />
+                )
+              }
 
-            if (
-              questionData.type === SURVEY_QUESTION_TYPE.SINGLE_SELECT ||
-              questionData.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
-            ) {
-              return (
-                <SurveyResultSelect
-                  key={questionData.id}
-                  resultData={questionData}
-                  sectionIndex={sectionIndex}
-                  questionIndex={questionIndex}
-                  answersData={surveyResults
-                    .filter(result => result.questionId === questionData.id)
-                    .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())}
-                  isMultipleSelect={
-                    questionData.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
-                  }
-                />
-              )
-            }
-          })}
-        </div>
+              if (
+                questionData.type === SURVEY_QUESTION_TYPE.SINGLE_SELECT ||
+                questionData.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
+              ) {
+                return (
+                  <SurveyResultSelect
+                    key={questionData.id}
+                    resultData={questionData}
+                    sectionIndex={sectionIndex}
+                    questionIndex={questionIndex}
+                    answersData={surveyResults
+                      .filter(result => result.questionId === questionData.id)
+                      .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())}
+                    isMultipleSelect={
+                      questionData.type === SURVEY_QUESTION_TYPE.MULTIPLE_SELECT
+                    }
+                  />
+                )
+              }
+            })}
+          </div>
+        ) : (
+          <div className='flex items-center justify-center rounded-md p-8'>
+            <div className='text-center'>
+              <p className='text-muted-foreground text-sm'>No responses yet</p>
+              <p className='text-muted-foreground mt-1 text-xs'>
+                This section hasn't received any responses from participants
+              </p>
+            </div>
+          </div>
+        )
       }
     />
   )

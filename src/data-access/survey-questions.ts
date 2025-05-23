@@ -115,3 +115,11 @@ export const insertSurveyQuestionResults = async (
     .returning()
   return results
 }
+
+export const deleteSurveyQuestionResultsByIds = async (ids: string[], trx = db) => {
+  const results = await trx
+    .delete(surveyQuestionResults)
+    .where(inArray(surveyQuestionResults.id, ids))
+    .returning()
+  return results
+}
