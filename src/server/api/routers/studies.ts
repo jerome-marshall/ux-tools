@@ -258,6 +258,16 @@ export const studiesRouter = createTRPCRouter({
               )
             }
 
+            if (testData.type === SECTION_TYPE.SURVEY) {
+              await insertSurveyQuestionsUseCase(
+                testData.questions.map(question => ({
+                  ...question,
+                  testId: newTest.id
+                })),
+                trx
+              )
+            }
+
             return newTest.id
           }
         })
