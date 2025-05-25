@@ -353,20 +353,37 @@ const ChoicesList = ({
               onChange(newChoices)
             }
 
+            const onAddChoice = () => {
+              const newChoices = [...multipleChoiceOptions]
+              const newChoice = { id: generateId(), value: '' }
+              newChoices.push(newChoice)
+              onChange(newChoices)
+
+              return newChoice.id
+            }
+
             const onRemove = () => {
+              if (multipleChoiceOptions.length < 3) {
+                return null
+              }
+
               const newChoices = [...multipleChoiceOptions]
               newChoices.splice(index, 1)
               onChange(newChoices)
+
+              return newChoices[newChoices.length - 1].id
             }
 
             return (
               <Choice
                 key={choice.id}
+                id={choice.id}
                 choice={choice}
                 onChange={onChoiceChange}
                 name={choiceName}
                 removeDisabled={multipleChoiceOptions.length < 3}
                 disableFields={disableFields}
+                onAddChoice={onAddChoice}
                 onRemove={onRemove}
               />
             )
@@ -375,6 +392,7 @@ const ChoicesList = ({
             {activeId ? (
               <Choice
                 key={activeId}
+                id={activeId}
                 name={activeId}
                 choice={
                   multipleChoiceOptions.find(choice => choice.id === activeId) as {
@@ -395,6 +413,7 @@ const ChoicesList = ({
 }
 
 const Choice = ({
+  id,
   name,
   onChange,
   ref,
@@ -402,16 +421,19 @@ const Choice = ({
   removeDisabled,
   disableFields,
   onRemove,
-  isOverlay
+  isOverlay,
+  onAddChoice
 }: {
+  id: string
   name: string
   onChange?: (value: { id: string; value: string }) => void
   ref?: (element: HTMLInputElement) => void
   choice: { id: string; value: string }
   removeDisabled: boolean
   disableFields: boolean
-  onRemove?: () => void
+  onRemove?: () => string | null
   isOverlay?: boolean
+  onAddChoice?: () => string
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({
@@ -442,6 +464,7 @@ const Choice = ({
         {...attributes}
       />
       <Input
+        id={'input-' + id}
         name={name}
         ref={ref}
         className='flex-1'
@@ -452,6 +475,44 @@ const Choice = ({
             value: e.target.value
           })
         }
+        onKeyDown={e => {
+          if (disableFields) return
+
+          if (e.key === 'Enter' && e.shiftKey) {
+            e.preventDefault()
+            e.stopPropagation()
+
+            const newChoiceId = onAddChoice?.()
+
+            if (newChoiceId) {
+              // Focus the next input
+              setTimeout(() => {
+                const nextInput = document.getElementById(
+                  'input-' + newChoiceId
+                ) as HTMLInputElement
+                if (nextInput) {
+                  nextInput.focus()
+                }
+              }, 100)
+            }
+          }
+
+          if (e.key === 'Backspace') {
+            if (choice.value === '') {
+              const nextId = onRemove?.()
+              if (nextId) {
+                setTimeout(() => {
+                  const nextInput = document.getElementById(
+                    'input-' + nextId
+                  ) as HTMLInputElement
+                  if (nextInput) {
+                    nextInput.focus()
+                  }
+                }, 100)
+              }
+            }
+          }
+        }}
         disabled={disableFields}
         required={true}
       />
