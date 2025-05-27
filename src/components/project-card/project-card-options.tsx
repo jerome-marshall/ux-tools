@@ -7,8 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useDeleteProject } from '@/hooks/use-delete-project'
-import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
+import { useDeleteProject } from '@/hooks/project/use-delete-project'
+import { useUpdateArchiveStatus } from '@/hooks/project/use-update-archive-status'
 import { cn } from '@/lib/utils'
 import { type Project } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'

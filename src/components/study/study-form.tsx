@@ -10,8 +10,8 @@ import {
 
 import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
-import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
-import { useUpdateStudyStatus } from '@/hooks/use-update-study-status'
+import { useUpdateArchiveStatus } from '@/hooks/project/use-update-archive-status'
+import { useUpdateStudyStatus } from '@/hooks/study/use-update-study-status'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
 import { type Project, type Study } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'

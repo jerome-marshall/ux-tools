@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { useUpdateSharedStatus } from '@/hooks/use-update-shared-status'
+import { useUpdateSharedStatus } from '@/hooks/study/use-update-shared-status'
 import { type Study } from '@/server/db/schema'
 import { studyResultOnlyUrl } from '@/utils/urls'
 import { CopyIcon } from 'lucide-react'

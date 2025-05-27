@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
-import { useUpdateStudyStatus } from '@/hooks/use-update-study-status'
+import { useUpdateArchiveStatus } from '@/hooks/project/use-update-archive-status'
+import { useUpdateStudyStatus } from '@/hooks/study/use-update-study-status'
 import { type Project, type Study } from '@/server/db/schema'
 
 const ManageStudyStatusDialog = ({

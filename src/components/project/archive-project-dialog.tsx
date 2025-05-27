@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { useUpdateArchiveStatus } from '@/hooks/use-update-archive-status'
+import { useUpdateArchiveStatus } from '@/hooks/project/use-update-archive-status'
 import { type Project } from '@/server/db/schema'
 
 export function ArchiveProjectDialog({
