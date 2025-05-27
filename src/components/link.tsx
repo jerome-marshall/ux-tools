@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import NextLink, { type LinkProps as NextLinkProps } from 'next/link'
 import React from 'react'
 export interface LinkProps extends NextLinkProps {
@@ -10,11 +11,12 @@ export interface LinkProps extends NextLinkProps {
  */
 const Link = ({
   children,
+  className,
   prefetch = true,
   ...rest
 }: LinkProps & { target?: string & {} }) => {
   return (
-    <NextLink prefetch={prefetch} {...rest}>
+    <NextLink prefetch={prefetch} className={cn('cursor-pointer', className)} {...rest}>
       {children}
     </NextLink>
   )

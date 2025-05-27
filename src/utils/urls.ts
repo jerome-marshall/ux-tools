@@ -23,6 +23,7 @@ export const projectUrl = (projectId: string) => `${PATH.projects}/${projectId}`
 export const studyUrl = (studyId: string) => `${PATH.studies}/${studyId}`
 export const studyEditUrl = (studyId: string) => `${PATH.studies}/${studyId}/edit`
 export const studyResultsUrl = (studyId: string) => `${PATH.studies}/${studyId}/results`
+export const studyPreviewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
 export const previewUrl = (studyId: string) => `${PATH.preview}/${studyId}`
 export const doStudyUrl = (studyId: string) => `${PATH.doStudy}/${studyId}`
 export const studyResultOnlyUrl = (studyId: string) =>

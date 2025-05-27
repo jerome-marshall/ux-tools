@@ -12,6 +12,7 @@ import { type Project } from '@/server/db/schema'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '../ui/button'
 import { useRouter } from 'nextjs-toploader/app'
+import StudyCardOptions from './study-card-options'
 
 const StudyCard = ({
   study,
@@ -65,10 +66,14 @@ const StudyCard = ({
           </p>
         </div>
 
-        <div className='flex items-center gap-2'>
-          <p className='text-muted-foreground text-xs'>
-            {format(study.createdAt, 'MMM d, yyyy')}
-          </p>
+        <div className='flex items-center gap-5'>
+          <div className='flex items-center gap-2'>
+            <p className='text-muted-foreground text-xs'>
+              {format(study.createdAt, 'MMM d, yyyy')}
+            </p>
+          </div>
+
+          <StudyCardOptions study={study} />
         </div>
       </div>
     </div>
