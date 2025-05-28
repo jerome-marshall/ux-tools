@@ -62,6 +62,7 @@ import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
 import { SurveyCard } from './survey/survey-card'
 import TreeTest from './tree-test/tree-test'
+import { useInvalidateStudy } from '@/hooks/study/use-invalidate-study'
 
 type BaseStudyFormProps = {
   defaultValues: StudyWithTestsInsert
@@ -555,6 +556,7 @@ export const EditStudyForm = ({
 
   const { updateArchiveStatus, isArchiveStatusPending } = useUpdateArchiveStatus()
   const { updateStudyStatus, isStudyStatusPending } = useUpdateStudyStatus()
+  const invalidateStudy = useInvalidateStudy()
 
   const { mutate, isPending: isUpdateStudyPending } = useMutation(
     trpc.studies.updateStudy.mutationOptions({
@@ -563,9 +565,7 @@ export const EditStudyForm = ({
           description: data.name
         })
 
-        void queryClient.invalidateQueries({
-          queryKey: trpc.studies.getStudyById.queryKey({ studyId: initialStudy.id })
-        })
+        invalidateStudy({ id: initialStudy.id, projectId: initialStudy.projectId })
       }
     })
   )
