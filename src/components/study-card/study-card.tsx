@@ -32,7 +32,14 @@ const StudyCard = ({
     <div className='relative'>
       <div
         className='relative flex w-full cursor-pointer justify-between rounded-xl bg-white px-8 py-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:ring-2 hover:ring-gray-300'
-        onClick={() => router.push(href)}
+        onClick={e => {
+          if (e.metaKey) {
+            e.preventDefault()
+            window.open(href, '_blank')
+          } else {
+            router.push(href)
+          }
+        }}
       >
         <div className='flex min-w-64 flex-col justify-between gap-3'>
           <div className='flex items-center gap-2'>
