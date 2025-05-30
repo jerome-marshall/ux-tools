@@ -13,9 +13,12 @@ import { EllipsisVerticalIcon, ExternalLinkIcon } from 'lucide-react'
 import { useState } from 'react'
 import Link from '../link'
 import { Button } from '../ui/button'
+import { useDeleteStudy } from '@/hooks/study/use-delete-study'
 
 const StudyCardOptions = ({ study }: { study: Study }) => {
   const [isOpen, setIsOpen] = useState(false)
+
+  const { deleteStudy, isDeletePending } = useDeleteStudy()
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -92,8 +95,11 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
           variant='destructive'
           onClick={e => {
             e.stopPropagation()
-            // Handle delete
+            if (confirm('Are you sure you want to delete this study?')) {
+              deleteStudy({ studyId: study.id })
+            }
           }}
+          disabled={isDeletePending}
         >
           Delete
         </DropdownMenuItem>

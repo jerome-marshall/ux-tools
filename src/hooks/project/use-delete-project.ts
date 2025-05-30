@@ -1,6 +1,6 @@
 import { type Project } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useInvalidateStudy } from '../study/use-invalidate-study'
 import { useInvalidateProject } from './use-invalidate-project'
@@ -18,7 +18,6 @@ export const useDeleteProject = ({
   projectId
 }: UseDeleteProjectOptions = {}) => {
   const trpc = useTRPC()
-  const queryClient = useQueryClient()
 
   const invalidateProject = useInvalidateProject()
   const invalidateStudy = useInvalidateStudy()
@@ -35,6 +34,11 @@ export const useDeleteProject = ({
 
         // Call custom onSuccess if provided
         onSuccess?.(data)
+      },
+      onError: error => {
+        toast.error('Failed to delete project', {
+          description: error.message
+        })
       }
     })
   )

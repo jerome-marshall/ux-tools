@@ -40,3 +40,8 @@ export const updateStudy = async (id: string, study: Partial<Study>, trx = db) =
     .returning()
   return data
 }
+
+export const deleteStudy = async (id: string, trx = db) => {
+  const [data] = await trx.delete(studies).where(eq(studies.id, id)).returning()
+  return data
+}

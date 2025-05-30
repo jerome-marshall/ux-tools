@@ -3,6 +3,7 @@ import { generateId } from '@/lib/utils'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { getProjectsUseCase } from '@/use-cases/projects'
 import {
+  deleteStudyUseCase,
   getAllStudiesUseCase,
   getPublicStudyByIdUseCase,
   getStudiesByProjectIdUseCase,
@@ -452,5 +453,13 @@ export const studiesRouter = createTRPCRouter({
         }))
 
       return studiesWithProject
+    }),
+
+  deleteStudy: protectedProcedure
+    .input(z.object({ studyId: z.string() }))
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const { studyId } = input
+      const deletedStudy = await deleteStudyUseCase(userId, studyId)
+      return deletedStudy
     })
 })

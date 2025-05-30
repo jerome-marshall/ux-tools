@@ -1,4 +1,5 @@
 import {
+  deleteStudy,
   getAllStudies,
   getStudiesByProjectId,
   getStudyById,
@@ -63,12 +64,23 @@ export const updateStudyUseCase = async (
   { id: _, ...study }: Partial<Study>,
   trx?: Db
 ) => {
-  const existingStudy = await getStudyByIdUseCase(userId, id, trx)
-  assertStudyOwner(userId, existingStudy)
+  // Check if study exists and is owned by user
+  await getStudyByIdUseCase(userId, id, trx)
 
   const data = await updateStudy(id, study, trx)
   if (!data) {
     throw new Error('Failed to update study')
+  }
+  return data
+}
+
+export const deleteStudyUseCase = async (userId: string, id: string, trx?: Db) => {
+  // Check if study exists and is owned by user
+  await getStudyByIdUseCase(userId, id, trx)
+
+  const data = await deleteStudy(id, trx)
+  if (!data) {
+    throw new Error('Failed to delete study')
   }
   return data
 }
