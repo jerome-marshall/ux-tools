@@ -17,6 +17,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useInvalidateProject } from '@/hooks/project/use-invalidate-project'
 import { type Project, projectInsertSchema } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -39,7 +40,7 @@ export function RenameProjectDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const trpc = useTRPC()
-  const queryClient = useQueryClient()
+  const invalidateProject = useInvalidateProject()
 
   const form = useForm<ProjectRename>({
     resolver: zodResolver(projectRenameSchema),
@@ -67,15 +68,8 @@ export function RenameProjectDialog({
           description: data.name
         })
 
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getProjects.queryKey()
-        })
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getRecentProjects.queryKey()
-        })
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getProjectById.queryKey({ id: project.id })
-        })
+        invalidateProject({ id: project.id })
+
         onOpenChange(false)
       },
       onError: () => {

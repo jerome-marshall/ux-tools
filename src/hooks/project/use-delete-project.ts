@@ -3,6 +3,7 @@ import { useTRPC } from '@/trpc/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useInvalidateStudy } from '../study/use-invalidate-study'
+import { useInvalidateProject } from './use-invalidate-project'
 
 type UseDeleteProjectOptions = {
   onSuccess?: (project: Project) => void
@@ -19,6 +20,7 @@ export const useDeleteProject = ({
   const trpc = useTRPC()
   const queryClient = useQueryClient()
 
+  const invalidateProject = useInvalidateProject()
   const invalidateStudy = useInvalidateStudy()
 
   const { mutate, isPending } = useMutation(
@@ -28,21 +30,7 @@ export const useDeleteProject = ({
           description: data.name
         })
 
-        // Invalidate projects queries
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getProjects.queryKey()
-        })
-
-        void queryClient.invalidateQueries({
-          queryKey: trpc.projects.getRecentProjects.queryKey()
-        })
-
-        if (projectId) {
-          void queryClient.invalidateQueries({
-            queryKey: trpc.projects.getProjectById.queryKey({ id: projectId })
-          })
-        }
-
+        invalidateProject({ id: projectId })
         invalidateStudy({ projectId })
 
         // Call custom onSuccess if provided
