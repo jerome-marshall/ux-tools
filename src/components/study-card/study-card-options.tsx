@@ -14,10 +14,12 @@ import { useState } from 'react'
 import Link from '../link'
 import { Button } from '../ui/button'
 import { DeleteStudyDialog } from '../study/delete-study-dialog'
+import { RenameStudyDialog } from '../study/rename-study-dialog'
 
 const StudyCardOptions = ({ study }: { study: Study }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
 
   return (
     <>
@@ -54,7 +56,8 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
           <DropdownMenuItem
             onClick={e => {
               e.stopPropagation()
-              // Handle rename
+              setIsRenameDialogOpen(true)
+              setIsOpen(false)
             }}
           >
             Rename
@@ -107,6 +110,11 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
         study={study}
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
+      />
+      <RenameStudyDialog
+        study={study}
+        isOpen={isRenameDialogOpen}
+        onOpenChange={setIsRenameDialogOpen}
       />
     </>
   )

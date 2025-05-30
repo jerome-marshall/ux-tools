@@ -428,6 +428,14 @@ export const studiesRouter = createTRPCRouter({
       return updatedStudy
     }),
 
+  renameStudy: protectedProcedure
+    .input(z.object({ studyId: z.string(), name: z.string() }))
+    .mutation(async ({ input, ctx: { userId } }) => {
+      const { studyId, name } = input
+      const updatedStudy = await updateStudyUseCase(userId, studyId, { name })
+      return updatedStudy
+    }),
+
   getAllStudiesWithProject: protectedProcedure
     .input(
       z.object({
