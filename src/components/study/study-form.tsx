@@ -501,6 +501,7 @@ export const CreateStudyForm = ({
   const router = useRouter()
 
   const invalidateProject = useInvalidateProject()
+  const invalidateStudy = useInvalidateStudy()
 
   const { mutate, isPending: isCreateStudyPending } = useMutation(
     trpc.studies.createStudy.mutationOptions({
@@ -508,7 +509,10 @@ export const CreateStudyForm = ({
         toast.success('Study created successfully', {
           description: data.name
         })
+
         invalidateProject({ id: data.projectId })
+        invalidateStudy({ id: data.id, projectId: data.projectId })
+
         router.push(studyUrl(data.id))
       },
       onError: error => {
@@ -616,8 +620,8 @@ export const EditStudyForm = ({
       />
       <DuplicateStudyDialog
         isOpen={isDuplicateStudyDialogOpen}
-        setIsOpen={setIsDuplicateStudyDialogOpen}
         study={initialData.study}
+        onOpenChange={setIsDuplicateStudyDialogOpen}
       />
     </>
   )

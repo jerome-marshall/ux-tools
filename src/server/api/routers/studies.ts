@@ -357,59 +357,89 @@ export const studiesRouter = createTRPCRouter({
       const study = await getStudyByIdUseCase(userId, input.studyId)
       const tests = await getTestsByStudyIdUseCase(userId, input.studyId)
 
-      // Create the new study
-      const newStudy = await insertStudyUseCase(userId, {
-        id: generateId(),
-        name: input.newStudyName,
-        projectId: input.projectId,
-        testsOrder: [] // We'll update this after creating tests
+      const studyToReturn = await createTransaction(async trx => {
+        // Create the new study
+        const newStudy = await insertStudyUseCase(
+          userId,
+          {
+            id: generateId(),
+            name: input.newStudyName,
+            projectId: input.projectId,
+            testsOrder: [] // We'll update this after creating tests
+          },
+          trx
+        )
+
+        const testIdMap = new Map<string, string>()
+        const newTestRecords = tests.map(test => {
+          const newId = generateId()
+          testIdMap.set(test.id, newId)
+
+          return {
+            id: newId,
+            type: test.type,
+            studyId: newStudy.id,
+            name: test.name
+          }
+        })
+
+        const newTestsOrder = study.testsOrder
+          .map(oldId => testIdMap.get(oldId) ?? '')
+          .filter(id => id !== '')
+        await updateStudyUseCase(userId, newStudy.id, { testsOrder: newTestsOrder }, trx)
+
+        const newTests = await createTestsUseCase(newTestRecords, trx)
+
+        const testsByType = new Map<TestType, Array<{ ogId: string; newId: string }>>()
+        tests.forEach((test, index) => {
+          if (!testsByType.has(test.type)) {
+            testsByType.set(test.type, [])
+          }
+          testsByType.get(test.type)!.push({ ogId: test.id, newId: newTests[index].id })
+        })
+
+        const treeTestPromises =
+          testsByType
+            .get(SECTION_TYPE.TREE_TEST)
+            ?.map(async ({ ogId, newId }) => {
+              const treeTest = await getTreeTestByTestIdUseCase(ogId, trx)
+              if (treeTest) {
+                return createTreeTestUseCase(
+                  {
+                    ...treeTest,
+                    id: generateId(),
+                    testId: newId
+                  },
+                  trx
+                )
+              }
+            })
+            .filter(Boolean) ?? []
+        await Promise.all(treeTestPromises)
+
+        const surveyTestPromises =
+          testsByType
+            .get(SECTION_TYPE.SURVEY)
+            ?.map(async ({ ogId, newId }) => {
+              const surveyQuestions = await getSurveyQuestionsByTestIdUseCase(ogId, trx)
+              if (surveyQuestions) {
+                return insertSurveyQuestionsUseCase(
+                  surveyQuestions.map(question => ({
+                    ...question,
+                    id: generateId(),
+                    testId: newId
+                  })),
+                  trx
+                )
+              }
+            })
+            .filter(Boolean) ?? []
+        await Promise.all(surveyTestPromises)
+
+        return newStudy
       })
 
-      const testIdMap = new Map<string, string>()
-      const newTestRecords = tests.map(test => {
-        const newId = generateId()
-        testIdMap.set(test.id, newId)
-
-        return {
-          id: newId,
-          type: test.type,
-          studyId: newStudy.id,
-          name: test.name
-        }
-      })
-
-      const newTestsOrder = study.testsOrder
-        .map(oldId => testIdMap.get(oldId) ?? '')
-        .filter(id => id !== '')
-      await updateStudyUseCase(userId, newStudy.id, { testsOrder: newTestsOrder })
-
-      const newTests = await createTestsUseCase(newTestRecords)
-
-      const testsByType = new Map<TestType, Array<{ ogId: string; newId: string }>>()
-      tests.forEach((test, index) => {
-        if (!testsByType.has(test.type)) {
-          testsByType.set(test.type, [])
-        }
-        testsByType.get(test.type)!.push({ ogId: test.id, newId: newTests[index].id })
-      })
-
-      const treeTestPromises =
-        testsByType
-          .get(SECTION_TYPE.TREE_TEST)
-          ?.map(async ({ ogId, newId }) => {
-            const treeTest = await getTreeTestByTestIdUseCase(ogId)
-            if (treeTest) {
-              return createTreeTestUseCase({
-                ...treeTest,
-                id: generateId(),
-                testId: newId
-              })
-            }
-          })
-          .filter(Boolean) ?? []
-      await Promise.all(treeTestPromises)
-
-      return newStudy
+      return studyToReturn
     }),
 
   updateStudyStatus: protectedProcedure

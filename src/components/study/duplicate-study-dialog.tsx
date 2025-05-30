@@ -26,30 +26,39 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import ProjectsDropdown from './projects-dropdown'
+import { useInvalidateStudy } from '@/hooks/study/use-invalidate-study'
+import { useInvalidateProject } from '@/hooks/project/use-invalidate-project'
 
 export function DuplicateStudyDialog({
   isOpen,
-  setIsOpen,
+  onOpenChange,
   study
 }: {
   isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  onOpenChange: (isOpen: boolean) => void
   study: { projectId: string; id: string; name: string }
 }) {
   const trpc = useTRPC()
   const router = useRouter()
 
+  const invalidateStudy = useInvalidateStudy()
+  const invalidateProject = useInvalidateProject()
+
   const { mutate: duplicateStudy, isPending } = useMutation(
     trpc.studies.duplicateStudy.mutationOptions({
-      onSuccess: ({ id }) => {
+      onSuccess: ({ id, projectId }) => {
         toast.success(`Study "${study.name}" duplicated successfully`)
-        setIsOpen(false)
+
+        invalidateStudy({ id, projectId })
+        invalidateProject({ id: projectId })
+
+        onOpenChange(false)
         router.push(studyEditUrl(id))
       },
       onError: error => {
         toast.error(`Failed to duplicate study "${study.name}"`)
         console.error(error)
-        setIsOpen(false)
+        onOpenChange(false)
       }
     })
   )
@@ -73,7 +82,7 @@ export function DuplicateStudyDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader className='mb-2'>
           <DialogTitle>Duplicate "{study.name}"</DialogTitle>
@@ -87,7 +96,7 @@ export function DuplicateStudyDialog({
                 <FormItem>
                   <FormLabel>Study name</FormLabel>
                   <FormControl>
-                    <Input placeholder='New study name' {...field} />
+                    <Input placeholder='New study name' {...field} disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -117,14 +126,14 @@ export function DuplicateStudyDialog({
                 type='button'
                 variant='ghost'
                 onClick={() => {
-                  setIsOpen(false)
+                  onOpenChange(false)
                   form.reset()
                 }}
               >
                 Cancel
               </Button>
-              <Button type='submit' disabled={false}>
-                {false ? 'Duplicating...' : 'Duplicate'}
+              <Button type='submit' disabled={isPending}>
+                {isPending ? 'Duplicating...' : 'Duplicate'}
               </Button>
             </DialogFooter>
           </form>

@@ -15,6 +15,13 @@ import Link from '../link'
 import { Button } from '../ui/button'
 import { DeleteStudyDialog } from '../study/delete-study-dialog'
 import { RenameStudyDialog } from '../study/rename-study-dialog'
+import { DuplicateStudyDialog } from '../study/duplicate-study-dialog'
+
+enum DIALOG {
+  DELETE = 'delete',
+  RENAME = 'rename',
+  DUPLICATE = 'duplicate'
+}
 
 const StudyCardOptions = ({
   study,
@@ -24,8 +31,7 @@ const StudyCardOptions = ({
   triggerClassName?: string
 }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
+  const [openDialog, setOpenDialog] = useState<DIALOG | null>(null)
 
   return (
     <>
@@ -56,7 +62,7 @@ const StudyCardOptions = ({
           <DropdownMenuSeparator className='m-0' />
           <DropdownMenuItem
             onClick={() => {
-              setIsRenameDialogOpen(true)
+              setOpenDialog(DIALOG.RENAME)
               setIsOpen(false)
             }}
           >
@@ -69,7 +75,8 @@ const StudyCardOptions = ({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              // Handle duplicate
+              setOpenDialog(DIALOG.DUPLICATE)
+              setIsOpen(false)
             }}
           >
             Duplicate
@@ -91,7 +98,7 @@ const StudyCardOptions = ({
           <DropdownMenuItem
             variant='destructive'
             onClick={() => {
-              setIsDeleteDialogOpen(true)
+              setOpenDialog(DIALOG.DELETE)
               setIsOpen(false)
             }}
           >
@@ -101,13 +108,18 @@ const StudyCardOptions = ({
       </DropdownMenu>
       <DeleteStudyDialog
         study={study}
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        isOpen={openDialog === DIALOG.DELETE}
+        onOpenChange={open => setOpenDialog(open ? DIALOG.DELETE : null)}
       />
       <RenameStudyDialog
         study={study}
-        isOpen={isRenameDialogOpen}
-        onOpenChange={setIsRenameDialogOpen}
+        isOpen={openDialog === DIALOG.RENAME}
+        onOpenChange={open => setOpenDialog(open ? DIALOG.RENAME : null)}
+      />
+      <DuplicateStudyDialog
+        study={study}
+        isOpen={openDialog === DIALOG.DUPLICATE}
+        onOpenChange={open => setOpenDialog(open ? DIALOG.DUPLICATE : null)}
       />
     </>
   )

@@ -19,8 +19,8 @@ export const createTreeTestUseCase = async (treeTest: TreeTestInsert, trx?: Db) 
   return result
 }
 
-export const getTreeTestByTestIdUseCase = async (testId: string) => {
-  const result = await getTreeTestByTestId(testId)
+export const getTreeTestByTestIdUseCase = async (testId: string, trx?: Db) => {
+  const result = await getTreeTestByTestId(testId, trx)
   if (!result) {
     throw new Error('Failed to get tree test')
   }

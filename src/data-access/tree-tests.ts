@@ -12,15 +12,15 @@ export const createTreeTest = async (treeTest: TreeTestInsert, trx = db) => {
   return result
 }
 
-export const getTreeTestByTestId = async (testId: string) => {
-  const result = await db.query.treeTests.findFirst({
+export const getTreeTestByTestId = async (testId: string, trx = db) => {
+  const result = await trx.query.treeTests.findFirst({
     where: (fields, { eq }) => eq(fields.testId, testId)
   })
   return result
 }
 
-export const getTreeTestsByTestIds = async (testIds: string[]) => {
-  const result = await db.query.treeTests.findMany({
+export const getTreeTestsByTestIds = async (testIds: string[], trx = db) => {
+  const result = await trx.query.treeTests.findMany({
     where: (fields, { inArray }) => inArray(fields.testId, testIds)
   })
   return result
