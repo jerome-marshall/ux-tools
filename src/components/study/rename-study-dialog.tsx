@@ -102,11 +102,7 @@ export function RenameStudyDialog({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder='Study name'
-                      {...field}
-                      onClick={e => e.stopPropagation()}
-                    />
+                    <Input placeholder='Study name' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,21 +112,14 @@ export function RenameStudyDialog({
               <Button
                 type='button'
                 variant='ghost'
-                onClick={e => {
-                  e.stopPropagation()
+                onClick={() => {
                   onOpenChange(false)
                   form.reset()
                 }}
               >
                 Cancel
               </Button>
-              <Button
-                type='submit'
-                disabled={isPending || !isNameValid}
-                onClick={e => {
-                  e.stopPropagation()
-                }}
-              >
+              <Button type='submit' disabled={isPending || !isNameValid}>
                 {isPending ? 'Saving...' : 'Save'}
               </Button>
             </DialogFooter>

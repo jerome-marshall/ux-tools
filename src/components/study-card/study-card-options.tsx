@@ -16,7 +16,13 @@ import { Button } from '../ui/button'
 import { DeleteStudyDialog } from '../study/delete-study-dialog'
 import { RenameStudyDialog } from '../study/rename-study-dialog'
 
-const StudyCardOptions = ({ study }: { study: Study }) => {
+const StudyCardOptions = ({
+  study,
+  triggerClassName
+}: {
+  study: Study
+  triggerClassName?: string
+}) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
@@ -28,12 +34,9 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
           <Button
             variant='ghost'
             size={'icon'}
-            className={cn('text-muted-foreground size-8', {
+            className={cn('text-muted-foreground size-8', triggerClassName, {
               'border border-gray-200 bg-gray-100': isOpen
             })}
-            onClick={e => {
-              e.stopPropagation()
-            }}
           >
             <EllipsisVerticalIcon className='size-4' />
           </Button>
@@ -44,9 +47,7 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
               href={studyPreviewUrl(study.id)}
               target='_blank'
               className='flex cursor-pointer items-center justify-between gap-2'
-              onClick={e => {
-                e.stopPropagation()
-              }}
+              onClick={() => setIsOpen(false)}
             >
               <span>Preview</span>
               <ExternalLinkIcon className='size-4' />
@@ -54,8 +55,7 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator className='m-0' />
           <DropdownMenuItem
-            onClick={e => {
-              e.stopPropagation()
+            onClick={() => {
               setIsRenameDialogOpen(true)
               setIsOpen(false)
             }}
@@ -63,32 +63,28 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
             Rename
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={e => {
-              e.stopPropagation()
+            onClick={() => {
               // Handle edit
             }}
           >
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={e => {
-              e.stopPropagation()
+            onClick={() => {
               // Handle duplicate
             }}
           >
             Duplicate
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={e => {
-              e.stopPropagation()
+            onClick={() => {
               // Handle move
             }}
           >
             Move
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={e => {
-              e.stopPropagation()
+            onClick={() => {
               // Handle archive
             }}
           >
@@ -96,8 +92,7 @@ const StudyCardOptions = ({ study }: { study: Study }) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             variant='destructive'
-            onClick={e => {
-              e.stopPropagation()
+            onClick={() => {
               setIsDeleteDialogOpen(true)
               setIsOpen(false)
             }}

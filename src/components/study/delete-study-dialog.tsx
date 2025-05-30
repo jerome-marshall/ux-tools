@@ -57,24 +57,10 @@ export function DeleteStudyDialog({
           </div>
         </div>
         <DialogFooter className='mt-2'>
-          <Button
-            type='button'
-            variant='ghost'
-            onClick={e => {
-              e.stopPropagation()
-              onOpenChange(false)
-            }}
-          >
+          <Button type='button' variant='ghost' onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            variant='destructive'
-            onClick={e => {
-              e.stopPropagation()
-              handleDelete()
-            }}
-            disabled={isDeletePending}
-          >
+          <Button variant='destructive' onClick={handleDelete} disabled={isDeletePending}>
             {isDeletePending ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>

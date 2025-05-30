@@ -29,53 +29,57 @@ const StudyCard = ({
   const isActive = study.isActive
 
   return (
-    <div
-      className='relative flex w-full cursor-pointer justify-between rounded-xl bg-white px-8 py-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:ring-2 hover:ring-gray-300'
-      onClick={() => router.push(href)}
-    >
-      <div className='flex min-w-64 flex-col justify-between gap-3'>
-        <div className='flex items-center gap-2'>
-          <div className='flex items-center justify-center gap-1 rounded-full bg-gray-200 px-1.5 py-0.5'>
-            <FlaskConical className='size-2.5' strokeWidth={2} />
-            <span className='text-xs'>Test</span>
-          </div>
-          {!hideProjectName && (
-            <Link
-              href={projectUrl(project.id)}
-              className={cn(
-                buttonVariants({ variant: 'ghost' }),
-                'text-muted-foreground !h-fit !rounded-sm !p-0 !px-1'
-              )}
-              onClick={e => {
-                e.stopPropagation()
-              }}
-            >
-              <FolderClosedIcon className='size-3.5' />
-              <span className='text-sm'>{project.name}</span>
-            </Link>
-          )}
-        </div>
-        <p className='text-base font-medium'>{study.name}</p>
-      </div>
-
-      <div className='flex items-center gap-8'>
-        <div className='flex min-w-32 flex-col justify-center gap-1'>
-          <StudyResponseCount studyId={study.id} className='text-sm' />
-          <p className='text-muted-foreground text-xs'>
-            {isActive ? 'Link Active' : 'Link Disabled'}
-          </p>
-        </div>
-
-        <div className='flex items-center gap-5'>
+    <div className='relative'>
+      <div
+        className='relative flex w-full cursor-pointer justify-between rounded-xl bg-white px-8 py-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:ring-2 hover:ring-gray-300'
+        onClick={() => router.push(href)}
+      >
+        <div className='flex min-w-64 flex-col justify-between gap-3'>
           <div className='flex items-center gap-2'>
+            <div className='flex items-center justify-center gap-1 rounded-full bg-gray-200 px-1.5 py-0.5'>
+              <FlaskConical className='size-2.5' strokeWidth={2} />
+              <span className='text-xs'>Test</span>
+            </div>
+            {!hideProjectName && (
+              <Link
+                href={projectUrl(project.id)}
+                className={cn(
+                  buttonVariants({ variant: 'ghost' }),
+                  'text-muted-foreground !h-fit !rounded-sm !p-0 !px-1'
+                )}
+                onClick={e => {
+                  e.stopPropagation()
+                }}
+              >
+                <FolderClosedIcon className='size-3.5' />
+                <span className='text-sm'>{project.name}</span>
+              </Link>
+            )}
+          </div>
+          <p className='text-base font-medium'>{study.name}</p>
+        </div>
+
+        <div className='flex items-center gap-8'>
+          <div className='flex min-w-32 flex-col justify-center gap-1'>
+            <StudyResponseCount studyId={study.id} className='text-sm' />
             <p className='text-muted-foreground text-xs'>
-              {format(study.createdAt, 'MMM d, yyyy')}
+              {isActive ? 'Link Active' : 'Link Disabled'}
             </p>
           </div>
 
-          <StudyCardOptions study={study} />
+          <div className='flex items-center gap-6'>
+            <div className='flex items-center gap-2'>
+              <p className='text-muted-foreground text-xs'>
+                {format(study.createdAt, 'MMM d, yyyy')}
+              </p>
+            </div>
+
+            {/* Placeholder for actions */}
+            <div className='size-6'></div>
+          </div>
         </div>
       </div>
+      <StudyCardOptions study={study} triggerClassName='absolute right-7 top-9' />
     </div>
   )
 }
