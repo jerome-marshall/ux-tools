@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useDeleteProject } from '@/hooks/project/use-delete-project'
 import { useUpdateArchiveStatus } from '@/hooks/project/use-update-archive-status'
 import { cn } from '@/lib/utils'
 import { type Project } from '@/server/db/schema'
@@ -17,6 +16,7 @@ import { EllipsisVertical, Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ArchiveProjectDialog } from '../project/archive-project-dialog'
+import { DeleteProjectDialog } from '../project/delete-project-dialog'
 import { RenameProjectDialog } from '../project/rename-project-dialog'
 
 const ProjectCardOptions = ({
@@ -41,6 +41,7 @@ const ProjectCardOptions = ({
   const [isOpen, setIsOpen] = useState(false)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const { data: projectData, isLoading } = useQuery({
     ...trpc.projects.getProjectById.queryOptions({
@@ -57,18 +58,7 @@ const ProjectCardOptions = ({
     }
   })
 
-  const { deleteProject, isDeletePending } = useDeleteProject({
-    projectId: projectData?.id,
-    onSuccess: deletedProject => {
-      onDeleteSuccess?.(deletedProject)
-
-      if (deleteRedirectUrl) {
-        router.push(deleteRedirectUrl)
-      }
-    }
-  })
-
-  const isActionPending = isArchiveStatusPending || isDeletePending || isLoading
+  const isActionPending = isArchiveStatusPending || isLoading
 
   return (
     <>
@@ -92,7 +82,12 @@ const ProjectCardOptions = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className='w-40' align='start'>
-          <DropdownMenuItem onClick={() => setIsRenameDialogOpen(true)}>
+          <DropdownMenuItem
+            onClick={() => {
+              setIsRenameDialogOpen(true)
+              setIsOpen(false)
+            }}
+          >
             Rename
           </DropdownMenuItem>
           {isArchived ? (
@@ -105,14 +100,21 @@ const ProjectCardOptions = ({
               Unarchive
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onClick={() => setIsArchiveDialogOpen(true)}>
+            <DropdownMenuItem
+              onClick={() => {
+                setIsArchiveDialogOpen(true)
+                setIsOpen(false)
+              }}
+            >
               Archive
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
             variant='destructive'
-            onClick={() => deleteProject({ id: projectData?.id })}
-            disabled={isDeletePending}
+            onClick={() => {
+              setIsDeleteDialogOpen(true)
+              setIsOpen(false)
+            }}
           >
             Delete
           </DropdownMenuItem>
@@ -127,6 +129,17 @@ const ProjectCardOptions = ({
         project={project}
         isOpen={isArchiveDialogOpen}
         onOpenChange={setIsArchiveDialogOpen}
+      />
+      <DeleteProjectDialog
+        project={project}
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onDeleteSuccess={deletedProject => {
+          onDeleteSuccess?.(deletedProject)
+          if (deleteRedirectUrl) {
+            router.push(deleteRedirectUrl)
+          }
+        }}
       />
     </>
   )

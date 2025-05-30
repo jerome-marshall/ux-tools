@@ -63,6 +63,7 @@ import StudyEditModeDialog from './study-edit-mode-dialog'
 import { SurveyCard } from './survey/survey-card'
 import TreeTest from './tree-test/tree-test'
 import { useInvalidateStudy } from '@/hooks/study/use-invalidate-study'
+import { useInvalidateProject } from '@/hooks/project/use-invalidate-project'
 
 type BaseStudyFormProps = {
   defaultValues: StudyWithTestsInsert
@@ -499,12 +500,15 @@ export const CreateStudyForm = ({
   const trpc = useTRPC()
   const router = useRouter()
 
+  const invalidateProject = useInvalidateProject()
+
   const { mutate, isPending: isCreateStudyPending } = useMutation(
     trpc.studies.createStudy.mutationOptions({
       onSuccess: data => {
         toast.success('Study created successfully', {
           description: data.name
         })
+        invalidateProject({ id: data.projectId })
         router.push(studyUrl(data.id))
       },
       onError: error => {
