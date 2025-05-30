@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { type Study } from '@/server/db/schema'
-import { studyPreviewUrl } from '@/utils/urls'
+import { studyEditUrl, studyPreviewUrl } from '@/utils/urls'
 import { EllipsisVerticalIcon, ExternalLinkIcon } from 'lucide-react'
 import { useState } from 'react'
 import Link from '../link'
@@ -62,12 +62,10 @@ const StudyCardOptions = ({
           >
             Rename
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              // Handle edit
-            }}
-          >
-            Edit
+          <DropdownMenuItem asChild>
+            <Link href={studyEditUrl(study.id)} onClick={() => setIsOpen(false)}>
+              <span>Edit</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
