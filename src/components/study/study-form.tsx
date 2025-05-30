@@ -10,13 +10,21 @@ import {
 
 import Link from '@/components/link'
 import { Form, FormField } from '@/components/ui/form'
+import { useInvalidateProject } from '@/hooks/project/use-invalidate-project'
 import { useUpdateArchiveStatus } from '@/hooks/project/use-update-archive-status'
+import { useInvalidateStudy } from '@/hooks/study/use-invalidate-study'
 import { useUpdateStudyStatus } from '@/hooks/study/use-update-study-status'
 import { cn, generateId, scrollToSection } from '@/lib/utils'
 import { type Project, type Study } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { getIcon, SECTION_TYPE } from '@/utils/study-utils'
-import { doStudyUrl, previewUrl, studyResultsUrl, studyUrl } from '@/utils/urls'
+import {
+  doStudyUrl,
+  previewUrl,
+  projectUrl,
+  studyResultsUrl,
+  studyUrl
+} from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
@@ -40,30 +48,32 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { DevTool } from '@hookform/devtools'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   ChartColumnIncreasing,
   Clock,
+  CopyIcon,
   GripVertical,
   Hand,
   LinkIcon,
   Loader2Icon,
   Text,
+  Trash2,
   TriangleAlert
 } from 'lucide-react'
 import { useRouter } from 'nextjs-toploader/app'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import Tooltip from '../custom-tooltip'
 import { Button, buttonVariants } from '../ui/button'
+import { Separator } from '../ui/separator'
+import { DeleteStudyDialog } from './delete-study-dialog'
 import { DuplicateStudyDialog } from './duplicate-study-dialog'
 import StudyAddSection from './study-add-section'
 import StudyDetails from './study-details'
 import StudyEditModeDialog from './study-edit-mode-dialog'
 import { SurveyCard } from './survey/survey-card'
 import TreeTest from './tree-test/tree-test'
-import { useInvalidateStudy } from '@/hooks/study/use-invalidate-study'
-import { useInvalidateProject } from '@/hooks/project/use-invalidate-project'
 
 type BaseStudyFormProps = {
   defaultValues: StudyWithTestsInsert
@@ -78,6 +88,8 @@ type BaseStudyFormProps = {
   isStudyStatusPending?: boolean
   hasTestResults?: boolean
   study?: Study
+  onDeleteClick?: () => void
+  onDuplicateClick?: () => void
 }
 
 const BaseStudyForm = ({
@@ -92,7 +104,9 @@ const BaseStudyForm = ({
   updateStudyStatus,
   isStudyStatusPending = false,
   hasTestResults = false,
-  study
+  study,
+  onDeleteClick,
+  onDuplicateClick
 }: BaseStudyFormProps) => {
   const disableFields = (isEditPage && !isEditMode) || isSubmitting
 
@@ -196,6 +210,14 @@ const BaseStudyForm = ({
     onSubmit(data)
   }
 
+  const handleDeleteClick = useCallback(() => {
+    onDeleteClick?.()
+  }, [onDeleteClick])
+
+  const handleDuplicateClick = useCallback(() => {
+    onDuplicateClick?.()
+  }, [onDuplicateClick])
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)}>
@@ -250,73 +272,105 @@ const BaseStudyForm = ({
               <Clock className='size-4' />
               <p className=''>Under a minute</p>
             </div> */}
-            <div className='mt-3 flex flex-col gap-2'>
+
+            <div className='grid gap-2'>
               {isEditPage && (
                 <>
-                  <Link
-                    href={previewUrl(studyId)}
-                    className={cn(
-                      buttonVariants({ variant: 'secondary' }),
-                      'w-full justify-start gap-2 bg-gray-200 hover:bg-gray-300'
-                    )}
-                  >
-                    <Clock className='size-4' />
-                    Preview Study
-                  </Link>
+                  <Separator className='my-2' />
+                  <div className='grid gap-2'>
+                    <Link
+                      href={previewUrl(studyId)}
+                      className={cn(
+                        buttonVariants({ variant: 'secondary' }),
+                        'w-full justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                      )}
+                    >
+                      <Clock className='size-4' />
+                      Preview Study
+                    </Link>
 
-                  {!isProjectArchived && isStudyActive && (
-                    <div className='flex gap-1'>
-                      <Link
-                        href={doStudyUrl(studyId)}
-                        className={cn(
-                          buttonVariants({ variant: 'secondary' }),
-                          'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
-                        )}
-                        target='_blank'
-                      >
-                        <Hand className='size-4' />
-                        Start Study
-                      </Link>
-                      <Tooltip
-                        content='Copy study link to clipboard'
-                        trigger={
-                          <Button
-                            variant='secondary'
-                            size='icon'
-                            className='bg-gray-200 hover:bg-gray-300'
-                            onClick={e => {
-                              e.preventDefault()
-                              const fullUrl = `${window.location.origin}${doStudyUrl(studyId)}`
-                              navigator?.clipboard
-                                .writeText(fullUrl)
-                                .then(() => {
-                                  toast.success('Study link copied to clipboard')
-                                })
-                                .catch(() => {
-                                  toast.error('Failed to copy study link to clipboard')
-                                })
-                            }}
-                          >
-                            <LinkIcon className='size-4' />
-                          </Button>
-                        }
-                      />
-                    </div>
-                  )}
-
-                  <Link
-                    href={studyResultsUrl(studyId)}
-                    className={cn(
-                      buttonVariants({ variant: 'secondary' }),
-                      'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                    {!isProjectArchived && isStudyActive && (
+                      <div className='flex gap-1'>
+                        <Link
+                          href={doStudyUrl(studyId)}
+                          className={cn(
+                            buttonVariants({ variant: 'secondary' }),
+                            'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                          )}
+                          target='_blank'
+                        >
+                          <Hand className='size-4' />
+                          Start Study
+                        </Link>
+                        <Tooltip
+                          content='Copy study link to clipboard'
+                          trigger={
+                            <Button
+                              variant='secondary'
+                              size='icon'
+                              className='bg-gray-200 hover:bg-gray-300'
+                              onClick={e => {
+                                e.preventDefault()
+                                const fullUrl = `${window.location.origin}${doStudyUrl(studyId)}`
+                                navigator?.clipboard
+                                  .writeText(fullUrl)
+                                  .then(() => {
+                                    toast.success('Study link copied to clipboard')
+                                  })
+                                  .catch(() => {
+                                    toast.error('Failed to copy study link to clipboard')
+                                  })
+                              }}
+                            >
+                              <LinkIcon className='size-4' />
+                            </Button>
+                          }
+                        />
+                      </div>
                     )}
-                  >
-                    <ChartColumnIncreasing className='size-4' />
-                    View Results
-                  </Link>
+
+                    <Link
+                      href={studyResultsUrl(studyId)}
+                      className={cn(
+                        buttonVariants({ variant: 'secondary' }),
+                        'flex-1 justify-start gap-2 bg-gray-200 hover:bg-gray-300'
+                      )}
+                    >
+                      <ChartColumnIncreasing className='size-4' />
+                      View Results
+                    </Link>
+                  </div>
+
+                  <Separator className='my-2' />
+
+                  <div className='grid grid-cols-2 gap-2'>
+                    <Button
+                      variant='outline'
+                      type='button'
+                      className='gap-2 hover:border-gray-300 hover:bg-gray-200'
+                      onClick={handleDuplicateClick}
+                    >
+                      <CopyIcon className='size-4' />
+                      Duplicate
+                    </Button>
+                    <Button
+                      variant='outline'
+                      type='button'
+                      className='gap-2 hover:border-gray-300 hover:bg-gray-200'
+                      onClick={handleDeleteClick}
+                    >
+                      <Trash2 className='size-4' />
+                      Delete
+                    </Button>
+                  </div>
                 </>
               )}
-              <Button className='mt-2 gap-2' type='submit' disabled={disableFields}>
+
+              <Button
+                className='mt-2 gap-2'
+                type='submit'
+                disabled={disableFields || !form.formState.isDirty}
+              >
                 {isSubmitting
                   ? 'Saving...'
                   : isEditPage
@@ -550,9 +604,10 @@ export const EditStudyForm = ({
 }) => {
   const [isEditMode, setIsEditMode] = useState(!hasTestResults)
   const [isDuplicateStudyDialogOpen, setIsDuplicateStudyDialogOpen] = useState(false)
+  const [isDeleteStudyDialogOpen, setIsDeleteStudyDialogOpen] = useState(false)
 
+  const router = useRouter()
   const trpc = useTRPC()
-  const queryClient = useQueryClient()
 
   const { data: project, isLoading: isProjectLoading } = useQuery(
     trpc.projects.getProjectById.queryOptions({ id: initialData.study.projectId })
@@ -610,6 +665,12 @@ export const EditStudyForm = ({
         hasTestResults={hasTestResults}
         study={studyData.study}
         isSubmitting={isUpdateStudyPending}
+        onDeleteClick={() => {
+          setIsDeleteStudyDialogOpen(true)
+        }}
+        onDuplicateClick={() => {
+          setIsDuplicateStudyDialogOpen(true)
+        }}
       />
       <StudyEditModeDialog
         isEditMode={isEditMode}
@@ -620,8 +681,16 @@ export const EditStudyForm = ({
       />
       <DuplicateStudyDialog
         isOpen={isDuplicateStudyDialogOpen}
-        study={initialData.study}
+        study={studyData.study}
         onOpenChange={setIsDuplicateStudyDialogOpen}
+      />
+      <DeleteStudyDialog
+        isOpen={isDeleteStudyDialogOpen}
+        study={studyData.study}
+        onOpenChange={setIsDeleteStudyDialogOpen}
+        onDeleteSuccess={() => {
+          router.push(projectUrl(studyData.study.projectId))
+        }}
       />
     </>
   )
