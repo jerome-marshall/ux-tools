@@ -81,7 +81,7 @@ const StudyCardOptions = ({
           >
             Duplicate
           </DropdownMenuItem>
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={() => {
               // Handle move
             }}
@@ -94,7 +94,7 @@ const StudyCardOptions = ({
             }}
           >
             Archive
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem
             variant='destructive'
             onClick={() => {
