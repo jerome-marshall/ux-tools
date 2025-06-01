@@ -31,7 +31,11 @@ const ResultCards = ({
   isResultOnly?: boolean
 }) => {
   const [isShareResultsDialogOpen, setIsShareResultsDialogOpen] = useState(false)
-  const responsesCount = data.resultsData.flatMap(resultData => resultData.results).length
+
+  let responsesCount = 0
+  data.resultsData.forEach(resultData => {
+    responsesCount = Math.max(responsesCount, resultData.results.length)
+  })
 
   const trpc = useTRPC()
   const { data: studyData, isLoading: isStudyLoading } = useQuery(
