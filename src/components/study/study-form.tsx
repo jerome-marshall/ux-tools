@@ -18,13 +18,7 @@ import { cn, generateId, scrollToSection } from '@/lib/utils'
 import { type Project, type Study } from '@/server/db/schema'
 import { useTRPC } from '@/trpc/client'
 import { getIcon, SECTION_TYPE } from '@/utils/study-utils'
-import {
-  doStudyUrl,
-  previewUrl,
-  projectUrl,
-  studyResultsUrl,
-  studyUrl
-} from '@/utils/urls'
+import { doStudyUrl, PATH, previewUrl, studyResultsUrl, studyUrl } from '@/utils/urls'
 import {
   type StudyWithTestsInsert,
   studyWithTestsInsertSchema
@@ -689,7 +683,7 @@ export const EditStudyForm = ({
         study={studyData.study}
         onOpenChange={setIsDeleteStudyDialogOpen}
         onDeleteSuccess={() => {
-          router.push(projectUrl(studyData.study.projectId))
+          router.push(PATH.dashboard)
         }}
       />
     </>
