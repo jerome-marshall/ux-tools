@@ -224,6 +224,7 @@ const TreeTestPathDiagram = ({
   treeStructure: TreeItem[]
   entireTestResults: EntireTreeTestResult[]
 }) => {
+  console.log('🚀 ~ treeStructure:', { treeStructure, entireTestResults })
   const { nodes, links } = useMemo(() => {
     const baseNodes = getNodes(treeStructure)
     // Add the Start node
@@ -269,8 +270,8 @@ const TreeTestPathDiagram = ({
         colors={{ scheme: 'category10' }}
         nodeOpacity={1}
         nodeHoverOthersOpacity={0.35}
-        nodeThickness={18}
-        nodeSpacing={24}
+        nodeThickness={Math.max(18, Math.min(50, 600 / nodes.length))}
+        nodeSpacing={Math.max(8, Math.min(24, 400 / nodes.length))}
         nodeBorderWidth={0}
         nodeBorderColor={{
           from: 'color',
