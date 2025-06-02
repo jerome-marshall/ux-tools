@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import '../../styles/globals.css'
 import Providers from '@/components/providers'
+import DeviceCheck from '@/components/device-check'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -24,10 +25,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} flex h-screen flex-col items-center bg-slate-100 antialiased`}
       >
-        <Providers>
-          <Header />
-          <div className='size-full'>{children}</div>
-        </Providers>
+        <DeviceCheck>
+          <Providers>
+            <Header />
+            <div className='size-full'>{children}</div>
+          </Providers>
+        </DeviceCheck>
       </body>
     </html>
   )
