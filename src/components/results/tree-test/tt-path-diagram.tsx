@@ -224,7 +224,6 @@ const TreeTestPathDiagram = ({
   treeStructure: TreeItem[]
   entireTestResults: EntireTreeTestResult[]
 }) => {
-  console.log('🚀 ~ treeStructure:', { treeStructure, entireTestResults })
   const { nodes, links } = useMemo(() => {
     const baseNodes = getNodes(treeStructure)
     // Add the Start node
